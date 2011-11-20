@@ -100,9 +100,13 @@ static ssize_t sync_response_generator (void *cls, uint64_t pos, char *buf, size
   ret=snprintf (&buf[ret], max,
 		"{\n  \"curtemp\": %5.1f,\n  \"musttemp\": %5.1f,\n  "
 		"\"rstate\": %d,\n  \"ctrl\": %d,\n  \"mpstate\": %d,\n  "
-		"\"resttime\": %f\n}\n",
+		"\"resttimer\": %f,\n  "
+                "\"resttime\": [ %lu, %lu, %lu ],\n  "
+		"\"resttemp\": [ %.2f, %.2f, %.2f ]\n}\n",
   		pstate.tempCurrent,pstate.tempMust,
-		pstate.relais,pstate.control,pstate.mash,pstate.resttime/60.0);
+		pstate.relais,pstate.control,pstate.mash,pstate.resttime/60.0,
+		cfopts.resttime[0], cfopts.resttime[1], cfopts.resttime[2],
+		cfopts.resttemp[0], cfopts.resttemp[1], cfopts.resttemp[2]);
 
   *gp = -1;
     
