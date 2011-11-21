@@ -101,7 +101,7 @@ static ssize_t sync_response_generator (void *cls, uint64_t pos, char *buf, size
 		"{\n  \"curtemp\": %5.1f,\n  \"musttemp\": %5.1f,\n  "
 		"\"rstate\": %d,\n  \"ctrl\": %d,\n  \"mpstate\": %d,\n  "
 		"\"resttimer\": %f,\n  "
-                "\"resttime\": [ %lu, %lu, %lu ],\n  "
+                "\"resttime\": [ %llu, %llu, %llu ],\n  "
 		"\"resttemp\": [ %.2f, %.2f, %.2f ]\n}\n",
   		pstate.tempCurrent,pstate.tempMust,
 		pstate.relais,pstate.control,pstate.mash,pstate.resttime/60.0,
@@ -372,7 +372,7 @@ static int answer_to_connection (void *cls,
 	    unsigned index;
 	    index=(mpstate-1)/2;
 	    if (cmd->debugP)
-	      fprintf(stderr,"setting timer for rest%d to %ld minutes\n",index+1,cfopts.resttime[index]);
+	      fprintf(stderr,"setting timer for rest%d to %lld minutes\n",index+1,cfopts.resttime[index]);
           }
 	}
 
@@ -473,7 +473,7 @@ void acq_and_ctrl() {
       if (pstate.tempCurrent >= pstate.tempMust) {
 	pstate.starttime=time(NULL);
 	if (cmd->debugP)
-	  fprintf(stderr,"setting timer for rest%d to %ld minutes\n",index+1,cfopts.resttime[index]);
+	  fprintf(stderr,"setting timer for rest%d to %lld minutes\n",index+1,cfopts.resttime[index]);
         pstate.resttime=60*cfopts.resttime[index];
 	pstate.mash++;
       }
