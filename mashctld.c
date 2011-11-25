@@ -61,9 +61,9 @@ struct processstate pstate;
 static void resetMashProcess() {
   pstate.mash=0;
   pstate.control=0;
-  pstate.relais=0;
+  pstate.relay=0;
   pstate.tempMust=cfopts.tempMust;
-  setRelais(0);                   
+  setRelay(0);                   
 }
 
 /* extract extension from filename */
@@ -101,10 +101,10 @@ static ssize_t sync_response_generator (void *cls, uint64_t pos, char *buf, size
 		"{\n  \"curtemp\": %5.1f,\n  \"musttemp\": %5.1f,\n  "
 		"\"rstate\": %d,\n  \"ctrl\": %d,\n  \"mpstate\": %d,\n  "
 		"\"resttimer\": %f,\n  "
-                "\"resttime\": [ %llu, %llu, %llu ],\n  "
+                "\"resttime\": [ %ju, %ju, %ju ],\n  "
 		"\"resttemp\": [ %.2f, %.2f, %.2f ]\n}\n",
   		pstate.tempCurrent,pstate.tempMust,
-		pstate.relais,pstate.control,pstate.mash,pstate.resttime/60.0,
+		pstate.relay,pstate.control,pstate.mash,pstate.resttime/60.0,
 		cfopts.resttime[0], cfopts.resttime[1], cfopts.resttime[2],
 		cfopts.resttemp[0], cfopts.resttemp[1], cfopts.resttemp[2]);
 
@@ -245,9 +245,9 @@ static int answer_to_connection (void *cls,
 		 "<html><body>Error setting control value!</body></html>");
       } else {
 	pstate.control=ctl;
-	// relais need to be off without control
+	// relay need to be off without control
 	if (ctl==0) {
-	  pstate.relais=0;
+	  pstate.relay=0;
 	};
 	if (cmd->debugP)
 	  fprintf(stderr,"setting control to: %d\n",ctl);  
@@ -274,7 +274,7 @@ static int answer_to_connection (void *cls,
 	snprintf(mdata,1024,
 		 "<html><body>Error setting actuator value!</body></html>");
       } else {
-	setRelais(state);
+	setRelay(state);
 	if (cmd->debugP)
 	  fprintf(stderr,"setting actor to: %d\n",state);  
 	snprintf(mdata,1024,
@@ -372,7 +372,7 @@ static int answer_to_connection (void *cls,
 	    unsigned index;
 	    index=(mpstate-1)/2;
 	    if (cmd->debugP)
-	      fprintf(stderr,"setting timer for rest%d to %lld minutes\n",index+1,cfopts.resttime[index]);
+	      fprintf(stderr,"setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
           }
 	}
 
@@ -463,23 +463,29 @@ void acq_and_ctrl() {
     unsigned index;
     
     index=(pstate.mash-1)/2;
-    if (index <3) {
-      pstate.tempMust=cfopts.resttemp[index];  
-    }
+    if (index <3) pstate.tempMust=cfopts.resttemp[index];  
     expired=false;
 
-    if (pstate.mash % 2) {
+    if (pstate.mash % 2) /* power heating until rest is reached */ {
       pstate.resttime=0;
+      // condition to start rest
       if (pstate.tempCurrent >= pstate.tempMust) {
 	pstate.starttime=time(NULL);
+	/* this is a special case here:
+           if resttime is 0 we need to set tempMust to the value of the
+           next rest to prevent the heating relay from flickering */
+        if ((index <2) && (cfopts.resttime[index] == 0)) {
+	  pstate.tempMust=cfopts.resttemp[index+1];
+	}
 	if (cmd->debugP)
-	  fprintf(stderr,"setting timer for rest%d to %lld minutes\n",index+1,cfopts.resttime[index]);
+	  fprintf(stderr,"setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
         pstate.resttime=60*cfopts.resttime[index];
 	pstate.mash++;
       }
-    } else {
+    } else /* rest states */ {
       endtime=pstate.starttime+(60*cfopts.resttime[index]);
       pstate.resttime=endtime-time(NULL);
+      // rest until timer expired
       if (pstate.resttime <= 0) {
 	if (cmd->debugP)
 	  fprintf(stderr,"timer for rest%d expired\n",index+1);
@@ -503,12 +509,12 @@ void acq_and_ctrl() {
 
   if (cmd->debugP) {
     if (pstate.mash) {
-      fprintf(stderr,"temp: must:%5.1f cur:%5.1f (relais:%d, control:%d, mash:%d, timer: %.2f)\n",
-	      pstate.tempMust,pstate.tempCurrent,pstate.relais,pstate.control,
+      fprintf(stderr,"temp: must:%5.1f cur:%5.1f (relay:%d, control:%d, mash:%d, timer: %.2f)\n",
+	      pstate.tempMust,pstate.tempCurrent,pstate.relay,pstate.control,
 	      pstate.mash, pstate.resttime/60.0);
     } else {
-      fprintf(stderr,"temp: must:%5.1f cur:%5.1f (relais:%d, control:%d)\n",
-	      pstate.tempMust,pstate.tempCurrent,pstate.relais,pstate.control);
+      fprintf(stderr,"temp: must:%5.1f cur:%5.1f (relay:%d, control:%d)\n",
+	      pstate.tempMust,pstate.tempCurrent,pstate.relay,pstate.control);
     }
   }
 }
@@ -599,7 +605,7 @@ int main(int argc, char **argv) {
   ioctl(rtcfd, RTC_UIE_ON, 0);
 
   tirq=acqdelay-1;
-  setRelais(0);
+  setRelay(0);
 
   acq_and_ctrl();
   while (1) {

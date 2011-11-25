@@ -97,7 +97,7 @@ bool search4Device(char *id, char *type) {
   }
 }
 
-static void setOWRelais(int state) {
+static void setOWRelay(int state) {
   char cstate[2];
   char buf[255];
   int i;
@@ -127,7 +127,7 @@ static void setOWRelais(int state) {
     fprintf(stderr,"still got a write error after retrying 30 times\n");
     exit(EXIT_FAILURE);
   }
-  pstate.relais=state;
+  pstate.relay=state;
   return;
 }
 
@@ -139,26 +139,26 @@ int doControl() {
     ubarrier=pstate.tempMust;
     lbarrier=pstate.tempMust-(cfopts.hysteresis);
     if (pstate.tempCurrent < lbarrier) {
-      if (pstate.relais==0) {
-	setRelais(1);
+      if (pstate.relay==0) {
+	setRelay(1);
       }
     } 
     if (pstate.tempCurrent >= ubarrier) {
-      if (pstate.relais==1) {
-	setRelais(0);
+      if (pstate.relay==1) {
+	setRelay(0);
       }
     }
   } else {
     ubarrier=pstate.tempMust+(cfopts.hysteresis);
     lbarrier=pstate.tempMust;
     if (pstate.tempCurrent > ubarrier) {
-      if (pstate.relais==0) {
-	setRelais(1);
+      if (pstate.relay==0) {
+	setRelay(1);
       }
     }
     if (pstate.tempCurrent <=  lbarrier) {
-      if (pstate.relais==1) {
-	setRelais(0);
+      if (pstate.relay==1) {
+	setRelay(0);
       }
     }
   }
@@ -202,7 +202,7 @@ float getTemp() {
   return temperature;
 }
 
-void setRelais(int state) {
+void setRelay(int state) {
   if (cfopts.extactuator) {
     if (state) {
       if (cmd->debugP)
@@ -213,8 +213,8 @@ void setRelais(int state) {
 	fprintf(stderr,"running external actuator command: %s\n",cfopts.extactuatoroff);
       system(cfopts.extactuatoroff);
     }
-    pstate.relais=state;
+    pstate.relay=state;
   } else {
-    setOWRelais(state);
+    setOWRelay(state);
   }
 }

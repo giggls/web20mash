@@ -54,7 +54,7 @@ main header file
 
 void printSensorActuatorList();
 int doControl();
-void setRelais(int state);
+void setRelay(int state);
 int loadtemplate(char *filename,char **data);
 float getTemp();
 bool search4Device(char *id, char *type);
@@ -82,7 +82,7 @@ struct processstate {
   float tempMust;
   time_t resttime;
   uint64_t starttime;
-  bool relais;
+  bool relay;
   int mash;
   bool control;
   bool ttrigger;
