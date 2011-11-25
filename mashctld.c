@@ -581,11 +581,11 @@ int main(int argc, char **argv) {
   /* initialize libmagic */
   magic_cookie = magic_open(MAGIC_MIME);
   if (magic_cookie == NULL) {
-    printf("unable to initialize magic library\n");
+    fprintf(stderr,"unable to initialize magic library\n");
     exit(EXIT_FAILURE);
   }
   if (magic_load(magic_cookie, NULL) != 0) {
-    printf("cannot load magic database - %s\n", magic_error(magic_cookie));
+    fprintf(stderr,"cannot load magic database - %s\n", magic_error(magic_cookie));
     magic_close(magic_cookie);
     exit(EXIT_FAILURE);
   }
@@ -593,8 +593,10 @@ int main(int argc, char **argv) {
   d = MHD_start_daemon(MHD_NO_FLAG,
 		       cfopts.port,
 		       NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
-  if (d == NULL)
-    return 1;
+  if (d == NULL) {
+    fprintf(stderr,"error starting http server\n");
+    exit(EXIT_FAILURE);
+  }
 
   rtcfd = open(cfopts.rtcdev, O_RDONLY);
   if (rtcfd ==  -1) {
