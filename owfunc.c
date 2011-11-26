@@ -112,21 +112,17 @@ static void setOWRelay(int state) {
   sprintf(buf,"/%s/PIO.A",cfopts.actuator);
   for (i=0;i<60;i++) {
     if (-1==OW_put(buf,cstate,strlen(buf))) {
-      fprintf(stderr,"owfs WRITE error, retrying in 1 seconds\n");
+      errorlog("owfs WRITE error, retrying in 1 seconds\n");
       OW_finish();
       sleep(2);
-      if(OW_init(cfopts.owparms) !=0) {
-	fprintf(stderr,"Error connecting owserver on %s\n",cfopts.owparms);
-	exit(EXIT_FAILURE);
-      }
+      if(OW_init(cfopts.owparms) !=0)
+	die("Error connecting owserver on %s\n",cfopts.owparms);
     } else {
       break;
     }
   }
-  if (i==60) {
-    fprintf(stderr,"still got a write error after retrying 30 times\n");
-    exit(EXIT_FAILURE);
-  }
+  if (i==60)
+    die("still got a write error after retrying 30 times\n");
   pstate.relay=state;
   return;
 }
@@ -179,23 +175,19 @@ float getTemp() {
   sprintf(buf,"/uncached/%s/temperature",cfopts.sensor);
   for (i=0;i<60;i++) {
     if (-1==OW_get(buf,&s,&slen)) {
-      fprintf(stderr,"owfs READ error, retrying in 1 second\n");
+      errorlog("owfs READ error, retrying in 1 second\n");
       free(s);
       OW_finish();
       sleep(3);
-      if(OW_init(cfopts.owparms) !=0) {
-	fprintf(stderr,"Error connecting owserver on %s\n",cfopts.owparms);
-	exit(EXIT_FAILURE);
-      }
+      if(OW_init(cfopts.owparms) !=0)
+	die("Error connecting owserver on %s\n",cfopts.owparms);
       sleep(1);
     } else {
       break;
     }
   }
-  if (i==60) {
-    fprintf(stderr,"still got a read error after retrying 30 times\n");
-    exit(EXIT_FAILURE);
-  }
+  if (i==60)
+    die("still got a read error after retrying 30 times\n");
 
   sscanf(s,"%f",&temperature);
   free(s);
@@ -206,11 +198,11 @@ void setRelay(int state) {
   if (cfopts.extactuator) {
     if (state) {
       if (cmd->debugP)
-	fprintf(stderr,"running external actuator command: %s\n",cfopts.extactuatoron);
+	debug("running external actuator command: %s\n",cfopts.extactuatoron);
       system(cfopts.extactuatoron);
     } else {
       if (cmd->debugP)
-	fprintf(stderr,"running external actuator command: %s\n",cfopts.extactuatoroff);
+	debug("running external actuator command: %s\n",cfopts.extactuatoroff);
       system(cfopts.extactuatoroff);
     }
     pstate.relay=state;

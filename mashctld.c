@@ -48,6 +48,8 @@ state   function
 magic_t magic_cookie;
 
 static int acgen;
+static bool terminate=false;
+static bool isdaemon=false;
 
 /* clig command line Parameters*/  
 Cmdline *cmd;
@@ -64,6 +66,61 @@ static void resetMashProcess() {
   pstate.relay=0;
   pstate.tempMust=cfopts.tempMust;
   setRelay(0);                   
+}
+
+void debug(char* fmt, ...) {
+  va_list ap;
+  
+  va_start(ap, fmt);
+  if (isdaemon)
+    vsyslog(LOG_DEBUG, fmt, ap);
+  else
+    vfprintf(stderr,fmt, ap);
+  va_end(ap);
+}
+
+void die(char* fmt, ...) {
+  va_list ap;
+  
+  va_start(ap, fmt);
+  if (isdaemon)
+    vsyslog(LOG_ERR, fmt, ap);
+  else
+    vfprintf(stderr,fmt, ap);
+  va_end(ap);
+  exit(EXIT_FAILURE);
+}
+
+void errorlog(char* fmt, ...) {
+  va_list ap;
+    
+  va_start(ap, fmt);
+   if (isdaemon)
+   vsyslog(LOG_ERR, fmt, ap);
+   else
+   vfprintf(stderr,fmt, ap);
+   va_end(ap);
+}
+
+void signalHandler() {
+  fflush(stdout);
+  terminate=true;
+}
+
+void daemonize() {
+  if (fork()!=0) exit(0);
+  setsid();
+  if (fork()!=0) exit(0);
+  umask(0);
+  close(0);
+  close(1);
+  close(2);
+  /*STDIN*/
+  open("/dev/null",O_RDONLY);
+  /*STDOUT*/
+  open("/dev/null",O_WRONLY);
+  /*STDERR*/
+  open("/dev/null",O_WRONLY);
 }
 
 /* extract extension from filename */
@@ -182,7 +239,7 @@ static int answer_to_connection (void *cls,
     }
   }
   if (cmd->debugP)
-    fprintf(stderr,"requested URL: %s\n",url);
+    debug("requested URL: %s\n",url);
 
   /* getstate is synchroniced to data acquisition */
   if (getstate) {
@@ -209,7 +266,7 @@ static int answer_to_connection (void *cls,
       float must;
       if (1 != sscanf(url,"/setmust/%f",&must)) {
 	if (cmd->debugP)
-	  fprintf(stderr,"error setting must temperature\n");
+	  debug("error setting must temperature\n");
 	snprintf(mdata,1024,
 		 "<html><body>Error setting must value!</body></html>");
       } else {
@@ -217,7 +274,7 @@ static int answer_to_connection (void *cls,
 	if (must<MINTEMP) must=MINTEMP;
 	pstate.tempMust=must;
 	if (cmd->debugP)
-	  fprintf(stderr,"setting must temperature to: %f\n",must);  
+	  debug("setting must temperature to: %f\n",must);  
 	//doControl();            
 	snprintf(mdata,1024,
 		 "<html><body>OK setting must value to %f</body></html>",must);
@@ -240,7 +297,7 @@ static int answer_to_connection (void *cls,
       int ctl;
       if ((1 != sscanf(url,"/setctl/%d",&ctl)) || (pstate.mash!=0)) {
 	if (cmd->debugP)
-	  fprintf(stderr,"error setting control\n");
+	  debug("error setting control\n");
 	snprintf(mdata,1024,
 		 "<html><body>Error setting control value!</body></html>");
       } else {
@@ -250,7 +307,7 @@ static int answer_to_connection (void *cls,
 	  pstate.relay=0;
 	};
 	if (cmd->debugP)
-	  fprintf(stderr,"setting control to: %d\n",ctl);  
+	  debug("setting control to: %d\n",ctl);  
 	snprintf(mdata,1024,
 		 "<html><body>OK setting control to %d</body></html>",ctl);
       }
@@ -270,13 +327,13 @@ static int answer_to_connection (void *cls,
       int state;
       if ((1 != sscanf(url,"/setactuator/%d",&state)) || (pstate.control!=0)) {
 	if (cmd->debugP)
-	  fprintf(stderr,"error setting actuator value\n");
+	  debug("error setting actuator value\n");
 	snprintf(mdata,1024,
 		 "<html><body>Error setting actuator value!</body></html>");
       } else {
 	setRelay(state);
 	if (cmd->debugP)
-	  fprintf(stderr,"setting actor to: %d\n",state);  
+	  debug("setting actor to: %d\n",state);  
 	snprintf(mdata,1024,
 		 "<html><body>OK setting actor to %d</body></html>",state);
       }
@@ -309,7 +366,7 @@ static int answer_to_connection (void *cls,
       }
       if (!valid) {
 	if (cmd->debugP)
-	  fprintf(stderr,"error setting resttime/resttemp value\n");
+	  debug("error setting resttime/resttemp value\n");
 	snprintf(mdata,1024,
 		 "<html><body>Error setting rest value, should be /setrest/&lt;time or temp&gt;/&lt;no&gt;/&lt;val&gt;</body></html>");
       } else {
@@ -318,14 +375,14 @@ static int answer_to_connection (void *cls,
         // now we have to set resttime or resttemp
         if (0==strcmp("time",rtype)) {
           if (cmd->debugP)
-            fprintf(stderr,"setting rest time %d to %u\n",restno,(unsigned) val);
+            debug("setting rest time %d to %u\n",restno,(unsigned) val);
           cfopts.resttime[restno-1]=(unsigned) val;
           ini_putl("mash-process", key, cfopts.resttime[restno-1], cfgfp);
           snprintf(mdata,1024,
 		   "<html><body>OK setting rest time %d to %u</body></html>",restno,(unsigned) val);
         } else {
           if (cmd->debugP)
-            fprintf(stderr,"setting rest temperature %d to %f\n",restno,val);
+            debug("setting rest temperature %d to %f\n",restno,val);
           cfopts.resttemp[restno-1]=val;
           ini_putf("mash-process", key, cfopts.resttemp[restno-1], cfgfp);
           snprintf(mdata,1024,
@@ -351,12 +408,12 @@ static int answer_to_connection (void *cls,
 
       if ((1 != res) || (mpstate >7) || (mpstate <0)) {
 	if (cmd->debugP)
-	  fprintf(stderr,"error setting mash process state to %d\n",mpstate);
+	  debug("error setting mash process state to %d\n",mpstate);
 	snprintf(mdata,1024,
 		 "<html><body>Error setting mash process state to %d!</body></html>",mpstate);
       } else {
 	if (cmd->debugP)
-	  fprintf(stderr,"setting mash process state to: %d\n",mpstate);  
+	  debug("setting mash process state to: %d\n",mpstate);  
 
 	pstate.mash=mpstate;
 	// if mash process is set to 0 control needs to be turned of as well
@@ -372,7 +429,7 @@ static int answer_to_connection (void *cls,
 	    unsigned index;
 	    index=(mpstate-1)/2;
 	    if (cmd->debugP)
-	      fprintf(stderr,"setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
+	      debug("setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
           }
 	}
 
@@ -399,7 +456,7 @@ static int answer_to_connection (void *cls,
       relative_url=url+i; 
     }
     if (cmd->debugP)
-      fprintf(stderr,"trying to open file: %s\n",relative_url);
+      debug("trying to open file: %s\n",relative_url);
     if ((0 == stat(relative_url, &buf)) && (S_ISREG (buf.st_mode)) )
       file = fopen(relative_url, "rb");
     else
@@ -427,18 +484,18 @@ static int answer_to_connection (void *cls,
       /* mime types we know better than libmagic are for .js and .css */
       if (strncmp(getExt(relative_url),".js",3)==0) {
 	if (cmd->debugP)
-	  fprintf(stderr,"setting mime type to %s\n", "text/javascript");
+	  debug("setting mime type to %s\n", "text/javascript");
 	MHD_add_response_header(response,"Content-Type", "text/javascript");
       } else {
 	if (strncmp(getExt(relative_url),".css",4)==0) {
 	  if (cmd->debugP)
-	    fprintf(stderr,"setting mime type to %s\n", "text/css");
+	    debug("setting mime type to %s\n", "text/css");
 	  MHD_add_response_header(response,"Content-Type", "text/css");
 	} else {
 	  /* use libmagic for the rest */
 	  magic_full = magic_file(magic_cookie, relative_url);
 	  if (cmd->debugP)
-	    fprintf(stderr,"setting mime type to %s\n", magic_full);
+	    debug("setting mime type to %s\n", magic_full);
 	  MHD_add_response_header(response,"Content-Type", magic_full);
 	}
       }
@@ -472,13 +529,14 @@ void acq_and_ctrl() {
       if (pstate.tempCurrent >= pstate.tempMust) {
 	pstate.starttime=time(NULL);
 	/* this is a special case here:
-           if resttime is 0 we need to set tempMust to the value of the
-           next rest to prevent the heating relay from flickering */
-        if ((index <2) && (cfopts.resttime[index] == 0)) {
+        if resttime is 0 we need to set tempMust to the value of the
+	next rest to skip the rest and prevent the heating relay from
+	flickering */
+	if ((index <2) && (cfopts.resttime[index] == 0)) {
 	  pstate.tempMust=cfopts.resttemp[index+1];
 	}
 	if (cmd->debugP)
-	  fprintf(stderr,"setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
+	  debug("setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
         pstate.resttime=60*cfopts.resttime[index];
 	pstate.mash++;
       }
@@ -488,7 +546,11 @@ void acq_and_ctrl() {
       // rest until timer expired
       if (pstate.resttime <= 0) {
 	if (cmd->debugP)
-	  fprintf(stderr,"timer for rest%d expired\n",index+1);
+	  debug("timer for rest%d expired\n",index+1);
+        // set must temperature to the next value
+        if ((index <2)) {
+          pstate.tempMust=cfopts.resttemp[index+1];
+        }
 	pstate.resttime=0;
 	pstate.mash++;
       }
@@ -509,11 +571,11 @@ void acq_and_ctrl() {
 
   if (cmd->debugP) {
     if (pstate.mash) {
-      fprintf(stderr,"temp: must:%5.1f cur:%5.1f (relay:%d, control:%d, mash:%d, timer: %.2f)\n",
+      debug("temp: must:%5.1f cur:%5.1f (relay:%d, control:%d, mash:%d, timer: %.2f)\n",
 	      pstate.tempMust,pstate.tempCurrent,pstate.relay,pstate.control,
 	      pstate.mash, pstate.resttime/60.0);
     } else {
-      fprintf(stderr,"temp: must:%5.1f cur:%5.1f (relay:%d, control:%d)\n",
+      debug("temp: must:%5.1f cur:%5.1f (relay:%d, control:%d)\n",
 	      pstate.tempMust,pstate.tempCurrent,pstate.relay,pstate.control);
     }
   }
@@ -548,10 +610,8 @@ int main(int argc, char **argv) {
   pstate.resttime=0;
   pstate.ttrigger=0;
 
-  if(OW_init(cfopts.owparms) !=0) {
-    fprintf(stderr,"Error connecting owserver on %s\n",cfopts.owparms);
-    exit(EXIT_FAILURE);
-  }
+  if(OW_init(cfopts.owparms) !=0)
+    die("Error connecting owserver on %s\n",cfopts.owparms);
   
   if (cmd->listP) {
     printSensorActuatorList();
@@ -560,57 +620,59 @@ int main(int argc, char **argv) {
   }
   
   /* check if requested sensor is available on the bus */
-  if (false==search4Device(cfopts.sensor,"DS18S20")) {
-    fprintf(stderr,"%s is unavailable or not a DS18S20 sensor\n",cfopts.sensor);
-    exit(EXIT_FAILURE);
-  }
+  if (false==search4Device(cfopts.sensor,"DS18S20"))
+    die("%s is unavailable or not a DS18S20 sensor\n",cfopts.sensor);
 
   if (cfopts.extactuator==false) {
     /* check if requested 1-wire actuator is available on the bus */
-    if (false==search4Device(cfopts.actuator,"DS2406")) {
-      fprintf(stderr,"%s is unavailable or not a DS2406 actuator\n",cfopts.actuator);
-      exit(EXIT_FAILURE);
-    }
+    if (false==search4Device(cfopts.actuator,"DS2406"))
+      die("%s is unavailable or not a DS2406 actuator\n",cfopts.actuator);
   }
   
-  if (-1==chdir(cfopts.webroot)) {
-    fprintf(stderr,"Unable to chdir to >%s<\n",cfopts.webroot);
-    exit(EXIT_FAILURE);
-  }
+  if (-1==chdir(cfopts.webroot))
+    die("Unable to chdir to >%s<\n",cfopts.webroot);
  
   /* initialize libmagic */
   magic_cookie = magic_open(MAGIC_MIME);
-  if (magic_cookie == NULL) {
-    fprintf(stderr,"unable to initialize magic library\n");
-    exit(EXIT_FAILURE);
-  }
+  if (magic_cookie == NULL)
+    die("unable to initialize magic library\n");
+
   if (magic_load(magic_cookie, NULL) != 0) {
-    fprintf(stderr,"cannot load magic database - %s\n", magic_error(magic_cookie));
     magic_close(magic_cookie);
-    exit(EXIT_FAILURE);
+    die("cannot load magic database - %s\n", magic_error(magic_cookie));
   }
 
   d = MHD_start_daemon(MHD_NO_FLAG,
 		       cfopts.port,
 		       NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
-  if (d == NULL) {
-    fprintf(stderr,"error starting http server\n");
-    exit(EXIT_FAILURE);
-  }
+  if (d == NULL)
+   die("error starting http server\n");
 
   rtcfd = open(cfopts.rtcdev, O_RDONLY);
-  if (rtcfd ==  -1) {
-    fprintf(stderr,"error opening %s\n",cfopts.rtcdev);
-    exit(EXIT_FAILURE);
-  }
+  if (rtcfd ==  -1)
+    die("error opening %s\n",cfopts.rtcdev);
+
   /* Turn on update interrupts (one per second) */
   ioctl(rtcfd, RTC_UIE_ON, 0);
 
   tirq=acqdelay-1;
   setRelay(0);
 
+  signal(SIGINT,signalHandler);
+  signal(SIGTERM,signalHandler);
+  
+  if (cmd->daemonP) {
+    isdaemon=true;
+    openlog(Program,LOG_PID,LOG_DAEMON);
+    daemonize();
+  }
   acq_and_ctrl();
+  
   while (1) {
+    if (terminate) {
+      setRelay(0);
+      break;
+    }
     max = 0;
     FD_ZERO (&rs);
     FD_ZERO (&ws);

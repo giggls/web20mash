@@ -25,6 +25,7 @@ main header file
 
 */
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -43,6 +44,8 @@ main header file
 #include <time.h>
 #include <limits.h>
 #include <magic.h>
+#include <signal.h>
+#include <syslog.h>
 #include "minIni.h"
 #include "cmdline.h"
 
@@ -59,6 +62,9 @@ int loadtemplate(char *filename,char **data);
 float getTemp();
 bool search4Device(char *id, char *type);
 void readconfig(char *configfile);
+void errorlog(char* fmt, ...);
+void die(char* fmt, ...);
+void debug(char* fmt, ...);
 
 struct configopts {
   uint16_t port;
