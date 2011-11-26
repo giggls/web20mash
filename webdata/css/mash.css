@@ -1,8 +1,6 @@
 /* 
 
-CSS für fangobräu.de
-
-Des CSS erster Akt
+CSS for Web 2.0 Mash
 
 */
 
@@ -10,129 +8,34 @@ body
 {
 background-color:#FFCC66;
 background-image:url(../images/elehigru.gif);
-margin:0px;
 color:black;
+margin: 0;
 font-size: 10pt;
 }
 
-a 
-{ 
-color: green; 
-font-weight: bolder; 
-font-size: 12pt;
-font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular; 
-text-decoration: none 
-}
-
-
-a:hover
-{ 
-color:green; 
-font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular; 
-text-decoration: none 
-}
-
-
-h1
-{ 
-text-align: center;
-font-weight: bold;
-padding-top:5px;
-color: black; 
-font-weight: normal;
-font-size: 20pt; 
-font-family: Arial, Helvetica;
-text-decoration: none
-} 
-  
-  
-h2
-{ 
-padding-top:5px;
-color:black;
-font-weight: bold;
-font-size: 13pt;
-font-family: Arial, Helvetica;
-text-decoration: none 
-}
-
-
-h7 
-{ 
-color:black;
-line-height: 1px 
-}
-
-
-p 
-{ 
-padding-top: 0px;
-color:black;
-font-size: 12pt;
-font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular;
-text-decoration: none 
-}
-
-
-table
-{
-//width:100%;
-border:5px;
-border-spacing:0;
-}
-
-li
-{
-color:black;
-font-size: 12pt;
-font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular;
-text-decoration: none;
-}
-
-{
-font-family: Arial, Helvetica, Geneva, Swiss, SunSans-Regular;
-font-size:12pt;
-background:white;
-color:black;
-}
-
-
-img
-{
-border-style:none;
-}
-
-/* center canvas */
-canvas {
-   position:absolute;
-   top:65px;
-   left:35px;
-   //background-color:white;
-}
-
-#controls {
-    position:absolute;
-    top:85px;
-    left:55px;
-    font-size: 10pt;
-    //background-color:#F6E8BB;
-    background-color:#FFCC66;
-    width:130px;
-    height:230px;
-    z-index:1;
+#ControlCanvas {
+  position:relative;
+  border: solid 3px;
 }
 
 #pstate {
-    position:absolute;
-    top:120px;
-    left:330px;
-    font-size: 10pt;
-    //background-color:#F6E8BB;
-    //background-color:#FFCC66;
-    width:350px;
-    height:200px;
-    z-index:1;
+  position:relative;
+  top: -390px;
+  left: 305px;
+  width: 350px;
 }
 
-input, select, textarea { font-size: 10pt; }
-.button { font-size: 10pt;}
+#pandc {
+  margin-left:auto;
+  margin-right:auto;
+  width: 620px;
+}
+
+h1 { 
+  text-align: center;
+}
+
+table {
+  border: 5px none;
+  border-spacing: 0;
+}

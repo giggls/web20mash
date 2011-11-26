@@ -99,13 +99,13 @@
     
     img_pfanne.onload = function() {
       jc.start(mashCanvas);
-      jc.image(img_pfanne,30,20);
+      jc.image(img_pfanne,40,20);
       
-      thermo=new thermometerwidget(mashCanvas,185,50,img_therm);
-      jc_peng_img=jc.image(img_peng,50,290);
-      jc_heat_img=jc.image(img_heat_off,320,350);
+      thermo=new thermometerwidget(mashCanvas,195,50,img_therm);
+      jc_peng_img=jc.image(img_peng,60,290);
+      jc_heat_img=jc.image(img_heat_off,330,350);
     
-      timer=new timerwidget(mashCanvas,0,50,0);
+      timer=new timerwidget(mashCanvas,10,50,0);
       jc.start(mashCanvas);
     }
   }
@@ -194,29 +194,30 @@
   </head>
 
   <body>
+    <div id="pandc">
     <h1>Webmash Brausteuerung</h1>
-      <canvas id="ControlCanvas" width="700" height="500">
-      Your browser does not support the canvas element.
-      </canvas>
-    <div id="pstate">
-      <table>
-        <tr id="state1"><td><input type="radio" name="mashstate" value="1" checked>
-	      <td>aufheizen bis Eiweißrast
-        <tr id="state2"><td><input type="radio" name="mashstate" value="2">
-	      <td>Eiweißrast
-        <tr id="state3"><td><input type="radio" name="mashstate" value="3">
-	      <td>aufheizen bis 1. Verzuckerungsrast/Maltoserast
-        <tr id="state4"><td><input type="radio" name="mashstate" value="4">
-	      <td>1. Verzuckerungsrast/Maltoserast
-        <tr id="state5"><td><input type="radio" name="mashstate" value="5">
-	      <td>aufheizen bis 2. Verzuckerungsrast
-        <tr id="state6"><td><input type="radio" name="mashstate" value="6">
-	      <td>2. Verzuckerungsrast
-      </table>
-      <br />
-      <button id='start' type='button'>Prozess starten</button>
-      <button id='stop' type='button'>Prozess abbrechen</button>
+      <canvas id="ControlCanvas" width="620" height="450">
+            Your browser does not support the canvas element.   
+      </canvas>                       
+      <div id="pstate">
+        <table>
+          <tr id="state1"><td><input type="radio" name="mashstate" value="1" checked>
+	        <td>aufheizen bis Eiweißrast
+          <tr id="state2"><td><input type="radio" name="mashstate" value="2">
+	        <td>Eiweißrast
+          <tr id="state3"><td><input type="radio" name="mashstate" value="3">
+	        <td>aufheizen bis 1. Verzuckerungsrast/Maltoserast
+          <tr id="state4"><td><input type="radio" name="mashstate" value="4">
+	        <td>1. Verzuckerungsrast/Maltoserast
+          <tr id="state5"><td><input type="radio" name="mashstate" value="5">
+	        <td>aufheizen bis 2. Verzuckerungsrast
+          <tr id="state6"><td><input type="radio" name="mashstate" value="6">
+	        <td>2. Verzuckerungsrast
+        </table>
+        <br />
+        <button id='start' type='button'>Prozess starten</button>
+        <button id='stop' type='button'>Prozess abbrechen</button>
+      </div>
     </div>
-    </p>
   </body>
 </html>
