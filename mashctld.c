@@ -193,7 +193,7 @@ static int answer_to_connection (void *cls,
   const char *magic_full;
 
   // available request types
-  bool setctl,setmust,getstate,getfile,setmpstate,setrest,setactuator;
+  bool setctl,setmust,getstate,getfile,setmpstate,setrest,setactuator,setall;
 
   // ignore explicitely unused parameters
   // eliminate compiler warnings
@@ -209,6 +209,7 @@ static int answer_to_connection (void *cls,
   setmpstate=0;
   setrest=0;
   setactuator=0;
+  setall=0;
 
   if (0 != strcmp (method, MHD_HTTP_METHOD_GET))
     return MHD_NO;              /* unexpected method */
@@ -234,6 +235,8 @@ static int answer_to_connection (void *cls,
       setrest=1;
     } else if (0 == strncmp(url, "/setactuator/",13)) {
       setactuator=1;
+    } else if (0 == strncmp(url, "/setall/",8)) {
+      setall=1;
     } else {
       getfile=1;
     }
@@ -272,10 +275,14 @@ static int answer_to_connection (void *cls,
       } else {
 	if (must>MAXTEMP) must=MAXTEMP;
 	if (must<MINTEMP) must=MINTEMP;
-	pstate.tempMust=must;
+	if (pstate.tempMust!=must) {
+	  if (cmd->debugP)
+	    debug("updating inifile must temperature: %f\n",must);
+          ini_putf("control","tempMust", must, cfgfp);
+        }
+        pstate.tempMust=must;
 	if (cmd->debugP)
 	  debug("setting must temperature to: %f\n",must);  
-	//doControl();            
 	snprintf(mdata,1024,
 		 "<html><body>OK setting must value to %f</body></html>",must);
       }
@@ -348,6 +355,8 @@ static int answer_to_connection (void *cls,
       return ret;
     }
 
+    // set rest temperature or rest time
+    // Syntax: /setrest/<temp>or<time>/<nr>/<value>
     if (setrest) { 
       float val;
       int restno;
@@ -370,20 +379,27 @@ static int answer_to_connection (void *cls,
 	snprintf(mdata,1024,
 		 "<html><body>Error setting rest value, should be /setrest/&lt;time or temp&gt;/&lt;no&gt;/&lt;val&gt;</body></html>");
       } else {
-        char key[8];
+        char key[10];
         sprintf(key,"rest%s%d",rtype,restno);
         // now we have to set resttime or resttemp
         if (0==strcmp("time",rtype)) {
           if (cmd->debugP)
             debug("setting rest time %d to %u\n",restno,(unsigned) val);
+          if (val>MAXTIME) val=MAXTIME;
           cfopts.resttime[restno-1]=(unsigned) val;
+          if (cmd->debugP)
+            debug("updateing ini-file %s with value %u\n",key,cfopts.resttime[restno-1]);
           ini_putl("mash-process", key, cfopts.resttime[restno-1], cfgfp);
           snprintf(mdata,1024,
 		   "<html><body>OK setting rest time %d to %u</body></html>",restno,(unsigned) val);
         } else {
           if (cmd->debugP)
             debug("setting rest temperature %d to %f\n",restno,val);
+          if (val>MAXTEMP) val=MAXTEMP;
+          if (val<MINTEMP) val=MINTEMP;
           cfopts.resttemp[restno-1]=val;
+          if (cmd->debugP)
+            debug("updateing ini-file %s with value %f\n",key,cfopts.resttime[restno-1]);
           ini_putf("mash-process", key, cfopts.resttemp[restno-1], cfgfp);
           snprintf(mdata,1024,
 		   "<html><body>OK setting rest temperature %d to %f</body></html>",restno,val);
@@ -399,6 +415,75 @@ static int answer_to_connection (void *cls,
       ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
       return ret;
     }
+
+    // set al values at once: musttemp, resttime(1-3) and resttemp(1-3=
+    // Syntax: /setall/<must>/<time1>/<temp1>/<time2>/<temp2>/<time3>/<temp3>
+    if (setall) { 
+      float vtemp[3];
+      unsigned vtime[3];
+      float must;
+      int ret;
+      bool valid;
+      
+      valid=true;
+      
+      if (pstate.mash!=0) valid=false;
+      if (7 != sscanf(url,"/setall/%f/%u/%f/%u/%f/%u/%f",
+        &must,&vtime[0],&vtemp[0],&vtime[1],&vtemp[1],&vtime[2],&vtemp[2])) {
+        valid=false;
+      }
+      if (!valid) {
+	if (cmd->debugP)
+	  debug("error setting all rest and control values values\n");
+	snprintf(mdata,1024,
+		 "<html><body>Error setting all rest and control values<br />"
+		 "Syntax: /setall/&lt;must&gt;/&lt;time1&gt;/&lt;temp1&gt;/&lt;time2&gt;/&lt;temp2&gt;/&lt;time3&gt;/&lt;temp3&gt;"
+		 "</body></html>");
+      } else {
+        int i;
+        char key[10];
+        // now we have to adjust all requested settings
+        // just rest values are written to inifile here
+        if (must>MAXTEMP) must=MAXTEMP;
+        if (must<MINTEMP) must=MINTEMP;
+        pstate.tempMust=must;
+
+        for (i=0;i<3;i++) {
+          sprintf(key,"resttime%d",i+1);
+          if (vtime[i]>MAXTIME) vtime[i]=MAXTIME;
+          if (cfopts.resttime[i]!=vtime[i]) {
+            if (cmd->debugP)
+              debug("updateing ini-file %s with value %u\n",key,vtime[i]);
+            ini_putl("mash-process", key, vtime[i],cfgfp);
+          }
+          cfopts.resttime[i]=vtime[i];
+          sprintf(key,"resttemp%d",i+1);
+          if (vtemp[i]>MAXTEMP) vtemp[i]=MAXTEMP;
+          if (vtemp[i]<MINTEMP) vtemp[i]=MINTEMP;
+          if (cfopts.resttemp[i]!=vtemp[i]) {
+            if (cmd->debugP)
+              debug("updateing ini-file %s with value %f\n",key,vtemp[i]);
+            ini_putf("mash-process", key, vtemp[i],cfgfp);
+          }
+          cfopts.resttemp[i]=vtemp[i];          
+        }            
+          snprintf(mdata,1024,
+		   "<html><body>OK setting all rest and control values</body></html>");
+        if (cmd->debugP)
+          debug("OK calling /setall/%f/%u/%f/%u/%f/%u/%f\n",must,vtime[0],vtemp[0],vtime[1],vtemp[1],vtime[2],vtemp[2]);
+      }
+      response = MHD_create_response_from_data(strlen(mdata),
+					       (void*) mdata,
+					       MHD_NO,
+					       MHD_NO);
+      MHD_add_response_header(response,
+			      "Content-Type", "text/html; charset=UTF-8");
+      
+      ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+      return ret;
+    }
+
+    
 
     if (setmpstate) {
 

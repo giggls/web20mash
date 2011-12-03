@@ -53,6 +53,7 @@ main header file
 
 #define MINTEMP -55
 #define MAXTEMP 125
+#define MAXTIME 180
 #define UNUSED(expr) do { (void)(expr); } while (0)
 
 void printSensorActuatorList();

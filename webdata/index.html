@@ -3,202 +3,26 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
   <head>
     <title>Webmash Brausteuerung</title>
-    <link rel="stylesheet" href="css/mash.css" type="text/css" />    
-<script type="text/javascript" src="js/jCanvaScript.1.5.10.min.js"></script>
-<script type="text/javascript" src="js/jquery-1.7.min.js"></script>
-<script type="text/javascript" src="js/jcsector.js"></script>
-<script type="text/javascript" src="js/ctimer.js"></script>
-<script type="text/javascript">
-  var mashCanvas='ControlCanvas';
-  var jc_heat_img;
-  var jc_peng_img;
-  var timer;
-  var img_pfanne=new Image();
-  var img_therm=new Image();  
-  var img_heat_on=new Image();
-  var img_heat_off=new Image();
-  var img_peng=new Image();
-  var img_peng_sleep=new Image();
-  var thermo;
-  var mpstate=42;
-              
-  function AjaxError(action) {
-    $("body").css('background-image', 'none');
-    $("body").css('background-color', '#FF0000');
-    alert("Kommunikationsfehler in Funktion: "+action);
-  }
- 
-  // looks like $(document).ready(function() does strange things
-  window.onload = function () {
-    drawcanvas();
-    $.getJSON('/getstate',parse_getstate_Response);
-    $('#start').click(function() {
-      url='/setmpstate/' + $("input[name='mashstate']:checked").val();
-      console.log("starting mash process: "+url);
-      $.get(url, cbstart);
-    });
-    $('#stop').click(function() {
-      if ((mpstate > 0) && (mpstate < 7)) {
-        url='/setmpstate/0';
-        $.get(url, cbstop);
-      }
-    });
-   };
-
-  function thermometerwidget(canvas,x,y,image) {
-    // jc.rect(x,y,90,320,"#00ff00",1);
-    // thermometer background needs to be 22x201
-    jc.rect(x+34,y+18,22,201,'#ffffff',1);
-    // green
-    state1=jc.rect(x+34,y+168,22,0,'#77ff77',1);
-    // yellow
-    state3=jc.rect(x+34,y+118,22,0,'#ffff77',1);
-    // orange
-    state5=jc.rect(x+34,y+68,22,0,'#FFaa55',1);
-    // red
-    state7=jc.rect(x+34,y+18,22,0,'#ff7777',1);
-    jc.image(image,x+20,y+5);
-    templabel=jc.text("--.- °C",x+45,y+300);
-    templabel.font('bold 25px Arial');
-    templabel.align('center');
-    mustlabel=jc.text("(--.- °C)",x+45,y+320);
-    mustlabel.font('bold 15px Arial');
-    mustlabel.align('center');
-
-    tscale=jc.rect(x+39,y+218,12,1,'#8e0000',1);
-    this.setresttemp = function(t1,t2,t3) {
-      state1.attr({y: ((y+218)-2*t1),height: (1+2*t1)});
-      state3.attr({y: ((y+218)-2*t2),height: (2*(t2-t1))});
-      state5.attr({y: ((y+218)-2*t3),height: (2*(t3-t2))});
-      state7.attr({y: ((y+218)-200),height: (2*(100-t3))});
-      jc.start(canvas);
-    }
-    this.clrresttemp = function() {
-      state1.attr({height: 0});
-      state3.attr({height: 0});
-      state5.attr({height: 0});
-      state7.attr({height: 0});
-      jc.start(canvas);
-    }
-    this.setvalue = function(temp,must) {
-       tscale.attr({y: ((y+218)-2*temp),height: (1+2*temp)});
-       templabel.string(temp.toFixed(1)+'°C');
-       mustlabel.string('('+must.toFixed(1)+'°C)');
-       jc.start(canvas);
-    }
-  }
-  
-  function drawcanvas() {
-    img_peng.src="images/tux-brew.png";
-    img_therm.src="images/thermometer.png";
-    img_peng.src="images/tux-brew.png";
-    img_peng_sleep.src="images/tux-brew-sleep.png";
-    img_heat_on.src="images/heating-on.png";
-    img_heat_off.src="images/heating-off.png";
-    img_pfanne.src="images/sudpfanne.png";
-    
-    img_pfanne.onload = function() {
-      jc.start(mashCanvas);
-      jc.image(img_pfanne,40,20);
-      
-      thermo=new thermometerwidget(mashCanvas,195,50,img_therm);
-      jc_peng_img=jc.image(img_peng,60,290);
-      jc_heat_img=jc.image(img_heat_off,330,350);
-    
-      timer=new timerwidget(mashCanvas,10,50,0);
-      jc.start(mashCanvas);
-    }
-  }
-
-  function ptwinkle() {
-    //console.log("ptwinkle");
-    jc_peng_img.attr('img', img_peng);
-    jc.start(mashCanvas);
-  }
-
-  function parse_getstate_Response(data) {
-    if (!data) {
-      AjaxError('parse_getstate_Response');
-    }
-    thermo.setvalue(data.curtemp,data.musttemp);
-    if (data.rstate) {
-      jc_heat_img.attr('img', img_heat_on);
-    } else {
-      jc_heat_img.attr('img', img_heat_off);
-    }
-    
-    // http://www.protofunc.com/scripts/jquery/checkbox-radiobutton/
-    if (data.mpstate == 7) {
-      // radiobutton back to start
-      $("input[name='mashstate'][value=1]").attr("checked","checked");
-      timer.setperiod(0);
-      thermo.clrresttemp();
-      $('#state6').css("background","");
-      alert("Maischvorgang abgeschlossen!");
-    }
-    
-    if (data.mpstate == 0) {
-      if (mpstate!=0) {
-        // radiobutton back to start
-        $("input[name='mashstate'][value=1]").attr("checked","checked");
-        timer.setperiod(0);
-        thermo.clrresttemp();
-      }
-    }
-    
-    if ((data.mpstate > 0) && (data.mpstate < 7)) {
-      // this condition is met when new state is entered
-      if (mpstate != data.mpstate) {
-        console.log("new state: "+data.mpstate);
-        restno=(data.mpstate/2)-1;
-        thermo.setresttemp(data.resttemp[0],data.resttemp[1],data.resttemp[2]);
-        // this condition is met when rest is entered
-        if (0 == (data.mpstate % 2)) {
-          timer.setperiod(data.resttime[restno]);
-        } else {
-          timer.setperiod(0);
-        }
-        $("input[name='mashstate'][value="+data.mpstate+"]").attr("checked","checked");
-        $('#state'+mpstate).css("background","");
-        $('#state'+data.mpstate).css("background","red");
-      }
-      if (0 != data.resttimer) timer.setvalue(data.resttime[restno]-data.resttimer);
-    }
-    
-    jc_peng_img.attr('img', img_peng_sleep);
-    jc.start(mashCanvas);
-    window.setTimeout("ptwinkle();",300);
-    /* this is essentially and endless recursion */
-    $.getJSON('/getstate',parse_getstate_Response);
-    mpstate=data.mpstate;
-  }
-
-  function cbstart(data) {
-   if (!data) {
-     AjaxError('cbmust');
-   }
-  }
-  
-  function cbstop(data) {
-   if (!data) {
-     AjaxError('cbmust');
-   } else {
-     alert('Prozess abgebrochen');
-     for (i=1;i<7;i++) {
-      $('#state'+i).css("background","");
-     }
-   }
-  }
-      
-  </script>			
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="css/mash.css" type="text/css" />
+    <script type="text/javascript" src="js/jCanvaScript.1.5.10.min.js"></script>
+    <script type="text/javascript" src="js/jcsector.js"></script>
+    <script type="text/javascript" src="js/jquery-1.7.min.js"></script>
+    <script type="text/javascript" src="js/jquery.jstepper.min.js"></script>
+    <script type="text/javascript" src="js/ctimer.js"></script>
+    <script type="text/javascript" src="js/webmash.js"></script>
   </head>
 
   <body>
     <div id="pandc">
     <h1>Webmash Brausteuerung</h1>
+    <noscript><h2>Sorry, nur mit eingschaltetem Javascript benutzbar!</h2></noscript>
       <canvas id="ControlCanvas" width="620" height="450">
             Your browser does not support the canvas element.   
-      </canvas>                       
+      </canvas>
+      <div id='settings'>
+      <button id='settings-btn' type='button'><img src="images/config.png"></button>&nbsp;&nbsp;</p>
+      </div>
       <div id="pstate">
         <table>
           <tr id="state1"><td><input type="radio" name="mashstate" value="1" checked>
@@ -217,6 +41,25 @@
         <br />
         <button id='start' type='button'>Prozess starten</button>
         <button id='stop' type='button'>Prozess abbrechen</button>
+      </div>
+      <div id='settings-frame'>
+        <table>
+        <tr><td>Sollwert Regler:<td><input name="musttemp" class="tempinput" type="text" size="5" maxlength="5">
+        <td style="text-align: left;">°C
+        <tr><td>Temp. Eiweißrast:<td><input name="resttemp1" class="tempinput" type="text" size="5" maxlength="5">
+        <td style="text-align: left;">°C
+        <tr><td>Dauer Eiweißrast:<td><input name="resttime1" class="timeinput" type="text" size="5" maxlength="5">
+        <td style="text-align: left;">min
+        <tr><td>Temp. 1. Verzuckerungsrast:<td><input name="resttemp2" class="tempinput" type="text" size="5" maxlength="5">
+        <td style="text-align: left;">°C
+        <tr><td>Dauer 1. Verzuckerungsrast:<td><input name="resttime2" class="timeinput" type="text" size="5" maxlength="5">
+        <td style="text-align: left;">min
+        <tr><td>Temp. 2. Verzuckerungsrast:<td><input name="resttemp3" class="tempinput" type="text" size="5" maxlength="5">
+        <td style="text-align: left;">°C
+        <tr><td>Dauer 2. Verzuckerungsrast:<td><input name="resttime3" class="timeinput" type="text" size="5" maxlength="5">
+        <td style="text-align: left;">min
+        </table>
+        <button id='OK' type='button'>OK</button>&nbsp;&nbsp;</p>
       </div>
     </div>
   </body>

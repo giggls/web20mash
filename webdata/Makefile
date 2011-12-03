@@ -4,8 +4,10 @@ JQUERY=jquery-1.7.min.js
 JCANVASCRIPT_BASE=http://jcscript.com/data/js
 JCANVASCRIPT=jCanvaScript.1.5.10.min.js
 
-all: images/thermometer.png images/sudpfanne.png js/$(JQUERY) js/$(JCANVASCRIPT)
+JSTEPPER_BASE=http://jstepper.emkay.dk/scripts
+JSTEPPER=jquery.jstepper.min.js
 
+all: images/thermometer.png images/sudpfanne.png js/$(JQUERY) js/$(JCANVASCRIPT) js/$(JSTEPPER)
 
 images/thermometer.png: images/thermometer.xcf
 	xcf2png -o images/thermometer.png images/thermometer.xcf thermometer legend
@@ -18,6 +20,9 @@ js/$(JQUERY):
 	
 js/$(JCANVASCRIPT):
 	wget -P js $(JCANVASCRIPT_BASE)/$(JCANVASCRIPT)
+	
+js/$(JSTEPPER):
+	wget -P js $(JSTEPPER_BASE)/$(JSTEPPER)
 	
 clean:
 	rm -f images/thermometer.png

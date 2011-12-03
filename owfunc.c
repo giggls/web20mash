@@ -78,7 +78,7 @@ void printSensorActuatorList() {
 
 /* check if device with given ID and type is available on the bus */
 bool search4Device(char *id, char *type) {
-  char curdev[21];
+  char curdev[22];
   char *type_found_on_bus;
   size_t slen;
   
