@@ -592,6 +592,55 @@ static int answer_to_connection (void *cls,
   return ret;
 }
 
+static float get_elapsed_time(void) {
+  static struct timespec start;
+  struct timespec curr;
+  static int first_call = 1;
+  int secs, nsecs;
+
+  if (first_call) {
+    first_call = 0;
+    if (clock_gettime(CLOCK_MONOTONIC, &start) == -1)
+      die("error calling clock_gettime\n");
+  }
+
+  if (clock_gettime(CLOCK_MONOTONIC, &curr) == -1)
+    die("error calling clock_gettime\n");
+
+  secs = curr.tv_sec - start.tv_sec;
+  nsecs = curr.tv_nsec - start.tv_nsec;
+
+  if (!first_call)
+    start=curr;
+  
+  return((nsecs+secs*1000000000.0)/1000000000.0);
+}
+
+
+int init_timerfd(int seconds) {
+  int fd;
+  struct timespec now;
+  struct itimerspec new_value;
+  
+  if (clock_gettime(CLOCK_REALTIME, &now) == -1)
+    die("error in clock_gettime\n");
+
+  fd = timerfd_create(CLOCK_REALTIME, 0);
+  if (fd == -1)
+    die("error calling  timerfd_create\n");
+    
+  /* Create a CLOCK_REALTIME absolute timer */
+  new_value.it_value.tv_sec = now.tv_sec + seconds;
+  new_value.it_value.tv_nsec = now.tv_nsec;
+  new_value.it_interval.tv_sec = seconds;
+  new_value.it_interval.tv_nsec = 0;
+
+  if (timerfd_settime(fd, TFD_TIMER_ABSTIME, &new_value, NULL) == -1)
+    die("error calling timerfd_settime\n");
+  
+  return(fd);
+}
+
 /* cyclically called control and state machine function */
 void acq_and_ctrl() {
   uint64_t endtime;
@@ -656,12 +705,12 @@ void acq_and_ctrl() {
 
   if (cmd->debugP) {
     if (pstate.mash) {
-      debug("temp: must:%5.1f cur:%5.1f (relay:%d, control:%d, mash:%d, timer: %.2f)\n",
-	      pstate.tempMust,pstate.tempCurrent,pstate.relay,pstate.control,
-	      pstate.mash, pstate.resttime/60.0);
+      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relay:%d, control:%d, mash:%d, timer: %.2f)\n",
+	    get_elapsed_time(), pstate.tempMust,pstate.tempCurrent,pstate.relay,pstate.control,
+	    pstate.mash, pstate.resttime/60.0);
     } else {
-      debug("temp: must:%5.1f cur:%5.1f (relay:%d, control:%d)\n",
-	      pstate.tempMust,pstate.tempCurrent,pstate.relay,pstate.control);
+      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relay:%d, control:%d)\n",
+	    get_elapsed_time(),pstate.tempMust,pstate.tempCurrent,pstate.relay,pstate.control);
     }
   }
 }
@@ -671,9 +720,8 @@ int main(int argc, char **argv) {
   fd_set rs;
   fd_set ws;
   fd_set es;
-  int max,rtcfd;
-  unsigned long data;
-  int tirq,acqdelay=4;
+  int max,timfd;
+  uint64_t exp;
   FILE *cfile;
   
   cmd = parseCmdline(argc, argv);
@@ -733,14 +781,11 @@ int main(int argc, char **argv) {
   if (d == NULL)
    die("error starting http server\n");
 
-  rtcfd = open(cfopts.rtcdev, O_RDONLY);
-  if (rtcfd ==  -1)
-    die("error opening %s\n",cfopts.rtcdev);
 
-  /* Turn on update interrupts (one per second) */
-  ioctl(rtcfd, RTC_UIE_ON, 0);
+  timfd=init_timerfd(DELAY);
+  if (cmd->debugP)
+    get_elapsed_time();
 
-  tirq=acqdelay-1;
   setRelay(0);
 
   signal(SIGINT,signalHandler);
@@ -766,18 +811,14 @@ int main(int argc, char **argv) {
     if (MHD_YES != MHD_get_fdset (d, &rs, &ws, &es, &max))
       break; /* fatal internal error */
 
-    FD_SET(rtcfd,&rs);
-    if (rtcfd >max) max=rtcfd;
+    FD_SET(timfd,&rs);
+    if (timfd >max) max=timfd;
     
     select (max + 1, &rs, &ws, &es, NULL);
-    if (FD_ISSET(rtcfd,&rs)) {
-      read(rtcfd, &data, sizeof(unsigned long));
-      tirq++;
-      if (tirq==acqdelay) {
-	acgen++; /* count up generation to trigger transmission */
-	acq_and_ctrl();
-	tirq=0;
-      }
+    if (FD_ISSET(timfd,&rs)) {
+      read(timfd, &exp, sizeof(uint64_t));
+      acgen++; /* count up generation to trigger transmission */
+      acq_and_ctrl();
     }
     /* NOTE: *always* run MHD_run() in external select loop! */
     MHD_run (d);    

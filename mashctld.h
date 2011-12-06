@@ -40,7 +40,7 @@ main header file
 #include <microhttpd.h>
 #include <owcapi.h>
 #include <sys/ioctl.h>
-#include <linux/rtc.h>
+#include <sys/timerfd.h>
 #include <time.h>
 #include <limits.h>
 #include <magic.h>
@@ -78,7 +78,6 @@ struct configopts {
   float tempMust;
   float hysteresis;
   bool heater;
-  char rtcdev[20];
   char webroot[255];
   float resttemp[3];
   uint64_t resttime[3];

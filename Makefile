@@ -1,6 +1,6 @@
 
 CFLAGS = -g -Wall -W -std=gnu99 -pedantic
-LDLIBS = -lowcapi -lmicrohttpd -lmagic
+LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt
 
 SRC = cmdline.c mashctld.c owfunc.c minIni.c readcfg.c
 

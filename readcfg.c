@@ -29,7 +29,6 @@ void readconfig(char *cfgfile) {
   cfopts.tempMust=ini_getf("control", "tempMust", CTLD_TEMPMUST, cfgfile);
   cfopts.hysteresis=ini_getf("control", "hysteresis", CTLD_HYSTERESIS, cfgfile);
   cfopts.heater=ini_getbool("control", "heater",CTLD_HEATER, cfgfile);
-  ini_gets("global", "rtcdev", CTLD_RTC, cfopts.rtcdev, sizearray(cfopts.rtcdev), cfgfile);
   ini_gets("global", "webroot", CTLD_WEBROOT, cfopts.webroot, sizearray(cfopts.webroot), cfgfile);
 
   // read rest times and temperatures

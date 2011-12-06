@@ -1,0 +1,25 @@
+the following libraries are required:
+
+libmagic-dev
+libmicrohttpd-dev (>=0.9.17)
+libow-dev (>=2.8p13)
+
+As of Debian squeeze the following backports need to be
+installed:
+
+libow-dev_2.8p13+dfsg1-5-5_<arch>.deb
+libow-2.8-13_2.8p13+dfsg1-5_<arch>.deb
+libowcapi-2.8-13_2.8p13+dfsg1-5_<arch>.deb
+libmicrohttpd10_0.9.17-1_<arch>.deb
+libmicrohttpd-dev_0.9.17-1_<arch>.deb
+
+libmagic-dev can be installed via aptitude/apt-get.
+
+To cross compile for ARM use "dpkg-cross -i" and "xapt" instead of the
+generic dpkg and apt-get commands.
+
+If all these dependencies are fulfilled, to cross-compile for
+ARM just using the following command:
+
+make CC=arm-linux-gnueabi-gcc
+
