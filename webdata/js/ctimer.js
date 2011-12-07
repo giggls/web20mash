@@ -84,7 +84,7 @@ function timerwidget(canvas,x,y,period,radius) {
         x3 = Math.sin(a*3.1415/180.0)*(radius-10)+x;
         line=jc.line([[(width/2.0)+x1,(width/2.0)-y1],[(width/2)+x2,(width/2)-y2]]);
         allticks.push(line);
-        text=jc.text(t,(width/2.0)+x3+1,(width/2.0)-y3+1).font('bold 14px Arial').align('center').baseline('middle');
+        text=jc.text(t.toFixed(1),(width/2.0)+x3+1,(width/2.0)-y3+1).font('bold 14px Arial').align('center').baseline('middle');
         allticks.push(text);
       }
     }
