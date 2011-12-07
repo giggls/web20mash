@@ -26,29 +26,40 @@ var mashCanvas='ControlCanvas';
 var jc_heat_img;
 var jc_peng_img;
 var timer;
-var img_pfanne=new Image();
-var img_therm=new Image();  
-var img_heat_on=new Image();
-var img_heat_off=new Image();
-var img_peng=new Image();
-var img_peng_sleep=new Image();
+var cimageObjs = new Array();
+var cimgfiles = new Array("tux-brew.png","tux-brew-sleep.png","heating-on.png","heating-off.png","thermometer.png","sudpfanne.png");
+var imagedir="images/";
 var thermo;
 var mpstate=42;
 var settings = {ok: false, open: false, musttemp: 0, resttime: Array(0, 0,  0), resttemp: Array(0, 0, 0)};
+// number of loaded canvas images
+var numload=0;
+
+for (var i=0;i<6;i++) {
+  cimageObjs[i]=new Image();
+  cimageObjs[i].onload = function() {
+     numload++;
+     if (numload==cimgfiles.length) {
+       RunApp();
+     }
+   }
+   cimageObjs[i].src=imagedir+cimgfiles[i];
+}
             
 function AjaxError(action) {
   $("body").css('background-image', 'none');
   $("body").css('background-color', '#FF0000');
   alert("Kommunikationsfehler in Funktion: "+action);
 }
- 
-// looks like $(document).ready(function() does strange things
-window.onload = function () {
+
+// This does all the initial stuff and is called after all images have been loaded
+function RunApp() {
   // input entry checks
   $(".tempinput").jStepper({minValue:0, maxValue:99, normalStep:0.5, decimalSeparator:"."});
   $(".timeinput").jStepper({minValue:0, maxValue:120, allowDecimals:false, decimalSeparator:"."});
-  
+
   drawcanvas();
+  
   $.getJSON('/getstate',parse_getstate_Response);
   $('#start').click(function() {
     $("#settings-btn").attr("disabled", "true");
@@ -78,8 +89,7 @@ window.onload = function () {
     }
   });
   $('#OK').click(function() {
-    url="/setall/"
-    url+=$("input[name='musttemp']").val()+"/";
+    url="/setallmash/"
     url+=$("input[name='resttime1']").val()+"/";
     url+=$("input[name='resttemp1']").val()+"/";
     url+=$("input[name='resttime2']").val()+"/";
@@ -89,7 +99,7 @@ window.onload = function () {
 
     $.get(url, cbsettings);
   });
- };
+};
 
 function thermometerwidget(canvas,x,y,image) {
   // jc.rect(x,y,90,320,"#00ff00",1);
@@ -135,29 +145,19 @@ function thermometerwidget(canvas,x,y,image) {
 }
 
 function drawcanvas() {
-  img_peng.src="images/tux-brew.png";
-  img_therm.src="images/thermometer.png";
-  img_peng.src="images/tux-brew.png";
-  img_peng_sleep.src="images/tux-brew-sleep.png";
-  img_heat_on.src="images/heating-on.png";
-  img_heat_off.src="images/heating-off.png";
-  img_pfanne.src="images/sudpfanne.png";
+  jc.start(mashCanvas);
+  jc.image(cimageObjs[5],40,20);
+   
+  thermo=new thermometerwidget(mashCanvas,195,50,cimageObjs[4]);
+  jc_peng_img=jc.image(cimageObjs[0],60,290);
+  jc_heat_img=jc.image(cimageObjs[3],330,350);
   
-  img_pfanne.onload = function() {
-    jc.start(mashCanvas);
-    jc.image(img_pfanne,40,20);
-    
-    thermo=new thermometerwidget(mashCanvas,195,50,img_therm);
-    jc_peng_img=jc.image(img_peng,60,290);
-    jc_heat_img=jc.image(img_heat_off,330,350);
-  
-    timer=new timerwidget(mashCanvas,10,50,0);
-    jc.start(mashCanvas);
-  }
+  timer=new timerwidget(mashCanvas,10,50,0);
+  jc.start(mashCanvas);
 }
 
 function ptwinkle() {
-  jc_peng_img.attr('img', img_peng);
+  jc_peng_img.attr('img', cimageObjs[0]);
   jc.start(mashCanvas);
 }
 
@@ -173,9 +173,9 @@ function parse_getstate_Response(data) {
   
   thermo.setvalue(data.curtemp,data.musttemp);
   if (data.rstate) {
-    jc_heat_img.attr('img', img_heat_on);
+    jc_heat_img.attr('img', cimageObjs[2]);
   } else {
-    jc_heat_img.attr('img', img_heat_off);
+    jc_heat_img.attr('img', cimageObjs[3]);
   }
   
   // http://www.protofunc.com/scripts/jquery/checkbox-radiobutton/
@@ -217,7 +217,7 @@ function parse_getstate_Response(data) {
     if (0 != data.resttimer) timer.setvalue(data.resttime[restno]-data.resttimer);
   }
   
-  jc_peng_img.attr('img', img_peng_sleep);
+  jc_peng_img.attr('img', cimageObjs[1]);
   jc.start(mashCanvas);
   window.setTimeout("ptwinkle();",300);
   /* this is essentially and endless recursion */

@@ -193,7 +193,7 @@ static int answer_to_connection (void *cls,
   const char *magic_full;
 
   // available request types
-  bool setctl,setmust,getstate,getfile,setmpstate,setrest,setactuator,setall;
+  bool setctl,setmust,getstate,getfile,setmpstate,setrest,setactuator,setallmash;
 
   // ignore explicitely unused parameters
   // eliminate compiler warnings
@@ -209,7 +209,7 @@ static int answer_to_connection (void *cls,
   setmpstate=0;
   setrest=0;
   setactuator=0;
-  setall=0;
+  setallmash=0;
 
   if (0 != strcmp (method, MHD_HTTP_METHOD_GET))
     return MHD_NO;              /* unexpected method */
@@ -235,8 +235,8 @@ static int answer_to_connection (void *cls,
       setrest=1;
     } else if (0 == strncmp(url, "/setactuator/",13)) {
       setactuator=1;
-    } else if (0 == strncmp(url, "/setall/",8)) {
-      setall=1;
+    } else if (0 == strncmp(url, "/setallmash/",12)) {
+      setallmash=1;
     } else {
       getfile=1;
     }
@@ -417,19 +417,18 @@ static int answer_to_connection (void *cls,
     }
 
     // set al values at once: musttemp, resttime(1-3) and resttemp(1-3=
-    // Syntax: /setall/<must>/<time1>/<temp1>/<time2>/<temp2>/<time3>/<temp3>
-    if (setall) { 
+    // Syntax: /setallmash/<time1>/<temp1>/<time2>/<temp2>/<time3>/<temp3>
+    if (setallmash) { 
       float vtemp[3];
       unsigned vtime[3];
-      float must;
       int ret;
       bool valid;
       
       valid=true;
       
       if (pstate.mash!=0) valid=false;
-      if (7 != sscanf(url,"/setall/%f/%u/%f/%u/%f/%u/%f",
-        &must,&vtime[0],&vtemp[0],&vtime[1],&vtemp[1],&vtime[2],&vtemp[2])) {
+      if (6 != sscanf(url,"/setallmash/%u/%f/%u/%f/%u/%f",
+        &vtime[0],&vtemp[0],&vtime[1],&vtemp[1],&vtime[2],&vtemp[2])) {
         valid=false;
       }
       if (!valid) {
@@ -437,17 +436,12 @@ static int answer_to_connection (void *cls,
 	  debug("error setting all rest and control values values\n");
 	snprintf(mdata,1024,
 		 "<html><body>Error setting all rest and control values<br />"
-		 "Syntax: /setall/&lt;must&gt;/&lt;time1&gt;/&lt;temp1&gt;/&lt;time2&gt;/&lt;temp2&gt;/&lt;time3&gt;/&lt;temp3&gt;"
+		 "Syntax: /setallmash/&lt;time1&gt;/&lt;temp1&gt;/&lt;time2&gt;/&lt;temp2&gt;/&lt;time3&gt;/&lt;temp3&gt;"
 		 "</body></html>");
       } else {
         int i;
         char key[10];
         // now we have to adjust all requested settings
-        // just rest values are written to inifile here
-        if (must>MAXTEMP) must=MAXTEMP;
-        if (must<MINTEMP) must=MINTEMP;
-        pstate.tempMust=must;
-
         for (i=0;i<3;i++) {
           sprintf(key,"resttime%d",i+1);
           if (vtime[i]>MAXTIME) vtime[i]=MAXTIME;
@@ -470,7 +464,7 @@ static int answer_to_connection (void *cls,
           snprintf(mdata,1024,
 		   "<html><body>OK setting all rest and control values</body></html>");
         if (cmd->debugP)
-          debug("OK calling /setall/%f/%u/%f/%u/%f/%u/%f\n",must,vtime[0],vtemp[0],vtime[1],vtemp[1],vtime[2],vtemp[2]);
+          debug("OK calling /setallmash/%u/%f/%u/%f/%u/%f\n",vtime[0],vtemp[0],vtime[1],vtemp[1],vtime[2],vtemp[2]);
       }
       response = MHD_create_response_from_data(strlen(mdata),
 					       (void*) mdata,
@@ -775,7 +769,7 @@ int main(int argc, char **argv) {
     die("cannot load magic database - %s\n", magic_error(magic_cookie));
   }
 
-  d = MHD_start_daemon(MHD_NO_FLAG,
+  d = MHD_start_daemon(MHD_USE_IPv6,
 		       cfopts.port,
 		       NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
   if (d == NULL)
