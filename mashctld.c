@@ -95,11 +95,11 @@ void errorlog(char* fmt, ...) {
   va_list ap;
     
   va_start(ap, fmt);
-   if (isdaemon)
-   vsyslog(LOG_ERR, fmt, ap);
-   else
-   vfprintf(stderr,fmt, ap);
-   va_end(ap);
+  if (isdaemon)
+    vsyslog(LOG_ERR, fmt, ap);
+  else
+    vfprintf(stderr,fmt, ap);
+  va_end(ap);
 }
 
 void signalHandler() {
@@ -191,6 +191,9 @@ static int answer_to_connection (void *cls,
   static char mdata[1024];
   const char *relative_url;
   const char *magic_full;
+  char *user;
+  char *pass;
+  int fail=0;
 
   // available request types
   bool setctl,setmust,getstate,getfile,setmpstate,setrest,setactuator,setallmash;
@@ -221,367 +224,383 @@ static int answer_to_connection (void *cls,
     }
   *ptr = NULL;                  /* reset when done */
 
-
-  if (0 == strncmp(url, "/getstate",9)) {
-    getstate=1;
-  } else {
-    if (0 == strncmp(url, "/setmust/",9)) {
-      setmust=1;
-    } else if (0 == strncmp(url, "/setctl/",8)) {
-      setctl=1;
-    } else if (0 == strncmp(url, "/setmpstate/",12)) {
-      setmpstate=1;
-    } else if (0 == strncmp(url, "/setrest/",9)) {
-      setrest=1;
-    } else if (0 == strncmp(url, "/setactuator/",13)) {
-      setactuator=1;
-    } else if (0 == strncmp(url, "/setallmash/",12)) {
-      setallmash=1;
-    } else {
-      getfile=1;
-    }
+  if (cfopts.authactive) {
+    pass = NULL;
+    user = MHD_basic_auth_get_username_password (connection, &pass);
+    fail = ( (user == NULL) ||
+	     (0 != strcmp (user, cfopts.username)) ||
+	     (0 != strcmp (pass, cfopts.password)) );  
+    if (user != NULL) free (user);
+    if (pass != NULL) free (pass);
   }
-  if (cmd->debugP)
-    debug("requested URL: %s\n",url);
-
-  /* getstate is synchroniced to data acquisition */
-  if (getstate) {
-    gp = malloc(sizeof (int));
-    *gp = acgen; /* current generation -- to only send rounds from connect on */
-    if (NULL == gp)
-      return MHD_NO;
-    response = MHD_create_response_from_callback (MHD_SIZE_UNKNOWN, 
-						  32 * 1024,     /* 32k page size */
-						  &sync_response_generator,
-						  gp,
-						  &sync_response_free_callback);
-    if (response == NULL) {
-      free (gp);
-      return MHD_NO;
-    }
-
-    MHD_add_response_header(response, "Content-Type", "application/json");                                  
-    /* everything else should be delivered immediately */
+  if (fail) {
+    const char *page = "<html><body>Go away.</body></html>";
+    response = MHD_create_response_from_buffer (strlen (page), (void *) page, 
+						MHD_RESPMEM_PERSISTENT);
+    ret = MHD_queue_basic_auth_fail_response (connection,"Web 2.0 Mash", response);
   } else {
-    
-    if (setmust) {
 
-      float must;
-      if (1 != sscanf(url,"/setmust/%f",&must)) {
-	if (cmd->debugP)
-	  debug("error setting must temperature\n");
-	snprintf(mdata,1024,
-		 "<html><body>Error setting must value!</body></html>");
-      } else {
-	if (must>MAXTEMP) must=MAXTEMP;
-	if (must<MINTEMP) must=MINTEMP;
-	if (pstate.tempMust!=must) {
-	  if (cmd->debugP)
-	    debug("updating inifile must temperature: %f\n",must);
-          ini_putf("control","tempMust", must, cfgfp);
-        }
-        pstate.tempMust=must;
-	if (cmd->debugP)
-	  debug("setting must temperature to: %f\n",must);  
-	snprintf(mdata,1024,
-		 "<html><body>OK setting must value to %f</body></html>",must);
-      }
-      response = MHD_create_response_from_data(strlen(mdata),
-					       (void*) mdata,
-					       MHD_NO,
-					       MHD_NO);
-      MHD_add_response_header(response,
-			      "Content-Type", "text/html; charset=UTF-8");
-      
-      ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-      return ret;
-    }
-
-    // enable or disable control function
-    // this is only possible without a running mash process
-    if (setctl) {
-
-      int ctl;
-      if ((1 != sscanf(url,"/setctl/%d",&ctl)) || (pstate.mash!=0)) {
-	if (cmd->debugP)
-	  debug("error setting control\n");
-	snprintf(mdata,1024,
-		 "<html><body>Error setting control value!</body></html>");
-      } else {
-	pstate.control=ctl;
-	// relay need to be off without control
-	if (ctl==0) {
-	  pstate.relay=0;
-	};
-	if (cmd->debugP)
-	  debug("setting control to: %d\n",ctl);  
-	snprintf(mdata,1024,
-		 "<html><body>OK setting control to %d</body></html>",ctl);
-      }
-      response = MHD_create_response_from_data(strlen(mdata),
-					       (void*) mdata,
-					       MHD_NO,
-					       MHD_NO);
-      MHD_add_response_header(response,
-			      "Content-Type", "text/html; charset=UTF-8");
-      
-      ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-      return ret;
-    }
-     
-    if (setactuator) {
-
-      int state;
-      if ((1 != sscanf(url,"/setactuator/%d",&state)) || (pstate.control!=0)) {
-	if (cmd->debugP)
-	  debug("error setting actuator value\n");
-	snprintf(mdata,1024,
-		 "<html><body>Error setting actuator value!</body></html>");
-      } else {
-	setRelay(state);
-	if (cmd->debugP)
-	  debug("setting actor to: %d\n",state);  
-	snprintf(mdata,1024,
-		 "<html><body>OK setting actor to %d</body></html>",state);
-      }
-      response = MHD_create_response_from_data(strlen(mdata),
-					       (void*) mdata,
-					       MHD_NO,
-					       MHD_NO);
-      MHD_add_response_header(response,
-			      "Content-Type", "text/html; charset=UTF-8");
-      
-      ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-      return ret;
-    }
-
-    // set rest temperature or rest time
-    // Syntax: /setrest/<temp>or<time>/<nr>/<value>
-    if (setrest) { 
-      float val;
-      int restno;
-      char rtype[5];
-      int ret;
-      bool valid;
-      
-      valid=true;
-      
-      if (pstate.mash!=0) valid=false;
-      if (3 != sscanf(url,"/setrest/%4s/%d/%f",rtype,&restno,&val)) {
-        valid=false;
-      } else {
-        if ((0!=strcmp("temp",rtype)) && (0!=strcmp("time",rtype))) valid=false;
-        if ((restno < 1) || (restno >3)) valid=false;
-      }
-      if (!valid) {
-	if (cmd->debugP)
-	  debug("error setting resttime/resttemp value\n");
-	snprintf(mdata,1024,
-		 "<html><body>Error setting rest value, should be /setrest/&lt;time or temp&gt;/&lt;no&gt;/&lt;val&gt;</body></html>");
-      } else {
-        char key[10];
-        sprintf(key,"rest%s%d",rtype,restno);
-        // now we have to set resttime or resttemp
-        if (0==strcmp("time",rtype)) {
-          if (cmd->debugP)
-            debug("setting rest time %d to %u\n",restno,(unsigned) val);
-          if (val>MAXTIME) val=MAXTIME;
-          cfopts.resttime[restno-1]=(unsigned) val;
-          if (cmd->debugP)
-            debug("updateing ini-file %s with value %u\n",key,cfopts.resttime[restno-1]);
-          ini_putl("mash-process", key, cfopts.resttime[restno-1], cfgfp);
-          snprintf(mdata,1024,
-		   "<html><body>OK setting rest time %d to %u</body></html>",restno,(unsigned) val);
-        } else {
-          if (cmd->debugP)
-            debug("setting rest temperature %d to %f\n",restno,val);
-          if (val>MAXTEMP) val=MAXTEMP;
-          if (val<MINTEMP) val=MINTEMP;
-          cfopts.resttemp[restno-1]=val;
-          if (cmd->debugP)
-            debug("updateing ini-file %s with value %f\n",key,cfopts.resttime[restno-1]);
-          ini_putf("mash-process", key, cfopts.resttemp[restno-1], cfgfp);
-          snprintf(mdata,1024,
-		   "<html><body>OK setting rest temperature %d to %f</body></html>",restno,val);
-        }
-      }
-      response = MHD_create_response_from_data(strlen(mdata),
-					       (void*) mdata,
-					       MHD_NO,
-					       MHD_NO);
-      MHD_add_response_header(response,
-			      "Content-Type", "text/html; charset=UTF-8");
-      
-      ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-      return ret;
-    }
-
-    // set al values at once: musttemp, resttime(1-3) and resttemp(1-3=
-    // Syntax: /setallmash/<time1>/<temp1>/<time2>/<temp2>/<time3>/<temp3>
-    if (setallmash) { 
-      float vtemp[3];
-      unsigned vtime[3];
-      int ret;
-      bool valid;
-      
-      valid=true;
-      
-      if (pstate.mash!=0) valid=false;
-      if (6 != sscanf(url,"/setallmash/%u/%f/%u/%f/%u/%f",
-        &vtime[0],&vtemp[0],&vtime[1],&vtemp[1],&vtime[2],&vtemp[2])) {
-        valid=false;
-      }
-      if (!valid) {
-	if (cmd->debugP)
-	  debug("error setting all rest and control values values\n");
-	snprintf(mdata,1024,
-		 "<html><body>Error setting all rest and control values<br />"
-		 "Syntax: /setallmash/&lt;time1&gt;/&lt;temp1&gt;/&lt;time2&gt;/&lt;temp2&gt;/&lt;time3&gt;/&lt;temp3&gt;"
-		 "</body></html>");
-      } else {
-        int i;
-        char key[10];
-        // now we have to adjust all requested settings
-        for (i=0;i<3;i++) {
-          sprintf(key,"resttime%d",i+1);
-          if (vtime[i]>MAXTIME) vtime[i]=MAXTIME;
-          if (cfopts.resttime[i]!=vtime[i]) {
-            if (cmd->debugP)
-              debug("updateing ini-file %s with value %u\n",key,vtime[i]);
-            ini_putl("mash-process", key, vtime[i],cfgfp);
-          }
-          cfopts.resttime[i]=vtime[i];
-          sprintf(key,"resttemp%d",i+1);
-          if (vtemp[i]>MAXTEMP) vtemp[i]=MAXTEMP;
-          if (vtemp[i]<MINTEMP) vtemp[i]=MINTEMP;
-          if (cfopts.resttemp[i]!=vtemp[i]) {
-            if (cmd->debugP)
-              debug("updateing ini-file %s with value %f\n",key,vtemp[i]);
-            ini_putf("mash-process", key, vtemp[i],cfgfp);
-          }
-          cfopts.resttemp[i]=vtemp[i];          
-        }            
-          snprintf(mdata,1024,
-		   "<html><body>OK setting all rest and control values</body></html>");
-        if (cmd->debugP)
-          debug("OK calling /setallmash/%u/%f/%u/%f/%u/%f\n",vtime[0],vtemp[0],vtime[1],vtemp[1],vtime[2],vtemp[2]);
-      }
-      response = MHD_create_response_from_data(strlen(mdata),
-					       (void*) mdata,
-					       MHD_NO,
-					       MHD_NO);
-      MHD_add_response_header(response,
-			      "Content-Type", "text/html; charset=UTF-8");
-      
-      ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-      return ret;
-    }
-
-    
-
-    if (setmpstate) {
-
-      int mpstate=-1;
-      int res;
-      res=sscanf(url,"/setmpstate/%d",&mpstate);
-
-      if ((1 != res) || (mpstate >7) || (mpstate <0)) {
-	if (cmd->debugP)
-	  debug("error setting mash process state to %d\n",mpstate);
-	snprintf(mdata,1024,
-		 "<html><body>Error setting mash process state to %d!</body></html>",mpstate);
-      } else {
-	if (cmd->debugP)
-	  debug("setting mash process state to: %d\n",mpstate);  
-
-	pstate.mash=mpstate;
-	// if mash process is set to 0 control needs to be turned of as well
-	// otherwise we need control to be turned on
-	if (mpstate == 0) {
-	  resetMashProcess();
-        } else {
-          pstate.control=1;
-
-          // on even state we need to set starttime
-          if (!(mpstate % 2)) {
-	    pstate.starttime=time(NULL);
-	    unsigned index;
-	    index=(mpstate-1)/2;
-	    if (cmd->debugP)
-	      debug("setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
-          }
-	}
-
-	snprintf(mdata,1024,
-		 "<html><body>OK setting mash process state to %d</body></html>",mpstate);
-      }
-      response = MHD_create_response_from_data(strlen(mdata),
-					       (void*) mdata,
-					       MHD_NO,
-					       MHD_NO);
-      MHD_add_response_header(response,
-			      "Content-Type", "text/html; charset=UTF-8");
-      
-      ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
-      return ret;
-    }
-
-    if (strlen(url)==1 && url[0]=='/') {
-      relative_url=indexfile;  
+    if (0 == strncmp(url, "/getstate",9)) {
+      getstate=1;
     } else {
-      int i=0;
-      /* remove leading / from url */
-      while (url[i]=='/') i++;
-      relative_url=url+i; 
+      if (0 == strncmp(url, "/setmust/",9)) {
+	setmust=1;
+      } else if (0 == strncmp(url, "/setctl/",8)) {
+	setctl=1;
+      } else if (0 == strncmp(url, "/setmpstate/",12)) {
+	setmpstate=1;
+      } else if (0 == strncmp(url, "/setrest/",9)) {
+	setrest=1;
+      } else if (0 == strncmp(url, "/setactuator/",13)) {
+	setactuator=1;
+      } else if (0 == strncmp(url, "/setallmash/",12)) {
+	setallmash=1;
+      } else {
+	getfile=1;
+      }
     }
     if (cmd->debugP)
-      debug("trying to open file: %s\n",relative_url);
-    if ((0 == stat(relative_url, &buf)) && (S_ISREG (buf.st_mode)) )
-      file = fopen(relative_url, "rb");
-    else
-      file = NULL;
- 
-    if (file == NULL) {
-      response = MHD_create_response_from_buffer (strlen (PAGE),
-						  (void *) PAGE,
-						  MHD_RESPMEM_PERSISTENT);
-      ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
-      MHD_destroy_response (response);
-      return ret;
-    } else {
-      file = fopen (relative_url, "rb");
-      response = MHD_create_response_from_callback (buf.st_size,
+      debug("requested URL: %s\n",url);
+
+    /* getstate is synchroniced to data acquisition */
+    if (getstate) {
+      gp = malloc(sizeof (int));
+      *gp = acgen; /* current generation -- to only send rounds from connect on */
+      if (NULL == gp)
+	return MHD_NO;
+      response = MHD_create_response_from_callback (MHD_SIZE_UNKNOWN, 
 						    32 * 1024,     /* 32k page size */
-						    &file_reader,
-						    file,
-						    &free_file_callback);
+						    &sync_response_generator,
+						    gp,
+						    &sync_response_free_callback);
       if (response == NULL) {
-	free (file);
+	free (gp);
 	return MHD_NO;
       }
 
-      /* mime types we know better than libmagic are for .js and .css */
-      if (strncmp(getExt(relative_url),".js",3)==0) {
-	if (cmd->debugP)
-	  debug("setting mime type to %s\n", "text/javascript");
-	MHD_add_response_header(response,"Content-Type", "text/javascript");
-      } else {
-	if (strncmp(getExt(relative_url),".css",4)==0) {
+      MHD_add_response_header(response, "Content-Type", "application/json");                                  
+      /* everything else should be delivered immediately */
+    } else {
+    
+      if (setmust) {
+
+	float must;
+	if (1 != sscanf(url,"/setmust/%f",&must)) {
 	  if (cmd->debugP)
-	    debug("setting mime type to %s\n", "text/css");
-	  MHD_add_response_header(response,"Content-Type", "text/css");
+	    debug("error setting must temperature\n");
+	  snprintf(mdata,1024,
+		   "<html><body>Error setting must value!</body></html>");
 	} else {
-	  /* use libmagic for the rest */
-	  magic_full = magic_file(magic_cookie, relative_url);
+	  if (must>MAXTEMP) must=MAXTEMP;
+	  if (must<MINTEMP) must=MINTEMP;
+	  if (pstate.tempMust!=must) {
+	    if (cmd->debugP)
+	      debug("updating inifile must temperature: %f\n",must);
+	    ini_putf("control","tempMust", must, cfgfp);
+	  }
+	  pstate.tempMust=must;
 	  if (cmd->debugP)
-	    debug("setting mime type to %s\n", magic_full);
-	  MHD_add_response_header(response,"Content-Type", magic_full);
+	    debug("setting must temperature to: %f\n",must);  
+	  snprintf(mdata,1024,
+		   "<html><body>OK setting must value to %f</body></html>",must);
+	}
+	response = MHD_create_response_from_data(strlen(mdata),
+						 (void*) mdata,
+						 MHD_NO,
+						 MHD_NO);
+	MHD_add_response_header(response,
+				"Content-Type", "text/html; charset=UTF-8");
+      
+	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+	return ret;
+      }
+
+      // enable or disable control function
+      // this is only possible without a running mash process
+      if (setctl) {
+
+	int ctl;
+	if ((1 != sscanf(url,"/setctl/%d",&ctl)) || (pstate.mash!=0)) {
+	  if (cmd->debugP)
+	    debug("error setting control\n");
+	  snprintf(mdata,1024,
+		   "<html><body>Error setting control value!</body></html>");
+	} else {
+	  pstate.control=ctl;
+	  // relay need to be off without control
+	  if (ctl==0) {
+	    pstate.relay=0;
+	  };
+	  if (cmd->debugP)
+	    debug("setting control to: %d\n",ctl);  
+	  snprintf(mdata,1024,
+		   "<html><body>OK setting control to %d</body></html>",ctl);
+	}
+	response = MHD_create_response_from_data(strlen(mdata),
+						 (void*) mdata,
+						 MHD_NO,
+						 MHD_NO);
+	MHD_add_response_header(response,
+				"Content-Type", "text/html; charset=UTF-8");
+      
+	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+	return ret;
+      }
+     
+      if (setactuator) {
+
+	int state;
+	if ((1 != sscanf(url,"/setactuator/%d",&state)) || (pstate.control!=0)) {
+	  if (cmd->debugP)
+	    debug("error setting actuator value\n");
+	  snprintf(mdata,1024,
+		   "<html><body>Error setting actuator value!</body></html>");
+	} else {
+	  setRelay(state);
+	  if (cmd->debugP)
+	    debug("setting actor to: %d\n",state);  
+	  snprintf(mdata,1024,
+		   "<html><body>OK setting actor to %d</body></html>",state);
+	}
+	response = MHD_create_response_from_data(strlen(mdata),
+						 (void*) mdata,
+						 MHD_NO,
+						 MHD_NO);
+	MHD_add_response_header(response,
+				"Content-Type", "text/html; charset=UTF-8");
+      
+	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+	return ret;
+      }
+
+      // set rest temperature or rest time
+      // Syntax: /setrest/<temp>or<time>/<nr>/<value>
+      if (setrest) { 
+	float val;
+	int restno;
+	char rtype[5];
+	int ret;
+	bool valid;
+      
+	valid=true;
+      
+	if (pstate.mash!=0) valid=false;
+	if (3 != sscanf(url,"/setrest/%4s/%d/%f",rtype,&restno,&val)) {
+	  valid=false;
+	} else {
+	  if ((0!=strcmp("temp",rtype)) && (0!=strcmp("time",rtype))) valid=false;
+	  if ((restno < 1) || (restno >3)) valid=false;
+	}
+	if (!valid) {
+	  if (cmd->debugP)
+	    debug("error setting resttime/resttemp value\n");
+	  snprintf(mdata,1024,
+		   "<html><body>Error setting rest value, should be /setrest/&lt;time or temp&gt;/&lt;no&gt;/&lt;val&gt;</body></html>");
+	} else {
+	  char key[10];
+	  sprintf(key,"rest%s%d",rtype,restno);
+	  // now we have to set resttime or resttemp
+	  if (0==strcmp("time",rtype)) {
+	    if (cmd->debugP)
+	      debug("setting rest time %d to %u\n",restno,(unsigned) val);
+	    if (val>MAXTIME) val=MAXTIME;
+	    cfopts.resttime[restno-1]=(unsigned) val;
+	    if (cmd->debugP)
+	      debug("updateing ini-file %s with value %u\n",key,cfopts.resttime[restno-1]);
+	    ini_putl("mash-process", key, cfopts.resttime[restno-1], cfgfp);
+	    snprintf(mdata,1024,
+		     "<html><body>OK setting rest time %d to %u</body></html>",restno,(unsigned) val);
+	  } else {
+	    if (cmd->debugP)
+	      debug("setting rest temperature %d to %f\n",restno,val);
+	    if (val>MAXTEMP) val=MAXTEMP;
+	    if (val<MINTEMP) val=MINTEMP;
+	    cfopts.resttemp[restno-1]=val;
+	    if (cmd->debugP)
+	      debug("updateing ini-file %s with value %f\n",key,cfopts.resttime[restno-1]);
+	    ini_putf("mash-process", key, cfopts.resttemp[restno-1], cfgfp);
+	    snprintf(mdata,1024,
+		     "<html><body>OK setting rest temperature %d to %f</body></html>",restno,val);
+	  }
+	}
+	response = MHD_create_response_from_data(strlen(mdata),
+						 (void*) mdata,
+						 MHD_NO,
+						 MHD_NO);
+	MHD_add_response_header(response,
+				"Content-Type", "text/html; charset=UTF-8");
+      
+	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+	return ret;
+      }
+
+      // set al values at once: musttemp, resttime(1-3) and resttemp(1-3=
+      // Syntax: /setallmash/<time1>/<temp1>/<time2>/<temp2>/<time3>/<temp3>
+      if (setallmash) { 
+	float vtemp[3];
+	unsigned vtime[3];
+	int ret;
+	bool valid;
+      
+	valid=true;
+      
+	if (pstate.mash!=0) valid=false;
+	if (6 != sscanf(url,"/setallmash/%u/%f/%u/%f/%u/%f",
+			&vtime[0],&vtemp[0],&vtime[1],&vtemp[1],&vtime[2],&vtemp[2])) {
+	  valid=false;
+	}
+	if (!valid) {
+	  if (cmd->debugP)
+	    debug("error setting all rest and control values values\n");
+	  snprintf(mdata,1024,
+		   "<html><body>Error setting all rest and control values<br />"
+		   "Syntax: /setallmash/&lt;time1&gt;/&lt;temp1&gt;/&lt;time2&gt;/&lt;temp2&gt;/&lt;time3&gt;/&lt;temp3&gt;"
+		   "</body></html>");
+	} else {
+	  int i;
+	  char key[10];
+	  // now we have to adjust all requested settings
+	  for (i=0;i<3;i++) {
+	    sprintf(key,"resttime%d",i+1);
+	    if (vtime[i]>MAXTIME) vtime[i]=MAXTIME;
+	    if (cfopts.resttime[i]!=vtime[i]) {
+	      if (cmd->debugP)
+		debug("updateing ini-file %s with value %u\n",key,vtime[i]);
+	      ini_putl("mash-process", key, vtime[i],cfgfp);
+	    }
+	    cfopts.resttime[i]=vtime[i];
+	    sprintf(key,"resttemp%d",i+1);
+	    if (vtemp[i]>MAXTEMP) vtemp[i]=MAXTEMP;
+	    if (vtemp[i]<MINTEMP) vtemp[i]=MINTEMP;
+	    if (cfopts.resttemp[i]!=vtemp[i]) {
+	      if (cmd->debugP)
+		debug("updateing ini-file %s with value %f\n",key,vtemp[i]);
+	      ini_putf("mash-process", key, vtemp[i],cfgfp);
+	    }
+	    cfopts.resttemp[i]=vtemp[i];          
+	  }            
+          snprintf(mdata,1024,
+		   "<html><body>OK setting all rest and control values</body></html>");
+	  if (cmd->debugP)
+	    debug("OK calling /setallmash/%u/%f/%u/%f/%u/%f\n",vtime[0],vtemp[0],vtime[1],vtemp[1],vtime[2],vtemp[2]);
+	}
+	response = MHD_create_response_from_data(strlen(mdata),
+						 (void*) mdata,
+						 MHD_NO,
+						 MHD_NO);
+	MHD_add_response_header(response,
+				"Content-Type", "text/html; charset=UTF-8");
+      
+	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+	return ret;
+      }
+
+    
+
+      if (setmpstate) {
+
+	int mpstate=-1;
+	int res;
+	res=sscanf(url,"/setmpstate/%d",&mpstate);
+
+	if ((1 != res) || (mpstate >7) || (mpstate <0)) {
+	  if (cmd->debugP)
+	    debug("error setting mash process state to %d\n",mpstate);
+	  snprintf(mdata,1024,
+		   "<html><body>Error setting mash process state to %d!</body></html>",mpstate);
+	} else {
+	  if (cmd->debugP)
+	    debug("setting mash process state to: %d\n",mpstate);  
+
+	  pstate.mash=mpstate;
+	  // if mash process is set to 0 control needs to be turned of as well
+	  // otherwise we need control to be turned on
+	  if (mpstate == 0) {
+	    resetMashProcess();
+	  } else {
+	    pstate.control=1;
+
+	    // on even state we need to set starttime
+	    if (!(mpstate % 2)) {
+	      pstate.starttime=time(NULL);
+	      unsigned index;
+	      index=(mpstate-1)/2;
+	      if (cmd->debugP)
+		debug("setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
+	    }
+	  }
+
+	  snprintf(mdata,1024,
+		   "<html><body>OK setting mash process state to %d</body></html>",mpstate);
+	}
+	response = MHD_create_response_from_data(strlen(mdata),
+						 (void*) mdata,
+						 MHD_NO,
+						 MHD_NO);
+	MHD_add_response_header(response,
+				"Content-Type", "text/html; charset=UTF-8");
+      
+	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+	return ret;
+      }
+
+      if (strlen(url)==1 && url[0]=='/') {
+	relative_url=indexfile;  
+      } else {
+	int i=0;
+	/* remove leading / from url */
+	while (url[i]=='/') i++;
+	relative_url=url+i; 
+      }
+      if (cmd->debugP)
+	debug("trying to open file: %s\n",relative_url);
+      if ((0 == stat(relative_url, &buf)) && (S_ISREG (buf.st_mode)) )
+	file = fopen(relative_url, "rb");
+      else
+	file = NULL;
+ 
+      if (file == NULL) {
+	response = MHD_create_response_from_buffer (strlen (PAGE),
+						    (void *) PAGE,
+						    MHD_RESPMEM_PERSISTENT);
+	ret = MHD_queue_response (connection, MHD_HTTP_NOT_FOUND, response);
+	MHD_destroy_response (response);
+	return ret;
+      } else {
+	file = fopen (relative_url, "rb");
+	response = MHD_create_response_from_callback (buf.st_size,
+						      32 * 1024,     /* 32k page size */
+						      &file_reader,
+						      file,
+						      &free_file_callback);
+	if (response == NULL) {
+	  free (file);
+	  return MHD_NO;
+	}
+
+	/* mime types we know better than libmagic are for .js and .css */
+	if (strncmp(getExt(relative_url),".js",3)==0) {
+	  if (cmd->debugP)
+	    debug("setting mime type to %s\n", "text/javascript");
+	  MHD_add_response_header(response,"Content-Type", "text/javascript");
+	} else {
+	  if (strncmp(getExt(relative_url),".css",4)==0) {
+	    if (cmd->debugP)
+	      debug("setting mime type to %s\n", "text/css");
+	    MHD_add_response_header(response,"Content-Type", "text/css");
+	  } else {
+	    /* use libmagic for the rest */
+	    magic_full = magic_file(magic_cookie, relative_url);
+	    if (cmd->debugP)
+	      debug("setting mime type to %s\n", magic_full);
+	    MHD_add_response_header(response,"Content-Type", magic_full);
+	  }
 	}
       }
     }
-  }
 
-  ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+    ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+  }
   MHD_destroy_response (response);    
   return ret;
 }
@@ -657,9 +676,9 @@ void acq_and_ctrl() {
       if (pstate.tempCurrent >= pstate.tempMust) {
 	pstate.starttime=time(NULL);
 	/* this is a special case here:
-        if resttime is 0 we need to set tempMust to the value of the
-	next rest to skip the rest and prevent the heating relay from
-	flickering */
+	   if resttime is 0 we need to set tempMust to the value of the
+	   next rest to skip the rest and prevent the heating relay from
+	   flickering */
 	if ((index <2) && (cfopts.resttime[index] == 0)) {
 	  pstate.tempMust=cfopts.resttemp[index+1];
 	}
@@ -773,7 +792,7 @@ int main(int argc, char **argv) {
 		       cfopts.port,
 		       NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
   if (d == NULL)
-   die("error starting http server\n");
+    die("error starting http server\n");
 
 
   timfd=init_timerfd(DELAY);

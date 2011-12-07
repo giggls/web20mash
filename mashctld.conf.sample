@@ -3,6 +3,11 @@ port=8888
 #webroot=/usr/local/share/web20mash/
 webroot=/home/sven/work/brauprojekt/web20mash/webdata/
 
+[auth]
+active=0
+username=login
+password=secret
+
 [control]
 # owfs parameters this is usually the adsress of an owserver
 # or just something like "-u" for direct connection via usb

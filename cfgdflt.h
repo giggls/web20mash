@@ -22,7 +22,10 @@ Sll these values can be changed using the runtime configuration file
 #define CTLD_TEMPMUST 0
 #define CTLD_HYSTERESIS 0.2
 #define CTLD_HEATER 1
-#define CTLD_RTC "/dev/rtc0"
 #define CTLD_WEBROOT "/usr/local/share/web20mash/webdata/"
 #define CTLD_RESTTIMES {0,20,20};
 #define CTLD_RESTTEMP {52.5,62.5,72.5};
+#define CTLD_USERNAME "login"
+#define CTLD_PASSWORD "secret"
+#define CTLD_AUTHACTIVE 0
+

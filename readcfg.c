@@ -13,6 +13,10 @@ void readconfig(char *cfgfile) {
   char cfresttime[]="resttimeX";
 
   cfopts.port=ini_getl("global","port",CTLD_PORT, cfgfile);  
+
+  ini_gets("auth", "username", CTLD_USERNAME, cfopts.username, sizearray(cfopts.username), cfgfile);
+  ini_gets("auth", "password", CTLD_PASSWORD, cfopts.password, sizearray(cfopts.password), cfgfile);
+  cfopts.authactive=ini_getbool("auth", "active",CTLD_AUTHACTIVE, cfgfile);
   ini_gets("control", "owparms", CTLD_OWPARMS, cfopts.owparms, sizearray(cfopts.owparms), cfgfile);
   ini_gets("control", "sensor", CTLD_SENSORID, cfopts.sensor, sizearray(cfopts.sensor), cfgfile);
   ini_gets("control", "actuator", CTLD_ACTUATORID, cfopts.actuator, sizearray(cfopts.actuator), cfgfile);

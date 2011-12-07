@@ -81,6 +81,9 @@ struct configopts {
   char webroot[255];
   float resttemp[3];
   uint64_t resttime[3];
+  char username[255];
+  char password[255];
+  bool authactive;
 };
 
 struct processstate {
