@@ -63,13 +63,19 @@ function RunApp() {
   $.getJSON('/getstate',parse_getstate_Response);
   $('#start').click(function() {
     $("#settings-btn").attr("disabled", "true");
-    url='/setmpstate/' + $("input[name='mashstate']:checked").val();
+    var startstate= $("input[name='mashstate']:checked").val();
+    url='/setmpstate/' + startstate;
+    $('#state'+startstate).css("background","red");
     $.get(url, cbstart);
   });
   $('#stop').click(function() {
     if ((mpstate > 0) && (mpstate < 7)) {
+      $('#state'+$("input[name='mashstate']:checked").val()).css("background","");
       url='/setmpstate/0';
       $.get(url, cbstop);
+      for (var i=1;i<7;i++) {
+        $('#state'+i).css("background","");
+      }
     }
   });
   $('#settings-btn').click(function() {
@@ -211,7 +217,9 @@ function parse_getstate_Response(data) {
         timer.setperiod(0);
       }
       $("input[name='mashstate'][value="+data.mpstate+"]").attr("checked","checked");
-      $('#state'+mpstate).css("background","");
+      for (var j=1;j<data.mpstate;j++) {
+        $('#state'+j).css("background","");
+      }
       $('#state'+data.mpstate).css("background","red");
     }
     if (0 != data.resttimer) timer.setvalue(data.resttime[restno]-data.resttimer);
@@ -247,8 +255,5 @@ function cbstop(data) {
  } else {
    alert('Prozess abgebrochen');
    $("#settings-btn").removeAttr('disabled');
-   for (i=1;i<7;i++) {
-    $('#state'+i).css("background","");
-   }
  }
 }
