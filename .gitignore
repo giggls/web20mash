@@ -4,3 +4,4 @@ cmdline.o
 mashctld
 mashctld.1
 *.o
+mashctld.conf
