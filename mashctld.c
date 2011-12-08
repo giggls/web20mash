@@ -358,9 +358,9 @@ static int answer_to_connection (void *cls,
 	} else {
 	  setRelay(state);
 	  if (cmd->debugP)
-	    debug("setting actor to: %d\n",state);  
+	    debug("setting actuator to: %d\n",state);  
 	  snprintf(mdata,1024,
-		   "<html><body>OK setting actor to %d</body></html>",state);
+		   "<html><body>OK setting actuator to %d</body></html>",state);
 	}
 	response = MHD_create_response_from_data(strlen(mdata),
 						 (void*) mdata,

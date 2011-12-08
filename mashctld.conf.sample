@@ -1,6 +1,5 @@
 [global]
 port=8888
-#webroot=/usr/local/share/web20mash/
 webroot=/home/sven/work/brauprojekt/web20mash/webdata/
 
 [auth]
@@ -28,9 +27,9 @@ sensor=10.B963D4000800
 actuator=12.9B6E45000000
 #actuator=external
 
-# if actorid is set to "external" the following
+# if actuator is set to "external" the following
 # external commands are run to switch on and off
-# state respectively instead of using a 1-wire actor
+# state respectively instead of using a 1-wire actuator
 exactuatoron=sispm +1
 exactuatoroff=sispm -1
 
