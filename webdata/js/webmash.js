@@ -49,7 +49,7 @@ for (var i=0;i<6;i++) {
 function AjaxError(action) {
   $("body").css('background-image', 'none');
   $("body").css('background-color', '#FF0000');
-  alert("Kommunikationsfehler in Funktion: "+action);
+  alert(i18n.comm_error+action);
 }
 
 // This does all the initial stuff and is called after all images have been loaded
@@ -191,7 +191,7 @@ function parse_getstate_Response(data) {
     timer.setperiod(0);
     thermo.clrresttemp();
     $('#state6').css("background","");
-    alert("Maischvorgang abgeschlossen!");
+    alert(i18n.process_finished);
   }
   
   if (data.mpstate == 0) {
@@ -253,7 +253,7 @@ function cbstop(data) {
  if (!data) {
    AjaxError('cbmust');
  } else {
-   alert('Prozess abgebrochen');
+   alert(i18n.process_canceled);
    $("#settings-btn").removeAttr('disabled');
  }
 }

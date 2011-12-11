@@ -23,6 +23,8 @@ input, select, textarea {
 h1 { 
   font-family:  Arial, Helvetica, Verdana, sans-serif;
   text-align: center;
+  margin-top: 20px;
+  margin-bottom: 5px;
 }
 
 h2 { 
@@ -45,6 +47,7 @@ button {
 #ControlCanvas {
   position:absolute;
   border: solid 3px;
+  margin-top:20px;
   left: 0px;
   top: 0px;
 }
@@ -62,12 +65,13 @@ button {
   margin-left:auto;
   margin-right:auto;
   width: 626px;
-  height: 456px;
+  height: 476px;
   position:relative;
 }
 
 #settings-frame {
   position:absolute;
+  margin-top:20px;
   background-image:url(../images/elehigru.gif);
   top: 23px;
   left: 305px;
@@ -83,6 +87,16 @@ button {
 
 #settings-btn {
   position:absolute;
+  margin-top:20px;
   top: 360px;
   left: 540px;
+}
+
+#lang {
+  position:absolute;
+  width: 620px;
+  margin-top: 3px;
+  margin-right: 3px;
+  margin-left: 3px;
+  text-align: right;
 }

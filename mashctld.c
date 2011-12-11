@@ -131,6 +131,56 @@ const char *getExt (const char *fspec) {
   return e;
 }
 
+static void strtolower(char* str, unsigned len) {
+  unsigned i;
+  for (i=0;i<len;i++) {
+    str[i]=tolower(str[i]);
+  }
+}
+
+// determine url name to be used i18n version
+char *getintlname(const char *alang, const char *ourl, char *nurl[]) {
+  struct stat buf;
+  char *myalang;
+  char *url;
+  char *tok;
+  
+  url=*nurl;
+  myalang=malloc((strlen(alang)+1)*sizeof(char));
+  strcpy(myalang,alang);
+  tok=strtok(myalang,",");
+  while (tok != NULL) {
+    char *tail;
+    strtolower(tok,strlen(tok));
+    tail=url+strlen(ourl);
+    tail[0]='.';
+    strncpy(tail+1,tok,3);
+    tail[3]='\0';
+    if (cmd->debugP)
+      debug("getintlname: looking for file: %s\n",url);
+    if ((0 == stat(url, &buf)) && (S_ISREG (buf.st_mode)) ) {
+      if (cmd->debugP)
+	printf("getintlname: OK, found file %s\n",url);
+      break;
+    } else {
+      if (cmd->debugP)
+	printf("getintlname: no file named: %s\n",url);
+    }
+    tok=strtok(NULL,",");
+  }
+  if (tok==NULL) {
+    char *tail;
+    if (cmd->debugP)
+      debug("getintlname: requested languages unavailable using default: %s\n",url,DEFAULTLANG);
+    tail=url+strlen(ourl);
+    tail[0]='.';
+    strncpy(tail+1,DEFAULTLANG,3);
+    tail[3]='\0';	  
+  }
+  free(myalang);
+  return(url);
+}
+
 static ssize_t file_reader (void *cls, uint64_t pos, char *buf, size_t max) {
   FILE *file = cls;
 
@@ -140,7 +190,7 @@ static ssize_t file_reader (void *cls, uint64_t pos, char *buf, size_t max) {
 
 static void free_file_callback (void *cls) {
   FILE *file = cls;
-  fclose (file);
+  fclose(file);
 }
 
 static ssize_t sync_response_generator (void *cls, uint64_t pos, char *buf, size_t max) {
@@ -170,7 +220,6 @@ static ssize_t sync_response_generator (void *cls, uint64_t pos, char *buf, size
   return ret;
 }
 
-
 static void sync_response_free_callback (void *cls) {
   free (cls);
 }
@@ -191,6 +240,7 @@ static int answer_to_connection (void *cls,
   static char mdata[1024];
   const char *relative_url;
   const char *magic_full;
+  char *nurl;
   char *user;
   char *pass;
   int fail=0;
@@ -552,14 +602,36 @@ static int answer_to_connection (void *cls,
 	while (url[i]=='/') i++;
 	relative_url=url+i; 
       }
+
+      nurl=NULL;
+      /* if clause is a poor man's i18n, in else clause we have no i18n at all 
+	 evaluate just the first two digits of a language string ignoring
+	 anything else
+      */
+      if (strncmp(getExt(relative_url),".html",5)==0) {
+	const char *alang;
+
+	alang=MHD_lookup_connection_value(connection, MHD_HEADER_KIND, MHD_HTTP_HEADER_ACCEPT_LANGUAGE);
+	/* no language header given */
+	if (alang==NULL) {
+	  if (cmd->debugP)
+	    debug("no language header in http-request setting default: %s\n",DEFAULTLANG);
+	  alang=DEFAULTLANG;
+	}
+	nurl=malloc(sizeof(char)*(strlen(relative_url)+4));
+	strcpy(nurl,relative_url);
+	relative_url=getintlname(alang,relative_url,&nurl);
+      }
+	
       if (cmd->debugP)
 	debug("trying to open file: %s\n",relative_url);
       if ((0 == stat(relative_url, &buf)) && (S_ISREG (buf.st_mode)) )
 	file = fopen(relative_url, "rb");
       else
 	file = NULL;
- 
+
       if (file == NULL) {
+	if (NULL!=nurl) free(nurl);
 	response = MHD_create_response_from_buffer (strlen (PAGE),
 						    (void *) PAGE,
 						    MHD_RESPMEM_PERSISTENT);
@@ -567,14 +639,13 @@ static int answer_to_connection (void *cls,
 	MHD_destroy_response (response);
 	return ret;
       } else {
-	file = fopen (relative_url, "rb");
 	response = MHD_create_response_from_callback (buf.st_size,
 						      32 * 1024,     /* 32k page size */
 						      &file_reader,
 						      file,
 						      &free_file_callback);
 	if (response == NULL) {
-	  free (file);
+	  fclose(file);
 	  return MHD_NO;
 	}
 
@@ -596,6 +667,7 @@ static int answer_to_connection (void *cls,
 	    MHD_add_response_header(response,"Content-Type", magic_full);
 	  }
 	}
+	if (NULL!=nurl) free(nurl);
       }
     }
 

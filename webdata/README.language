@@ -1,0 +1,26 @@
+Adding languages is easy. 
+
+Lets asume you want to translate the files into zulu (language code "zu"),
+here is how to do it:
+
+1. copy html files with .html.en.in extension to files with .html.zu.in extension
+2. translate HTML text in copied files
+3. copy js/en.js to js/zu.js
+4. change english messages in js/zu.js to zulu
+
+5. In case of your language code is different from country code your need to exend the
+Makefile target images/en.png as follows:
+
+images/en.png:
+	wget -O - -q http://qt.osdn.org.ua/kbflags-1.0.tar.gz |tar xvz -C /tmp
+	cp /tmp/kbflags-1.0/21x14.new/* images
+	cp images/gb.png images/en.png
+-->	cp images/za.png images/zu.png <---- Add this line
+	rm -rf /tmp/kbflags-1.0
+
+So in our case w asume zulu to be spoken all over South Africa :)
+
+6. Finaly remove generated english files to force the rebuild of the
+language files and call make:
+
+rm images/en.png; rm index.html.en.in; make

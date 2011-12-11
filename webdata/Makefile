@@ -7,7 +7,7 @@ JCANVASCRIPT=jCanvaScript.1.5.10.min.js
 JSTEPPER_BASE=http://jstepper.emkay.dk/scripts
 JSTEPPER=jquery.jstepper.min.js
 
-all: images/thermometer.png images/sudpfanne.png js/$(JQUERY) js/$(JCANVASCRIPT) js/$(JSTEPPER)
+all: images/thermometer.png images/sudpfanne.png js/$(JQUERY) js/$(JCANVASCRIPT) js/$(JSTEPPER) index.html.en images/en.png
 
 images/thermometer.png: images/thermometer.xcf
 	xcf2png -o images/thermometer.png images/thermometer.xcf thermometer legend
@@ -23,7 +23,18 @@ js/$(JCANVASCRIPT):
 	
 js/$(JSTEPPER):
 	wget -P js $(JSTEPPER_BASE)/$(JSTEPPER)
+
+# build all language index files from templates
+index.html.en:
+	./genindex.sh
 	
+# fetch all language files from http://qt.osdn.org.ua/kbflags-1.0.tar.gz
+images/en.png:
+	wget -O - -q http://qt.osdn.org.ua/kbflags-1.0.tar.gz |tar xvz -C /tmp
+	cp /tmp/kbflags-1.0/21x14.new/* images
+	cp images/gb.png images/en.png
+	rm -rf /tmp/kbflags-1.0
+			
 clean:
 	rm -f images/thermometer.png
 	rm -f images/sudpfanne.png

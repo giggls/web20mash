@@ -32,6 +32,7 @@ main header file
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -55,6 +56,8 @@ main header file
 #define MAXTEMP 125
 #define MAXTIME 180
 #define UNUSED(expr) do { (void)(expr); } while (0)
+
+#define DEFAULTLANG "en"
 
 void printSensorActuatorList();
 int doControl();
