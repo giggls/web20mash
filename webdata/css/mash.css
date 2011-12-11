@@ -55,6 +55,7 @@ button {
 
 #pstate {
   position:absolute;
+  margin-top:20px;
   top: 40px;
   left: 305px;
   width: 310px;
