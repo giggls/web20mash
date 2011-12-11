@@ -172,7 +172,6 @@ function parse_getstate_Response(data) {
     AjaxError('parse_getstate_Response');
   }
 
-  settings.ok=true;
   settings.musttemp=data.musttemp;
   settings.resttime=data.resttime;
   settings.resttemp=data.resttemp;
@@ -195,6 +194,7 @@ function parse_getstate_Response(data) {
   }
   
   if (data.mpstate == 0) {
+    settings.ok=true;
     if (mpstate!=0) {
       // radiobutton back to start
       $("input[name='mashstate'][value=1]").attr("checked","checked");
@@ -205,6 +205,10 @@ function parse_getstate_Response(data) {
       timer.setperiod(0);
       thermo.clrresttemp();
     }
+  } else {
+    // this is for opera only because Opera does not seem to honor
+    // that our button has been disabled
+    settings.ok=false;
   }
   
   if ((data.mpstate > 0) && (data.mpstate < 7)) {
