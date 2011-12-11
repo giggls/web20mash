@@ -198,6 +198,8 @@ function parse_getstate_Response(data) {
     if (mpstate!=0) {
       // radiobutton back to start
       $("input[name='mashstate'][value=1]").attr("checked","checked");
+      // clear state indicator (red background)
+      $('#state'+mpstate).css("background","");
       // settings enabled
       $("#settings-btn").removeAttr('disabled');
       timer.setperiod(0);
