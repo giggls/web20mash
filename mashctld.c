@@ -863,6 +863,14 @@ int main(int argc, char **argv) {
   d = MHD_start_daemon(MHD_USE_IPv6,
 		       cfopts.port,
 		       NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
+  // try to start IPv4 only
+  if (d == NULL) {
+    if (cmd->debugP)
+      debug("Error running IPv6 enabled server, trying with IPv4 only\n");
+    d = MHD_start_daemon(MHD_NO,
+                        cfopts.port,
+                        NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
+  }
   if (d == NULL)
     die("error starting http server\n");
 
