@@ -45,6 +45,10 @@ button {
   font-size: 10pt;
 }
 
+a img {
+  border : 0 none;
+}
+
 #ControlCanvas {
   position:absolute;
   border: solid 3px;
