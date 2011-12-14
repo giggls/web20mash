@@ -3,7 +3,7 @@
   <head>
     <title>Webmash brewing</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
     <link rel="stylesheet" href="css/mash.css" type="text/css" />
     <script type="text/javascript" src="js/jCanvaScript.1.5.10.min.js"></script>
     <script type="text/javascript" src="js/jcsector.js"></script>
@@ -19,10 +19,12 @@
     <noscript><h2>Sorry, this application needs Javascript!</h2></noscript>
     <div id="pandc">
       <div id="lang">
-        <!--LANG-->
+	<!--LANG-->
       </div>
       <canvas id="ControlCanvas" width="620" height="450">
-            Your browser does not support the canvas element.   
+         <h2>Your browser does not support the canvas element!</h2>
+         <h2>All Versions of Internet Explorer &lt version 9 dont.</h2>
+         <h2>NOTE: In newer Versions of Internet Explorer compatibility modes has to be disabled</h2>
       </canvas>
       <div id='settings'>
       <button id='settings-btn' type='button'><img src="images/config.png"></button>&nbsp;&nbsp;</p>

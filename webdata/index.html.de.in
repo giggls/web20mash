@@ -3,8 +3,8 @@
   <head>
     <title>Webmash Brausteuerung</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
     <link rel="stylesheet" href="css/mash.css" type="text/css" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
     <script type="text/javascript" src="js/jCanvaScript.1.5.10.min.js"></script>
     <script type="text/javascript" src="js/jcsector.js"></script>
     <script type="text/javascript" src="js/jquery-1.7.min.js"></script>
@@ -22,7 +22,9 @@
         <!--LANG-->
       </div>
       <canvas id="ControlCanvas" width="620" height="450">
-            Your browser does not support the canvas element.   
+         <h2>Browser kennt kein canvas Element!</h2>
+         <h2>Das ist z.B. bei Internet Explorer &lt; Version 9 der Fall</h2>
+	 <h2>WICHTIG: Der Internet Explorer 9 darf nicht im Kompatibilitätsmodus laufen</h2>
       </canvas>
       <div id='settings'>
       <button id='settings-btn' type='button'><img src="images/config.png"></button>&nbsp;&nbsp;</p>
