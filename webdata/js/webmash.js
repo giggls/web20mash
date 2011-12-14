@@ -54,7 +54,9 @@ function AjaxError(action) {
 
 // This does all the initial stuff and is called after all images have been loaded
 function RunApp() {
-  $.ajaxSetup({ cache: false });
+  if ( $.browser.msie ) {
+    $.ajaxSetup({ cache: false });
+  }
   // input entry checks
   $(".tempinput").jStepper({minValue:0, maxValue:99, normalStep:0.5, decimalSeparator:"."});
   $(".timeinput").jStepper({minValue:0, maxValue:120, allowDecimals:false, decimalSeparator:"."});
