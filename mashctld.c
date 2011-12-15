@@ -801,7 +801,8 @@ void acq_and_ctrl() {
 }
 
 int main(int argc, char **argv) {
-  struct MHD_Daemon *d;
+  struct MHD_Daemon *dv4;
+  struct MHD_Daemon *dv6;
   fd_set rs;
   fd_set ws;
   fd_set es;
@@ -810,7 +811,7 @@ int main(int argc, char **argv) {
   FILE *cfile;
   
   cmd = parseCmdline(argc, argv);
-  
+
   /* parse the configfile if available and readable */
   cfile=fopen(cmd->configfile,"r");
   if (cfile==NULL) {
@@ -860,18 +861,22 @@ int main(int argc, char **argv) {
     die("cannot load magic database - %s\n", magic_error(magic_cookie));
   }
 
-  d = MHD_start_daemon(MHD_USE_IPv6,
-		       cfopts.port,
-		       NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
-  // try to start IPv4 only
-  if (d == NULL) {
+  dv6 = MHD_start_daemon(MHD_USE_IPv6,
+		         cfopts.port,
+		         NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
+  if (dv6 == NULL)
     if (cmd->debugP)
-      debug("Error running IPv6 enabled server, trying with IPv4 only\n");
-    d = MHD_start_daemon(MHD_NO,
-                        cfopts.port,
-                        NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
-  }
-  if (d == NULL)
+      debug("Error running IPv6 HTTP-server\n");
+    
+  dv4 = MHD_start_daemon(MHD_NO,
+                         cfopts.port,
+                         NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
+  
+  if (dv4 == NULL)
+    if (cmd->debugP)
+      debug("Error running IPv4 HTTP-server\n");
+  
+  if ((dv4 == NULL) && (dv6 == NULL))
     die("error starting http server\n");
 
 
@@ -901,8 +906,13 @@ int main(int argc, char **argv) {
     FD_ZERO (&ws);
     FD_ZERO (&es);
 
-    if (MHD_YES != MHD_get_fdset (d, &rs, &ws, &es, &max))
-      break; /* fatal internal error */
+    if (dv4!=NULL)
+      if (MHD_YES != MHD_get_fdset (dv4, &rs, &ws, &es, &max))
+        break; /* fatal internal error */
+      
+    if (dv6!=NULL)
+      if (MHD_YES != MHD_get_fdset (dv6, &rs, &ws, &es, &max))
+        break;
 
     FD_SET(timfd,&rs);
     if (timfd >max) max=timfd;
@@ -914,8 +924,11 @@ int main(int argc, char **argv) {
       acq_and_ctrl();
     }
     /* NOTE: *always* run MHD_run() in external select loop! */
-    MHD_run (d);    
+    if (dv4!=NULL) MHD_run(dv4);
+    if (dv6!=NULL) MHD_run(dv6);
+    
   }
-  MHD_stop_daemon (d);
+  if (dv4!=NULL) MHD_stop_daemon(dv4);
+  if (dv6!=NULL) MHD_stop_daemon(dv6);
   return 0;
 }
