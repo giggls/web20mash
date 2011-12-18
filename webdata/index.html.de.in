@@ -1,70 +1,25 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Webmash Brausteuerung</title>
+    <title>Web 2.0 Mash</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=9" />
     <link rel="stylesheet" href="css/mash.css" type="text/css" />
-    <script type="text/javascript" src="js/jCanvaScript.1.5.10.min.js"></script>
-    <script type="text/javascript" src="js/jcsector.js"></script>
-    <script type="text/javascript" src="js/jquery-1.7.min.js"></script>
-    <script type="text/javascript" src="js/jquery.jstepper.min.js"></script>
-    <script type="text/javascript" src="js/ctimer.js"></script>
-    <script type="text/javascript" src="js/webmash.js"></script>
-    <script type="text/javascript" src="js/de.js"></script>
   </head>
 
   <body>
-    <h1>Webmash Brausteuerung</h1>
-    <noscript><h2>Sorry, nur mit eingschaltetem Javascript benutzbar!</h2></noscript>
-    <div id="pandc">
-      <div id="lang">
-        <!--LANG-->
-      </div>
-      <canvas id="ControlCanvas" width="620" height="450">
-         <h2>Browser kennt kein canvas Element!</h2>
-         <h2>Das ist z.B. bei Internet Explorer &lt; Version 9 der Fall</h2>
-	 <h2>WICHTIG: Der Internet Explorer 9 darf nicht im Kompatibilitätsmodus laufen</h2>
-      </canvas>
-      <div id='settings'>
-      <button id='settings-btn' type='button'><img src="images/config.png"></button>&nbsp;&nbsp;</p>
-      </div>
-      <div id="pstate">
-        <table>
-          <tr id="state1"><td><input type="radio" name="mashstate" value="1" checked>
-	        <td>aufheizen bis Eiweißrast
-          <tr id="state2"><td><input type="radio" name="mashstate" value="2">
-	        <td>Eiweißrast
-          <tr id="state3"><td><input type="radio" name="mashstate" value="3">
-	        <td>aufheizen bis 1. Verzuckerungsrast/Maltoserast
-          <tr id="state4"><td><input type="radio" name="mashstate" value="4">
-	        <td>1. Verzuckerungsrast/Maltoserast
-          <tr id="state5"><td><input type="radio" name="mashstate" value="5">
-	        <td>aufheizen bis 2. Verzuckerungsrast
-          <tr id="state6"><td><input type="radio" name="mashstate" value="6">
-	        <td>2. Verzuckerungsrast
-        </table>
-        <br />
-        <button id='start' type='button'>Prozess starten</button>
-        <button id='stop' type='button'>Prozess abbrechen</button>
-      </div>
-      <div id='settings-frame'>
-        <table>
-        <tr><td>Temp. Eiweißrast:<td><input name="resttemp1" class="tempinput" type="text" size="5" maxlength="5">
-        <td style="text-align: left;">°C
-        <tr><td>Dauer Eiweißrast:<td><input name="resttime1" class="timeinput" type="text" size="5" maxlength="5">
-        <td style="text-align: left;">min
-        <tr><td>Temp. 1. Verzuckerungsrast:<td><input name="resttemp2" class="tempinput" type="text" size="5" maxlength="5">
-        <td style="text-align: left;">°C
-        <tr><td>Dauer 1. Verzuckerungsrast:<td><input name="resttime2" class="timeinput" type="text" size="5" maxlength="5">
-        <td style="text-align: left;">min
-        <tr><td>Temp. 2. Verzuckerungsrast:<td><input name="resttemp3" class="tempinput" type="text" size="5" maxlength="5">
-        <td style="text-align: left;">°C
-        <tr><td>Dauer 2. Verzuckerungsrast:<td><input name="resttime3" class="timeinput" type="text" size="5" maxlength="5">
-        <td style="text-align: left;">min
-        </table>
-        <button id='OK' type='button'>OK</button>&nbsp;&nbsp;
-      </div>
-    </div>
+    <p style="text-align: center;">
+    <!--LANG-->
+    </p>
+    <h1>Web 2.0 Mash</h1>
+    <h2>
+      <img src="images/tux-brew.png">
+      <p>
+        <a href="mash.html">Brausteuerung</a>
+      </p>
+      <p>
+        <a href="tempctrl.html">Temperaturregelung</a>
+      </p>
+    </h2>
   </body>
 </html>

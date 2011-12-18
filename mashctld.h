@@ -59,6 +59,9 @@ main header file
 
 #define DEFAULTLANG "en"
 
+#define ACT_COOLER 0
+#define ACT_HEATER 1
+
 void printSensorActuatorList();
 int doControl();
 void setRelay(int state);
@@ -80,7 +83,7 @@ struct configopts {
   char extactuatoroff[255];
   float tempMust;
   float hysteresis;
-  bool heater;
+  int acttype;
   char webroot[255];
   float resttemp[3];
   uint64_t resttime[3];

@@ -11,6 +11,7 @@ void readconfig(char *cfgfile) {
   float defrtemp[3] = CTLD_RESTTEMP;
   char cfresttemp[]="resttempX";
   char cfresttime[]="resttimeX";
+  char acttype[7];
 
   cfopts.port=ini_getl("global","port",CTLD_PORT, cfgfile);  
 
@@ -30,9 +31,16 @@ void readconfig(char *cfgfile) {
   } else {
     cfopts.extactuator=false;
   }
+  
+  ini_gets("control", "actuatortype", CTLD_ACTTYPE, acttype, sizearray(acttype), cfgfile);
+  if (0==strcmp("cooler",acttype)) {
+    cfopts.acttype=ACT_COOLER;
+  } else {
+    cfopts.acttype=ACT_HEATER;
+  }
+  
   cfopts.tempMust=ini_getf("control", "tempMust", CTLD_TEMPMUST, cfgfile);
   cfopts.hysteresis=ini_getf("control", "hysteresis", CTLD_HYSTERESIS, cfgfile);
-  cfopts.heater=ini_getbool("control", "heater",CTLD_HEATER, cfgfile);
   ini_gets("global", "webroot", CTLD_WEBROOT, cfopts.webroot, sizearray(cfopts.webroot), cfgfile);
 
   // read rest times and temperatures

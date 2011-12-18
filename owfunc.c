@@ -131,7 +131,7 @@ int doControl() {
   float ubarrier;
   float lbarrier;
 
-  if (cfopts.heater) {
+  if (ACT_HEATER==cfopts.acttype) {
     ubarrier=pstate.tempMust;
     lbarrier=pstate.tempMust-(cfopts.hysteresis);
     if (pstate.tempCurrent < lbarrier) {

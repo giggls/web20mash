@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Temperaturregelung</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <link rel="stylesheet" href="css/mash.css" type="text/css" />
+    <script type="text/javascript" src="js/jCanvaScript.1.5.10.min.js"></script>
+    <script type="text/javascript" src="js/jquery-1.7.min.js"></script>
+    <script type="text/javascript" src="js/jquery.jstepper.min.js"></script>
+    <script type="text/javascript" src="js/tempctrl.js"></script>
+    <script type="text/javascript" src="js/de.js"></script>
+  </head>
+
+  <body>
+    <h1>Temperaturregelung</h1>
+    <noscript><h2>Sorry, nur mit eingschaltetem Javascript benutzbar!</h2></noscript>
+    <div id="pandc">
+      <div id="lang">
+        <!--LANG-->
+      </div>
+      <div id="TempTable">
+      <table style="margin-top:50px;margin-left:110px;width:400px;">
+      <tr><td width="200" style="text-align: center;">
+	<canvas id="TempCanvas" width="90" height="330">
+         <h2>Browser kennt kein canvas Element!</h2>
+         <h2>Das ist z.B. bei Internet Explorer &lt; Version 9 der Fall</h2>
+	 <h2>WICHTIG: Der Internet Explorer 9 darf nicht im Kompatibilitätsmodus laufen</h2>
+      	</canvas>
+      <td width="200">
+	<p><input class="tempctl" type="checkbox" name="control" value="control">&nbsp;Regelung ein/aus<br />
+	<input type="checkbox" name="actuator" value="actuator">&nbsp;Aktor ein/aus</p>
+	<p><input class="tempctl" type="radio" name="acttype" value="cooler">&nbsp;Kühlgerät
+	<input class="tempctl" type="radio" name="acttype" value="heater" checked>&nbsp;Heizgerät</p>
+	<p>Sollwert:
+	<input class="tempctl" name="musttemp" type="text" size="5" maxlength="5" value="0">
+	<button class="tempctl" id='setmust' type='button'>&#8629;</button>
+      </div>
+    </div>
+  </body>
+</html>

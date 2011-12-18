@@ -7,7 +7,19 @@ JCANVASCRIPT=jCanvaScript.1.5.10.min.js
 JSTEPPER_BASE=http://jstepper.emkay.dk/scripts
 JSTEPPER=jquery.jstepper.min.js
 
-all: images/thermometer.png images/sudpfanne.png js/$(JQUERY) js/$(JCANVASCRIPT) js/$(JSTEPPER) index.html.en images/en.png
+HTML_IN_FILES := $(wildcard *.html.*.in)
+HTML_OUT_FILES := $(patsubst %.in, %, ${HTML_IN_FILES})
+
+all: images/thermometer.png images/sudpfanne.png js/$(JQUERY) js/$(JCANVASCRIPT) js/$(JSTEPPER) images/en.png ${HTML_OUT_FILES}
+
+index.html.%: index.html.%.in
+	./html_from_template.sh index $*
+	
+mash.html.%: mash.html.%.in
+	./html_from_template.sh mash $*
+	
+tempctrl.html.%: tempctrl.html.%.in
+	./html_from_template.sh tempctrl $*
 
 images/thermometer.png: images/thermometer.xcf
 	xcf2png -o images/thermometer.png images/thermometer.xcf thermometer legend
@@ -24,11 +36,6 @@ js/$(JCANVASCRIPT):
 js/$(JSTEPPER):
 	wget -P js $(JSTEPPER_BASE)/$(JSTEPPER)
 
-# build all language index files from templates
-index.html.en:
-	./genindex.sh
-	
-# fetch all language files from http://qt.osdn.org.ua/kbflags-1.0.tar.gz
 images/en.png:
 	wget -O - -q http://qt.osdn.org.ua/kbflags-1.0.tar.gz |tar xvz -C /tmp
 	cp /tmp/kbflags-1.0/21x14.new/* images
@@ -40,3 +47,5 @@ clean:
 	rm -f images/sudpfanne.png
 	rm -f js/$(JQUERY)
 	rm -f js/$(JCANVASCRIPT)
+	rm index.html.??
+	

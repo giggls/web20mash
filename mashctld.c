@@ -68,6 +68,8 @@ static void resetMashProcess() {
   setRelay(0);                   
 }
 
+const char* actuatorname[2] = {"cooler", "heater"};
+
 void debug(char* fmt, ...) {
   va_list ap;
   
@@ -207,11 +209,14 @@ static ssize_t sync_response_generator (void *cls, uint64_t pos, char *buf, size
   ret=snprintf (&buf[ret], max,
 		"{\n  \"curtemp\": %5.1f,\n  \"musttemp\": %5.1f,\n  "
 		"\"rstate\": %d,\n  \"ctrl\": %d,\n  \"mpstate\": %d,\n  "
+		"\"acttype\": \"%s\",\n  "
 		"\"resttimer\": %f,\n  "
                 "\"resttime\": [ %ju, %ju, %ju ],\n  "
 		"\"resttemp\": [ %.2f, %.2f, %.2f ]\n}\n",
   		pstate.tempCurrent,pstate.tempMust,
-		pstate.relay,pstate.control,pstate.mash,pstate.resttime/60.0,
+		pstate.relay,pstate.control,pstate.mash,
+		actuatorname[cfopts.acttype],
+		pstate.resttime/60.0,
 		cfopts.resttime[0], cfopts.resttime[1], cfopts.resttime[2],
 		cfopts.resttemp[0], cfopts.resttemp[1], cfopts.resttemp[2]);
 
@@ -246,7 +251,7 @@ static int answer_to_connection (void *cls,
   int fail=0;
 
   // available request types
-  bool setctl,setmust,getstate,getfile,setmpstate,setrest,setactuator,setallmash;
+  bool setctl,setmust,getstate,getfile,setmpstate,setrest,setactuator,setallmash,setacttype;
 
   // ignore explicitely unused parameters
   // eliminate compiler warnings
@@ -263,6 +268,7 @@ static int answer_to_connection (void *cls,
   setrest=0;
   setactuator=0;
   setallmash=0;
+  setacttype=0;
 
   if (0 != strcmp (method, MHD_HTTP_METHOD_GET))
     return MHD_NO;              /* unexpected method */
@@ -305,6 +311,8 @@ static int answer_to_connection (void *cls,
 	setactuator=1;
       } else if (0 == strncmp(url, "/setallmash/",12)) {
 	setallmash=1;
+      } else if (0 == strncmp(url, "/setacttype/",12)) {
+	setacttype=1;
       } else {
 	getfile=1;
       }
@@ -335,7 +343,7 @@ static int answer_to_connection (void *cls,
       if (setmust) {
 
 	float must;
-	if (1 != sscanf(url,"/setmust/%f",&must)) {
+	if ((1 != sscanf(url,"/setmust/%f",&must)) || (pstate.mash!=0)) {
 	  if (cmd->debugP)
 	    debug("error setting must temperature\n");
 	  snprintf(mdata,1024,
@@ -379,6 +387,7 @@ static int answer_to_connection (void *cls,
 	  pstate.control=ctl;
 	  // relay need to be off without control
 	  if (ctl==0) {
+	    setRelay(0);
 	    pstate.relay=0;
 	  };
 	  if (cmd->debugP)
@@ -396,21 +405,86 @@ static int answer_to_connection (void *cls,
 	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 	return ret;
       }
-     
+   
+      /* manually change actuator value
+         this only works when control is turned off */
       if (setactuator) {
 
-	int state;
-	if ((1 != sscanf(url,"/setactuator/%d",&state)) || (pstate.control!=0)) {
+	int astate;
+	bool valid;
+
+	if ((1 != sscanf(url,"/setactuator/%d",&astate)) || (pstate.control!=0)) {
+	  valid=false;
+	} else {
+	  if ((astate == 0) || (astate == 1)) {
+	    valid=true;
+	  } else {
+	    valid=false;
+	  }
+	}
+	
+	if (valid==false) {
+	  if (cmd->debugP)
+	    debug("error setting actuator state\n");
+	  snprintf(mdata,1024,
+		   "<html><body>Error setting actuator state!</body></html>");
+	} else {
+	  pstate.relay=astate;
+	  setRelay(astate);
+	  if (cmd->debugP)
+	    debug("setting actuator state to: %d\n",astate);  
+	  snprintf(mdata,1024,
+		   "<html><body>OK setting actuator state to %d</body></html>",astate);
+	}
+	response = MHD_create_response_from_data(strlen(mdata),
+						 (void*) mdata,
+						 MHD_NO,
+						 MHD_NO);
+	MHD_add_response_header(response,
+				"Content-Type", "text/html; charset=UTF-8");
+      
+	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+	return ret;
+      }
+
+      /* set actuator type ("cooler" or "heater")
+         "cooler" conflicts with mash-control but can for example be used for
+         controling a fridge during fermentation of lager beers */
+      if (setacttype) {
+	char sacttype[7];
+	int acttype;
+	bool valid;
+
+	strncpy(sacttype,url+12,6);
+	sacttype[6]='\0';
+	if (strcmp(sacttype,"heater")==0) {
+	  valid=true;
+	  acttype=ACT_HEATER;
+	} else {
+	  if (strcmp(sacttype,"cooler")==0) {
+	    valid=true;
+	    acttype=ACT_COOLER;
+	  } else {
+	    valid=false;
+	  }
+	}
+
+	if ((valid==false) || (pstate.control!=0)) {
 	  if (cmd->debugP)
 	    debug("error setting actuator value\n");
 	  snprintf(mdata,1024,
 		   "<html><body>Error setting actuator value!</body></html>");
 	} else {
-	  setRelay(state);
+	  if (cfopts.acttype!=acttype) {
+	    cfopts.acttype=acttype;
+	    if (cmd->debugP)
+	      debug("updating inifile actuatortype: %s\n",sacttype);
+	    ini_puts("control", "actuatortype", sacttype, cfgfp);
+	  }
 	  if (cmd->debugP)
-	    debug("setting actuator to: %d\n",state);  
+	    debug("setting actuator to: %s\n",sacttype);  
 	  snprintf(mdata,1024,
-		   "<html><body>OK setting actuator to %d</body></html>",state);
+		   "<html><body>OK setting actuator to %s</body></html>",sacttype);
 	}
 	response = MHD_create_response_from_data(strlen(mdata),
 						 (void*) mdata,
@@ -568,6 +642,8 @@ static int answer_to_connection (void *cls,
 	  if (mpstate == 0) {
 	    resetMashProcess();
 	  } else {
+	    // in any mash process state we need to use a heater as actuator
+	    cfopts.acttype=ACT_HEATER;
 	    pstate.control=1;
 
 	    // on even state we need to set starttime

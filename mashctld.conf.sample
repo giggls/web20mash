@@ -37,10 +37,10 @@ exactuatoroff=sispm -1
 hysteresis=0.2
 
 # devicetype under control
-# do not change this unless you
-# intend to control a fridge :)
+# do not change this unless you intend to control a fridge :)
 # only valid if state-machine is not in action
-heater=1
+# valid options: heater, cooler
+actuatortype=heater
 
 [mash-process]
 resttemp1=52.5

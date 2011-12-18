@@ -21,7 +21,7 @@ Sll these values can be changed using the runtime configuration file
 #define CTLD_EXTACTOFF "sispm -1"
 #define CTLD_TEMPMUST 0
 #define CTLD_HYSTERESIS 0.2
-#define CTLD_HEATER 1
+#define CTLD_ACTTYPE "heater"
 #define CTLD_WEBROOT "/usr/local/share/web20mash/webdata/"
 #define CTLD_RESTTIMES {0,20,20};
 #define CTLD_RESTTEMP {52.5,62.5,72.5};

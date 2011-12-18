@@ -35,7 +35,7 @@ var settings = {ok: false, open: false, musttemp: 0, resttime: Array(0, 0,  0), 
 // number of loaded canvas images
 var numload=0;
 
-for (var i=0;i<6;i++) {
+for (var i=0;i<cimgfiles.length;i++) {
   cimageObjs[i]=new Image();
   cimageObjs[i].onload = function() {
      numload++;
@@ -111,9 +111,10 @@ function RunApp() {
 };
 
 function thermometerwidget(canvas,x,y,image) {
-  // jc.rect(x,y,90,320,"#00ff00",1);
+  // jc.rect(x,y,90,330,"#00ff00",1);
   // thermometer background needs to be 22x201
   jc.rect(x+34,y+18,22,201,'#ffffff',1);
+
   // green
   state1=jc.rect(x+34,y+168,22,0,'#77ff77',1);
   // yellow
@@ -122,6 +123,9 @@ function thermometerwidget(canvas,x,y,image) {
   state5=jc.rect(x+34,y+68,22,0,'#FFaa55',1);
   // red
   state7=jc.rect(x+34,y+18,22,0,'#ff7777',1);
+
+  tscale=jc.rect(x+39,y+218,12,1,'#8e0000',1);
+
   jc.image(image,x+20,y+5);
   templabel=jc.text("--.- °C",x+45,y+300);
   templabel.font('bold 25px Arial');
@@ -130,7 +134,6 @@ function thermometerwidget(canvas,x,y,image) {
   mustlabel.font('bold 15px Arial');
   mustlabel.align('center');
 
-  tscale=jc.rect(x+39,y+218,12,1,'#8e0000',1);
   this.setresttemp = function(t1,t2,t3) {
     state1.attr({y: ((y+218)-2*t1),height: (1+2*t1)});
     state3.attr({y: ((y+218)-2*t2),height: (2*(t2-t1))});
@@ -244,13 +247,13 @@ function parse_getstate_Response(data) {
 
 function cbstart(data) {
  if (!data) {
-   AjaxError('cbmust');
+   AjaxError('cbstart');
  }
 }
 
 function cbsettings(data) {
  if (!data) {
-   AjaxError('cbmust');
+   AjaxError('cbsettings');
  } else {
        settings.open=false;
     $('#settings-frame').toggle();
@@ -260,7 +263,7 @@ function cbsettings(data) {
 
 function cbstop(data) {
  if (!data) {
-   AjaxError('cbmust');
+   AjaxError('cbstop');
  } else {
    alert(i18n.process_canceled);
    $("#settings-btn").removeAttr('disabled');
