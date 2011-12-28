@@ -13,7 +13,7 @@ the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
+but WITHOUT ANY WARRANTY;without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
@@ -806,6 +806,7 @@ int init_timerfd(int seconds) {
 void acq_and_ctrl() {
   uint64_t endtime;
   static bool expired;
+  static int old_mash_state=42;
 
   /* acquire temperature */
   pstate.tempCurrent=getTemp();
@@ -872,6 +873,21 @@ void acq_and_ctrl() {
     } else {
       debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relay:%d, control:%d)\n",
 	    get_elapsed_time(),pstate.tempMust,pstate.tempCurrent,pstate.relay,pstate.control);
+    }
+  }
+
+  // run external command on mash state change if state_change_cmd
+  // is speciefied in runtime configuration file
+  if (old_mash_state != pstate.mash) {
+    old_mash_state=pstate.mash;
+    // ignore state 7
+    if (pstate.mash == 7) old_mash_state=0;
+    if (cfopts.state_change_cmd[0]!='\0') {
+      char command[255];
+      sprintf(command,cfopts.state_change_cmd,old_mash_state);
+      if (cmd->debugP)
+	debug("running state changed command: %s\n",command);
+      system(command);
     }
   }
 }

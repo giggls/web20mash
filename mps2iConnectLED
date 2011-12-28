@@ -1,0 +1,85 @@
+#!/bin/bash
+#
+# use front LEDs of Iomega iConnect for mash process signalling:
+#
+# no mash process:				[blue] [ ] [ ] [ ] (0)
+# heating-up to temperature of Protein Rest:	[red]  [F] [ ] [ ] (1)
+# Protein Rest:					[red] [X] [ ] [ ] (2)
+# heating-up to temperature of Maltose Rest:    [red]  [ ] [F] [ ] (3)
+# Maltose Rest:					[red] [ ] [X] [ ] (4)
+# heating-up to temperature of Dextrose Rest:   [red]  [ ] [ ] [F] (5)
+# Dextrose Rest:				[red] [ ] [ ] [X] (6)
+
+LED1=/sys/class/leds/usb_2_led
+LED2=/sys/class/leds/usb_3_led
+LED3=/sys/class/leds/usb_4_led
+
+
+function PowerLED() {
+    if [ "$1" == "red" ]; then
+      echo 255 >/sys/class/leds/power_red_led/brightness
+      echo 0 >/sys/class/leds/power_blue_led/brightness
+    fi
+    if [ "$1" == "blue" ]; then
+      echo 0 >/sys/class/leds/power_red_led/brightness
+      echo 255 >/sys/class/leds/power_blue_led/brightness
+    fi
+}
+
+function setLEDs() {
+  if [ "$1" == "F" ]; then
+    echo heartbeat >$LED1/trigger
+  else
+    echo default-on >$LED1/trigger
+    echo $1 >$LED1/brightness
+  fi
+  if [ "$2" == "F" ]; then
+    echo heartbeat >$LED2/trigger
+  else
+    echo default-on >$LED2/trigger
+    echo $2 >$LED2/brightness
+  fi
+  if [ "$3" == "F" ]; then
+    echo heartbeat >$LED3/trigger
+  else
+    echo default-on >$LED3/trigger
+    echo $3 >$LED3/brightness
+  fi
+}
+
+case "$1" in
+    0)
+    PowerLED blue
+    setLEDs 0 0 0
+    ;;
+    
+    1)
+    PowerLED red
+    setLEDs F 0 0
+    ;;
+    
+    2)
+    PowerLED red
+    setLEDs 255 0 0
+    ;;
+    
+    3)
+    PowerLED red
+    setLEDs 0 F 0
+    ;;
+    
+    4)
+    PowerLED red
+    setLEDs 0 255 0
+    ;;
+    
+    5)
+    PowerLED red
+    setLEDs 0 0 F
+    ;;
+    
+    6)
+    PowerLED red
+    setLEDs 0 0 255
+    ;;
+esac

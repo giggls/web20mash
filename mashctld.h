@@ -90,6 +90,7 @@ struct configopts {
   char username[255];
   char password[255];
   bool authactive;
+  char state_change_cmd[255];
 };
 
 struct processstate {
