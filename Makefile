@@ -32,13 +32,16 @@ install: debian/copyright mashctld
 	mkdir -p $(DESTDIR)/share/web20mash/js
 	mkdir -p $(CFDIR)
 	mkdir -p $(DESTDIR)/bin
+	cp -a webdata/*.html.?? $(DESTDIR)/share/web20mash/
 	cp -a webdata/css $(DESTDIR)/share/web20mash/
 	cp -a webdata/js/*.js $(DESTDIR)/share/web20mash/js/
 	cp webdata/images/*.png $(DESTDIR)/share/web20mash/images/
 	cp webdata/images/*.gif $(DESTDIR)/share/web20mash/images/
-	sed -e 's;^webroot.*;webroot = $(PREFIX)/share/web20mash;' mashctld.conf.sample >$(CFDIR)/mashctld.conf
+	sed -e 's;^webroot.*;webroot = $(PREFIX)/share/web20mash;' \
+		-e 's;^port.*;port = 80;' mashctld.conf.sample >$(CFDIR)/mashctld.conf
 	cp mashctld $(DESTDIR)/bin
 	cp mps2iConnectLED $(DESTDIR)/bin
 	chmod 755 $(DESTDIR)/bin/mashctld
 	chmod 755 $(DESTDIR)/share/web20mash $(DESTDIR)/share/web20mash/images $(DESTDIR)/share/web20mash/js $(DESTDIR)/share/web20mash/css
 	chmod 644 $(DESTDIR)/share/web20mash/*/*
+	

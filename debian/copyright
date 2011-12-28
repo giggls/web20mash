@@ -1,0 +1,28 @@
+The sourcecode (in C and Javascript languages) of the Web2.0Mash software is distributed
+under the Terms of the GNU GPL 3.0 or later (http://www.gnu.org/copyleft/gpl.html).
+
+All artwork is distributed under the Creative Commons Attribution-ShareAlike
+License (CC BY-SA) if not stated otherwise. As an exeption to this
+license the attribution of the artwork is not needed when used within
+the Web2.0Mash software.
+
+I do not know exactly where the tux virtual brew logo once originated.
+However it has been available on the Web for many years and at least since
+the Linux 2.0 days.
+
+The Libraries included in this package are distributed under their respective
+licenses which are compatible with GNU GPL 3.0.
+
+These are:
+
+minIni configfile parser (http://www.compuphase.com/minini.htm):
+Distributed under Apache License version 2.0
+(files: minIni.c, minIni.h and minGlue.h)
+
+jQuery Javascript library (http://jquery.com):
+Distributed optionally under MIT or GPL License
+
+jCanvaScript Javascript library (http://jcscript.com/):
+Distributed optionally under MIT or GPL License
+
+jStepper Javascript library (http://jstepper.emkay.dk/):

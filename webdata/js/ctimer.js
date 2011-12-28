@@ -2,7 +2,7 @@
 
 Implementation of an analog countdown timer on top of jCanvaScript
 
-(c) 2011 Sven Geggus <sven@geggus.net>
+(c) 2011 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

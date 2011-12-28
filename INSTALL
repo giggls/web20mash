@@ -23,3 +23,5 @@ ARM just using the following command:
 
 make CC=arm-linux-gnueabi-gcc
 
+A Debian package can be cross-build using the following command:
+dpkg-buildpackage -uc -us -aarmel
