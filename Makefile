@@ -21,7 +21,11 @@ mudflap: LDLIBS += -lmudflap
 mudflap: mashctld
 
 clean:
-	rm -f *.o *~ cmdline.c cmdline.h mashctld mashctld.1
+	rm -f *.o *~ mashctld
+
+mrproper: clean
+	rm -f cmdline.c cmdline.h mashctld.1
+	
 
 debian/copyright:
 	cp COPYING debian/copyright
