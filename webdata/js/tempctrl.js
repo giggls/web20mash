@@ -29,6 +29,11 @@ var thermo;
 var timg = new Image();
 var settings = {musttemp: 0, mpstate: 42, ctrl: 42};
 var first = true;
+var getstate="./getstate";
+var setmust="./setmust/";
+var setctl="./setctl/";
+var setactuator="./setactuator/";
+var setacttype="./setacttype/";
 
 timg.onload = function() {
   RunApp();
@@ -84,24 +89,24 @@ function RunApp() {
   $("input[name='actuator']").attr("disabled", "true");
 
   $('#setmust').click(function() {
-      url='/setmust/'+$("input[name='musttemp']").val();
+      url=setmust+$("input[name='musttemp']").val();
       $.get(url, cbsetmust);
   });
 
   $("input[name='control']").click(function() {
      if ($(this).is (':checked')) {
-       url='/setctl/1';
+       url=setctl+'1';
      } else {
-       url='/setctl/0';
+       url=setctl+'0';
      }
      $.get(url, cbsetctl);
   });
 
   $("input[name='actuator']").click(function() {
      if ($(this).is (':checked')) {
-       url='/setactuator/1';
+       url=setactuator+'1';
      } else {
-       url='/setactuator/0';
+       url=setactuator+'0';
      }
      $.get(url, cbsetactuator);
   });
@@ -109,14 +114,14 @@ function RunApp() {
   $("input[name='acttype']").click(function() {
     var state = $("input[name='acttype']:checked").val();
     if (state == 1) {
-      url="/setacttype/heater";
+      url=setacttype+"heater";
     } else {
-      url="/setacttype/cooler";
+      url=setacttype+"cooler";
     }
     $.get(url, cbsetacttype);
   });
 
-  $.getJSON('/getstate',parse_getstate_Response);
+  $.getJSON(getstate,parse_getstate_Response);
 };
 
 function thermometerwidget(canvas,x,y,image) {
@@ -230,7 +235,7 @@ function parse_getstate_Response(data) {
   }
 
   /* this is essentially and endless recursion */
-  $.getJSON('/getstate',parse_getstate_Response);
+  $.getJSON(getstate,parse_getstate_Response);
   settings.mpstate=data.mpstate;
   settings.ctrl=data.ctrl;
   settings.musttemp=data.musttemp;

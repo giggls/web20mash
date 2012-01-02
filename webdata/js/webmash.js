@@ -34,6 +34,9 @@ var mpstate=42;
 var settings = {ok: false, open: false, musttemp: 0, resttime: Array(0, 0,  0), resttemp: Array(0, 0, 0)};
 // number of loaded canvas images
 var numload=0;
+var getstate="./getstate";
+var setmpstate="./setmpstate/";
+var setallmash="./setallmash/";
 
 for (var i=0;i<cimgfiles.length;i++) {
   cimageObjs[i]=new Image();
@@ -63,18 +66,18 @@ function RunApp() {
 
   drawcanvas();
   
-  $.getJSON('/getstate',parse_getstate_Response);
+  $.getJSON(getstate,parse_getstate_Response);
   $('#start').click(function() {
     $("#settings-btn").attr("disabled", "true");
     var startstate= $("input[name='mashstate']:checked").val();
-    url='/setmpstate/' + startstate;
+    url=setmpstate + startstate;
     $('#state'+startstate).css("background","red");
     $.get(url, cbstart);
   });
   $('#stop').click(function() {
     if ((mpstate > 0) && (mpstate < 7)) {
       $('#state'+$("input[name='mashstate']:checked").val()).css("background","");
-      url='/setmpstate/0';
+      url=setmpstate + '0';
       $.get(url, cbstop);
       for (var i=1;i<7;i++) {
         $('#state'+i).css("background","");
@@ -98,8 +101,7 @@ function RunApp() {
     }
   });
   $('#OK').click(function() {
-    url="/setallmash/"
-    url+=$("input[name='resttime1']").val()+"/";
+    url=setallmash+$("input[name='resttime1']").val()+"/";
     url+=$("input[name='resttemp1']").val()+"/";
     url+=$("input[name='resttime2']").val()+"/";
     url+=$("input[name='resttemp2']").val()+"/";
@@ -241,7 +243,7 @@ function parse_getstate_Response(data) {
   jc.start(mashCanvas);
   window.setTimeout("ptwinkle();",300);
   /* this is essentially and endless recursion */
-  $.getJSON('/getstate',parse_getstate_Response);
+  $.getJSON(getstate,parse_getstate_Response);
   mpstate=data.mpstate;
 }
 
@@ -255,7 +257,8 @@ function cbsettings(data) {
  if (!data) {
    AjaxError('cbsettings');
  } else {
-       settings.open=false;
+    settings.open=false;
+    settings.ok=false;
     $('#settings-frame').toggle();
     $("#settings-btn").removeAttr('disabled');
  }
