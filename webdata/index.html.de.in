@@ -4,6 +4,7 @@
     <title>Web 2.0 Mash</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/mash.css" type="text/css" />
   </head>
 

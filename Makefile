@@ -41,6 +41,7 @@ install: debian/copyright mashctld
 	cp -a webdata/js/*.js $(DESTDIR)/share/web20mash/js/
 	cp webdata/images/*.png $(DESTDIR)/share/web20mash/images/
 	cp webdata/images/*.gif $(DESTDIR)/share/web20mash/images/
+	cp webdata/images/favicon.ico $(DESTDIR)/share/web20mash/images/
 	sed -e 's;^webroot.*;webroot = $(PREFIX)/share/web20mash;' \
 		-e 's;^port.*;port = 80;' mashctld.conf.sample >$(CFDIR)/mashctld.conf
 	cp mashctld $(DESTDIR)/bin
