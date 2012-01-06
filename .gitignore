@@ -1,5 +1,3 @@
-cmdline.c
-cmdline.h
 cmdline.o
 mashctld
 mashctld.1
