@@ -29,8 +29,9 @@
 	 <h2>WICHTIG: Der Internet Explorer 9 darf nicht im Kompatibilitätsmodus laufen</h2>
       	</canvas>
       <td width="200">
-	<p><input class="tempctl" type="checkbox" name="control" value="control">&nbsp;Regelung ein/aus<br />
-	<input type="checkbox" name="actuator" value="actuator">&nbsp;Aktor ein/aus</p>
+	<p><input class="tempctl" type="checkbox" name="control" value="control">&nbsp;Regelung ein/aus</p>
+	<p><input type="checkbox" name="actuator" value="actuator">&nbsp;Aktor ein/aus</p>
+	<p>&nbsp;</p>
 	<p><input class="tempctl" type="radio" name="acttype" value="cooler">&nbsp;Kühlgerät
 	<input class="tempctl" type="radio" name="acttype" value="heater" checked>&nbsp;Heizgerät</p>
 	<p>Sollwert:
