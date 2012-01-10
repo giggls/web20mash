@@ -5,7 +5,7 @@ CSS for Web 2.0 Mash
 */
 
 body {
-  background-color:#FFCC66;
+  background-color:#f6e8bb;
   background-image:url(../images/elehigru.gif);
   color:black;
   margin: 0;
@@ -47,6 +47,22 @@ table {
 button {
   margin-top: 10px;
   font-size: 10pt;
+  -webkit-appearance: none;
+  border-width: 3px;
+  border-color: #F4F5F4 #D2D3D2 #D2D3D2 #F4F5F4;
+  border-style: solid;
+  padding: 3px 6px 3px 6px;
+  background-color: #dcdad5;
+  color: black;
+  text-decoration: none;
+}
+
+button:hover {
+  border-color: #b87333 #b87333 #b87333 #b87333;
+}
+
+a.button:active {
+  border-color: #D2D3D2 #F4F5F4 #F4F5F4 #D2D3D2;
 }
 
 a img {
