@@ -55,7 +55,7 @@ static bool isdaemon=false;
 Cmdline *cmd;
 
 /* runtime configuration file with full path */
-char cfgfp[PATH_MAX + 1];    
+char cfgfp[PATH_MAX + 1];
   
 struct configopts cfopts;
 struct processstate pstate;
@@ -65,7 +65,7 @@ static void resetMashProcess() {
   pstate.control=0;
   pstate.relay=0;
   pstate.tempMust=cfopts.tempMust;
-  setRelay(0);                   
+  setRelay(0);
 }
 
 const char* actuatorname[2] = {"cooler", "heater"};
@@ -805,7 +805,7 @@ int init_timerfd(int seconds) {
 /* cyclically called control and state machine function */
 void acq_and_ctrl() {
   uint64_t endtime;
-  static bool expired;
+  static bool expired=false;
   static int old_mash_state=42;
 
   /* acquire temperature */
@@ -817,7 +817,6 @@ void acq_and_ctrl() {
     
     index=(pstate.mash-1)/2;
     if (index <3) pstate.tempMust=cfopts.resttemp[index];  
-    expired=false;
 
     if (pstate.mash % 2) /* power heating until rest is reached */ {
       pstate.resttime=0;
@@ -855,6 +854,7 @@ void acq_and_ctrl() {
 
   if (expired) {
     resetMashProcess();
+    expired=false;
   }
 
   if (pstate.mash==7) {
