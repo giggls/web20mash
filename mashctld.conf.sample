@@ -1,6 +1,6 @@
 [global]
 port=8888
-webroot=/home/sven/work/brauprojekt/web20mash/webdata/
+webroot=/usr/share/web20mash/
 
 [auth]
 active=0
@@ -8,15 +8,21 @@ username=login
 password=secret
 
 [control]
-# owfs parameters this is usually the adsress of an owserver
-# or just something like "-u" for direct connection via usb
-# however if 1-wire access is needed from more than one process
-# an owserver is requeired
+# owfs parameters
+#
+# this is usually the address of an owserver (host:port)
+# or just something like "-u" for direct connection via usb.
+# However direct connection does only make sense if mashctld
+# is the only software accessing the 1-wire bus
 owparms=-u
 #owparms=localhost:12345
 
 # initial must temperature for control
 tempMust=0
+
+# Avalable 1-wire devices can be listed by calling "mashctld -l"
+#
+#
 
 # 1-wire temperature sensor ID
 #sensor=10.7B7935000800
@@ -30,8 +36,8 @@ actuator=12.9B6E45000000
 # if actuator is set to "external" the following
 # external commands are run to switch on and off
 # state respectively instead of using a 1-wire actuator
-exactuatoron=sispm +1
-exactuatoroff=sispm -1
+extactuatoron=sispm +1
+extactuatoroff=sispm -1
 
 # hysteresis of two-level controller
 hysteresis=0.2
