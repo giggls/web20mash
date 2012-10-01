@@ -3,9 +3,9 @@
 mashctld
 
 a web-controllable two-level temperature and mash process
-controler for 1-wire sensor (DS18S20) and various actuators
+controler for 1-wire sensor (DS18S20/DS18B20) and various actuators
 
-(c) 2011 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2011-2012 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,15 +40,19 @@ void printSensorActuatorList() {
   OW_get("/",&s1,&slen1);
     
   tok=strtok(s1,",");
-  printf("DS18S20 sensors:\n");
+  printf("sensors:\n");
   while (tok != NULL) {
-    /* wenn a sensor id is found scan for DS18S20 */
+    /* wenn a sensor id is found scan for DS18S20/DS18B20 */
     if (tok[2] == '.') {
       sprintf(buf,"/%stype",tok);
       OW_get(buf,&s2,&slen2);
       if (strcmp(s2,"DS18S20")==0) {
 	tok[strlen(tok)-1]=0;
-	printf("%s\n",tok);
+	printf("%s (DS18S20)\n",tok);
+      }
+      if (strcmp(s2,"DS18B20")==0) {
+	tok[strlen(tok)-1]=0;
+	printf("%s (DS18B20)\n",tok);
       }
     }
     tok=strtok(NULL,",");
@@ -59,7 +63,7 @@ void printSensorActuatorList() {
   OW_get("/",&s1,&slen1);
   
   tok=strtok(s1,",");
-  printf("\nDS2406 aktors:\n");
+  printf("\naktors:\n");
   while (tok != NULL) {
     /* wenn a sensor id is found scan for type */
     if (tok[2] == '.') {
@@ -67,7 +71,7 @@ void printSensorActuatorList() {
       OW_get(buf,&s2,&slen2);
       if (strcmp(s2,"DS2406")==0) {
 	tok[strlen(tok)-1]=0;
-	printf("%s\n",tok);
+	printf("%s (DS2406)\n",tok);
       }
     }
     tok=strtok(NULL,",");

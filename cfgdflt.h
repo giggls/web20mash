@@ -3,9 +3,9 @@
 mashctld
 
 a web-controllable two-level temperature and mash process    
-controler for 1-wire sensor (DS18S20) and various actuators 
+controler for 1-wire sensor (DS18S20/DS18B20) and various actuators 
 
-(c) 2011 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2011-2012 Sven Geggus <sven-web20mash@geggus.net>
 
 This file contains the compiled in defaults.
 

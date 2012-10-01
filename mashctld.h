@@ -3,9 +3,9 @@
 ctrld
 
 a web-controllable two-level temperature controller for 1-wire
-sensor (DS18S20) and various actuators
+sensor (DS18S20/DS18B20) and various actuators
 
-(c) 2011 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2011-2012 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

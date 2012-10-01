@@ -3,9 +3,9 @@
 mashctld
 
 a web-controllable two-level temperature and mash process
-controler for 1-wire sensor (DS18S20) and various actuators
+controler for 1-wire sensor (DS18S20/DS18B20) and various actuators
 
-(c) 2011 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2011-2012 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -932,7 +932,8 @@ int main(int argc, char **argv) {
   
   /* check if requested sensor is available on the bus */
   if (false==search4Device(cfopts.sensor,"DS18S20"))
-    die("%s is unavailable or not a DS18S20 sensor\n",cfopts.sensor);
+    if (false==search4Device(cfopts.sensor,"DS18B20"))
+      die("%s is unavailable or not a DS18S20/DS18B20 sensor\n",cfopts.sensor);
 
   if (cfopts.extactuator==false) {
     /* check if requested 1-wire actuator is available on the bus */
