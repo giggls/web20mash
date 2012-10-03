@@ -251,7 +251,7 @@ static int answer_to_connection (void *cls,
   int fail=0;
 
   // available request types
-  bool setctl,setmust,getstate,getfile,setmpstate,setrest,setactuator,setallmash,setacttype;
+  bool setctl,setmust,getstate,setmpstate,setrest,setactuator,setallmash,setacttype;
 
   // ignore explicitely unused parameters
   // eliminate compiler warnings
@@ -262,7 +262,6 @@ static int answer_to_connection (void *cls,
 
   setmust=0;
   getstate=0;
-  getfile=0;
   setctl=0;
   setmpstate=0;
   setrest=0;
@@ -313,8 +312,6 @@ static int answer_to_connection (void *cls,
 	setallmash=1;
       } else if (0 == strncmp(url, "/setacttype/",12)) {
 	setacttype=1;
-      } else {
-	getfile=1;
       }
     }
     if (cmd->debugP)
