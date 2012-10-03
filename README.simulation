@@ -1,0 +1,8 @@
+To test the software without 1-wire devices run the following command:
+
+owserver  --fake=DS18B20,DS2406 --foreground --nozero -p 12345
+
+In your mashctld.conf set owparms to localhost:12345
+
+You should now be able to use the software with random temperature values generated
+by owserver.
