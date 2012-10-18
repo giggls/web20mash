@@ -6,9 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=9" />
     <link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/mash.css" type="text/css" />
-    <script type="text/javascript" src="js/jCanvaScript.1.5.10.min.js"></script>
+    <script type="text/javascript" src="js/jCanvaScript.1.5.18.min.js"></script>
     <script type="text/javascript" src="js/jcsector.js"></script>
-    <script type="text/javascript" src="js/jquery-1.7.min.js"></script>
+    <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
     <script type="text/javascript" src="js/jquery.jstepper.min.js"></script>
     <script type="text/javascript" src="js/ctimer.js"></script>
     <script type="text/javascript" src="js/webmash.js"></script>

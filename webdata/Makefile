@@ -1,8 +1,8 @@
 JQUERY_BASE=http://code.jquery.com
-JQUERY=jquery-1.7.min.js
+JQUERY=jquery-1.8.2.min.js
 
 JCANVASCRIPT_BASE=http://jcscript.com/data/js
-JCANVASCRIPT=jCanvaScript.1.5.10.min.js
+JCANVASCRIPT=jCanvaScript.1.5.18.min.js
 
 JSTEPPER_BASE=http://jstepper.emkay.dk/scripts
 JSTEPPER=jquery.jstepper.min.js
