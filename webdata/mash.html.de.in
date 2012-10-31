@@ -44,6 +44,8 @@
 	        <td>aufheizen bis 2. Verzuckerungsrast
           <tr id="state6"><td><input type="radio" name="mashstate" value="6">
 	        <td>2. Verzuckerungsrast
+          <tr id="state7"><td><input type="radio" name="mashstate" value="7">
+	        <td>aufheizen bis Abmaischtemperatur
         </table>
         <br />
         <button id='start' type='button'>Prozess starten</button>
@@ -63,6 +65,8 @@
         <td style="text-align: left;">°C
         <tr><td>Dauer 2. Verzuckerungsrast:<td><input name="resttime3" class="timeinput" type="text" size="5" maxlength="5">
         <td style="text-align: left;">min
+        <tr><td>Temp. beim Abmaischen:<td><input name="resttemp4" class="tempinput" type="text" size="5" maxlength="5">
+        <td style="text-align: left;">°C
         </table>
         <button id='OK' type='button'>OK</button>&nbsp;&nbsp;
       </div>

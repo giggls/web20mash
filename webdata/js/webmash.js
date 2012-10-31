@@ -31,7 +31,7 @@ var cimgfiles = new Array("tux-brew.png","tux-brew-sleep.png","heating-on.png","
 var imagedir="images/";
 var thermo;
 var mpstate=42;
-var settings = {ok: false, open: false, musttemp: 0, resttime: Array(0, 0,  0), resttemp: Array(0, 0, 0)};
+var settings = {ok: false, open: false, musttemp: 0, resttime: Array(0, 0,  0), resttemp: Array(0, 0, 0, 0)};
 // number of loaded canvas images
 var numload=0;
 var getstate="./getstate";
@@ -75,11 +75,11 @@ function RunApp() {
     $.get(url, cbstart);
   });
   $('#stop').click(function() {
-    if ((mpstate > 0) && (mpstate < 7)) {
+    if ((mpstate > 0) && (mpstate < 8)) {
       $('#state'+$("input[name='mashstate']:checked").val()).css("background","");
       url=setmpstate + '0';
       $.get(url, cbstop);
-      for (var i=1;i<7;i++) {
+      for (var i=1;i<9;i++) {
         $('#state'+i).css("background","");
       }
     }
@@ -95,19 +95,20 @@ function RunApp() {
       $("input[name='resttemp1']").val(settings.resttemp[0]);
       $("input[name='resttemp2']").val(settings.resttemp[1]);
       $("input[name='resttemp3']").val(settings.resttemp[2]);
+      $("input[name='resttemp4']").val(settings.resttemp[3]);
 
       $('#settings-frame').toggle();
       $("#settings-btn").attr("disabled", "true");
     }
   });
   $('#OK').click(function() {
-    url=setallmash+$("input[name='resttime1']").val()+"/";
-    url+=$("input[name='resttemp1']").val()+"/";
-    url+=$("input[name='resttime2']").val()+"/";
+    url=setallmash+$("input[name='resttemp1']").val()+"/";
+    url+=$("input[name='resttime1']").val()+"/";
     url+=$("input[name='resttemp2']").val()+"/";
+    url+=$("input[name='resttime2']").val()+"/";
+    url+=$("input[name='resttemp3']").val()+"/";
     url+=$("input[name='resttime3']").val()+"/";
-    url+=$("input[name='resttemp3']").val();
-
+    url+=$("input[name='resttemp4']").val();
     $.get(url, cbsettings);
   });
 };
@@ -117,16 +118,19 @@ function thermometerwidget(canvas,x,y,image) {
   // thermometer background needs to be 22x201
   jc.rect(x+34,y+18,22,201,'#ffffff',1);
 
+  // blue
+  state1=jc.rect(x+34,0,22,0,'#9be1fb',1);
   // green
-  state1=jc.rect(x+34,y+168,22,0,'#77ff77',1);
+  state2=jc.rect(x+34,0,22,0,'#99ff99',1);
   // yellow
-  state3=jc.rect(x+34,y+118,22,0,'#ffff77',1);
+  state3=jc.rect(x+34,0,22,0,'#ffff77',1);
   // orange
-  state5=jc.rect(x+34,y+68,22,0,'#FFaa55',1);
+  state4=jc.rect(x+34,0,22,0,'#FFaa55',1);
   // red
-  state7=jc.rect(x+34,y+18,22,0,'#ff7777',1);
+  state5=jc.rect(x+34,0,22,0,'#ff7777',1);
+  
 
-  tscale=jc.rect(x+39,y+218,12,1,'#8e0000',1);
+  tscale=jc.rect(x+39,0,12,1,'#8e0000',1);
 
   jc.image(image,x+20,y+5);
   templabel=jc.text("--.- °C",x+45,y+300);
@@ -136,18 +140,20 @@ function thermometerwidget(canvas,x,y,image) {
   mustlabel.font('bold 15px Arial');
   mustlabel.align('center');
 
-  this.setresttemp = function(t1,t2,t3) {
+  this.setresttemp = function(t1,t2,t3,t4) {
     state1.attr({y: ((y+218)-2*t1),height: (1+2*t1)});
-    state3.attr({y: ((y+218)-2*t2),height: (2*(t2-t1))});
-    state5.attr({y: ((y+218)-2*t3),height: (2*(t3-t2))});
-    state7.attr({y: ((y+218)-200),height: (2*(100-t3))});
+    state2.attr({y: ((y+218)-2*t2),height: (2*(t2-t1))});
+    state3.attr({y: ((y+218)-2*t3),height: (2*(t3-t2))});
+    state4.attr({y: ((y+218)-2*t4),height: (2*(t4-t3))});
+    state5.attr({y: ((y+218)-200),height: (2*(100-t4))});
     jc.start(canvas);
   }
   this.clrresttemp = function() {
     state1.attr({height: 0});
+    state2.attr({height: 0});
     state3.attr({height: 0});
+    state4.attr({height: 0});
     state5.attr({height: 0});
-    state7.attr({height: 0});
     jc.start(canvas);
   }
   this.setvalue = function(temp,must) {
@@ -192,12 +198,12 @@ function parse_getstate_Response(data) {
   }
   
   // http://www.protofunc.com/scripts/jquery/checkbox-radiobutton/
-  if (data.mpstate == 7) {
+  if (data.mpstate == 8) {
     // radiobutton back to start
     $("input[name='mashstate'][value=1]").attr("checked","checked");
     timer.setperiod(0);
     thermo.clrresttemp();
-    $('#state6').css("background","");
+    $('#state7').css("background","");
     alert(i18n.process_finished);
   }
   
@@ -219,11 +225,11 @@ function parse_getstate_Response(data) {
     settings.ok=false;
   }
   
-  if ((data.mpstate > 0) && (data.mpstate < 7)) {
+  if ((data.mpstate > 0) && (data.mpstate < 8)) {
     // this condition is met when new state is entered
     if (mpstate != data.mpstate) {
       restno=(data.mpstate/2)-1;
-      thermo.setresttemp(data.resttemp[0],data.resttemp[1],data.resttemp[2]);
+      thermo.setresttemp(data.resttemp[0],data.resttemp[1],data.resttemp[2],data.resttemp[3]);
       // this condition is met when rest is entered
       if (0 == (data.mpstate % 2)) {
         timer.setperiod(data.resttime[restno]);

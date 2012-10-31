@@ -118,10 +118,10 @@ td {
   position:absolute;
   margin-top:20px;
   background-image:url(../images/elehigru.gif);
-  top: 23px;
+  top: 8px;
   left: 305px;
-  width: 300px;
-  height: 210px;
+  width: 307px;
+  height: 226px;
   border: solid 3px;
   text-align: right;
   // do not display by default

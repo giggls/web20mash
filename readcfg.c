@@ -7,8 +7,8 @@ extern struct configopts cfopts;
 
 void readconfig(char *cfgfile) {
   int i;
-  unsigned defrtime[3] = CTLD_RESTTIMES;
-  float defrtemp[3] = CTLD_RESTTEMP;
+  unsigned defrtime[4] = CTLD_RESTTIMES;
+  float defrtemp[4] = CTLD_RESTTEMP;
   char cfresttemp[]="resttempX";
   char cfresttime[]="resttimeX";
   char acttype[7];
@@ -50,6 +50,7 @@ void readconfig(char *cfgfile) {
     cfresttime[8]='1'+i;
     cfopts.resttime[i]=ini_getl("mash-process",cfresttime,defrtime[i], cfgfile);
   }
+  cfopts.resttemp[i]=ini_getf("mash-process","lauteringtemp",defrtemp[i], cfgfile);
 
   ini_gets("mash-process", "state_change_cmd", "", cfopts.state_change_cmd,
 	     sizearray(cfopts.state_change_cmd), cfgfile);

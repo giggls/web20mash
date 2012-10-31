@@ -23,8 +23,8 @@ Sll these values can be changed using the runtime configuration file
 #define CTLD_HYSTERESIS 0.2
 #define CTLD_ACTTYPE "heater"
 #define CTLD_WEBROOT "/usr/local/share/web20mash/webdata/"
-#define CTLD_RESTTIMES {0,20,20};
-#define CTLD_RESTTEMP {52.5,62.5,72.5};
+#define CTLD_RESTTIMES {0,20,20,0};
+#define CTLD_RESTTEMP {52.5,62.5,72.5,78.0};
 #define CTLD_USERNAME "login"
 #define CTLD_PASSWORD "secret"
 #define CTLD_AUTHACTIVE 0

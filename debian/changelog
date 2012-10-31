@@ -1,8 +1,11 @@
-web20mash (1.0.2) unstable; urgency=low
+web20mash (1.1) unstable; urgency=low
 
-  * Support DS18B20 and compile on Raspberry Pi
+  * Add additional state for increasing heat up to the temperature where mash has
+    to be seperated from the wort
+    (I do not no the english word for "abmaischen" in german, just
+     called it "mashing out" on the GUI)
 
- -- Sven Geggus <sven-web20mash@geggus.net>  Fri, 19 Oct 2012 22:04:12 +0200
+ -- Sven Geggus <sven-deb@geggus.net>  Wed, 31 Oct 2012 22:46:56 +0100
 
 web20mash (1.0.1) unstable; urgency=low
 

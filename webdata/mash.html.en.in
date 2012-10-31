@@ -45,6 +45,8 @@
 	        <td>heating-up to temperature of Dextrose Rest
           <tr id="state6"><td><input type="radio" name="mashstate" value="6">
 	        <td>Dextrose Rest
+          <tr id="state7"><td><input type="radio" name="mashstate" value="7">
+               <td>heating-up to temperature of mashing out
         </table>
         <br />
         <button id='start' type='button'>start process</button>
@@ -64,6 +66,8 @@
         <td style="text-align: left;">°C
         <tr><td>Duration Dextrose Rest:<td><input name="resttime3" class="timeinput" type="text" size="5" maxlength="5">
         <td style="text-align: left;">min
+        <tr><td>Temp. at Mashing out:<td><input name="resttemp4" class="tempinput" type="text" size="5" maxlength="5">
+        <td style="text-align: left;">°C
         </table>
         <button id='OK' type='button'>OK</button>&nbsp;&nbsp;
       </div>

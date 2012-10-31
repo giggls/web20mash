@@ -52,6 +52,7 @@ actuatortype=heater
 resttemp1=52.5
 resttemp2=62.5
 resttemp3=72.5
+lauteringtemp=78
 # All restimes in Minutes
 resttime1=0
 resttime2=20

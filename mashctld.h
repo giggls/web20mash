@@ -85,8 +85,8 @@ struct configopts {
   float hysteresis;
   int acttype;
   char webroot[255];
-  float resttemp[3];
-  uint64_t resttime[3];
+  float resttemp[4];
+  uint64_t resttime[4];
   char username[255];
   char password[255];
   bool authactive;
