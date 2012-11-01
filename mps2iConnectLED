@@ -82,4 +82,9 @@ case "$1" in
     PowerLED red
     setLEDs 0 0 255
     ;;
+
+    7)
+    PowerLED red
+    setLEDs F F F
+    ;;
 esac
