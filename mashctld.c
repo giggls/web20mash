@@ -67,6 +67,8 @@ static void resetMashProcess() {
   pstate.relay=0;
   pstate.tempMust=cfopts.tempMust;
   setRelay(0);
+  if (cmd->simulationP)
+    pstate.tempCurrent=SIM_INIT_TEMP;
 }
 
 const char* actuatorname[2] = {"cooler", "heater"};
@@ -834,7 +836,12 @@ void acq_and_ctrl() {
   static int old_mash_state=42;
 
   /* acquire temperature */
-  pstate.tempCurrent=getTemp();
+  if (!cmd->simulationP) {
+    pstate.tempCurrent=getTemp();
+  } else {
+    if (pstate.relay)
+      pstate.tempCurrent+=SIM_INC;
+  }
 
   /* if mash process is running adjust process parameters */
   if ((pstate.mash>0) && (pstate.mash<8)) {
@@ -975,28 +982,36 @@ int main(int argc, char **argv) {
   pstate.resttime=0;
   pstate.ttrigger=0;
 
-  if(OW_init(cfopts.owparms) !=0)
-    die("Error connecting owserver on %s\n",cfopts.owparms);
+  if (!cmd->simulationP) {
+    if(OW_init(cfopts.owparms) !=0)
+      die("Error connecting owserver on %s\n",cfopts.owparms);
   
-  if (cmd->listP) {
-    outSensorActuatorList();
-    OW_finish();
-    exit(EXIT_SUCCESS);
-  }
-  
-  /* check if requested sensor is available on the bus */
-  if (false==search4Device(cfopts.sensor,"DS18S20"))
-    if (false==search4Device(cfopts.sensor,"DS18B20"))
-      die("%s is unavailable or not a DS18S20/DS18B20 sensor\n",cfopts.sensor);
+    if (cmd->listP) {
+      outSensorActuatorList();
+      OW_finish();
+      exit(EXIT_SUCCESS);
+    }
+ 
+    /* check if requested sensor is available on the bus */
+    if (false==search4Device(cfopts.sensor,"DS18S20"))
+      if (false==search4Device(cfopts.sensor,"DS18B20"))
+        die("%s is unavailable or not a DS18S20/DS18B20 sensor\n",cfopts.sensor);
 
-  if (cfopts.extactuator==false) {
-    /* check if requested 1-wire actuator is available on the bus */
-    if (false==search4Device(cfopts.actuator,"DS2406"))
-      die("%s is unavailable or not a DS2406 actuator\n",cfopts.actuator);
+      if (cfopts.extactuator==false) {
+        /* check if requested 1-wire actuator is available on the bus */
+        if (false==search4Device(cfopts.actuator,"DS2406"))
+          die("%s is unavailable or not a DS2406 actuator\n",cfopts.actuator);
+      }
+  } else {
+    // in simulation mode we start with SIM_INIT_TEMP°C and increase by SIM_INC°C on each read
+    pstate.tempCurrent=SIM_INIT_TEMP;
   }
   
-  if (-1==chdir(cfopts.webroot))
-    die("Unable to chdir to >%s<\n",cfopts.webroot);
+  if (-1==chdir(cfopts.webroot)) {
+    // try ./webdata as webroot bevore giving up
+    if (-1==chdir("./webdata"))
+      die("Unable to chdir to >%s<\n",cfopts.webroot);
+  }
  
   /* initialize libmagic */
   magic_cookie = magic_open(MAGIC_MIME);

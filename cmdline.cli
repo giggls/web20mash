@@ -37,3 +37,6 @@ String -c configfile {runtime configuration file} -d /etc/mashctld.conf
 String -u username {username to switch to, when run as root} -d webmash
 
 Flag -w write {update configuration file from list of available sensors and actuators}
+
+Flag -s simulation {simulate temperature measurements}
+

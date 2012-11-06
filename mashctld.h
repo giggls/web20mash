@@ -63,6 +63,12 @@ main header file
 #define ACT_COOLER 0
 #define ACT_HEATER 1
 
+// values for simulation of temperature measurement
+// start with this value
+#define SIM_INIT_TEMP 42
+// increase temperature by this interval on every control interval
+#define SIM_INC 0.5
+
 void outSensorActuatorList();
 int doControl();
 void setRelay(int state);

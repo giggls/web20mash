@@ -142,7 +142,6 @@ static void setOWRelay(int state) {
   }
   if (i==60)
     die("still got a write error after retrying 30 times\n");
-  pstate.relay=state;
   return;
 }
 
@@ -214,18 +213,20 @@ float getTemp() {
 }
 
 void setRelay(int state) {
-  if (cfopts.extactuator) {
-    if (state) {
-      if (cmd->debugP)
-	debug("running external actuator command: %s\n",cfopts.extactuatoron);
-      system(cfopts.extactuatoron);
+  if (!cmd->simulationP) {
+    if (cfopts.extactuator) {
+      if (state) {
+        if (cmd->debugP)
+	  debug("running external actuator command: %s\n",cfopts.extactuatoron);
+	  system(cfopts.extactuatoron);
+      } else {
+        if (cmd->debugP)
+	  debug("running external actuator command: %s\n",cfopts.extactuatoroff);
+	  system(cfopts.extactuatoroff);
+      }
     } else {
-      if (cmd->debugP)
-	debug("running external actuator command: %s\n",cfopts.extactuatoroff);
-      system(cfopts.extactuatoroff);
+      setOWRelay(state);
     }
-    pstate.relay=state;
-  } else {
-    setOWRelay(state);
   }
+  pstate.relay=state;
 }

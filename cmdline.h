@@ -25,6 +25,8 @@ typedef struct s_Cmdline {
   int usernameC;
   /***** -w: update configuration file from list of available sensors and actuators */
   char writeP;
+  /***** -s: simulate temperature measurements */
+  char simulationP;
   /***** uninterpreted command line parameters */
   int argc;
   /*@null*/char **argv;
