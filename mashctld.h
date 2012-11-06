@@ -65,7 +65,7 @@ main header file
 
 // values for simulation of temperature measurement
 // start with this value
-#define SIM_INIT_TEMP 42
+#define SIM_INIT_TEMP 68
 // increase temperature by this interval on every control interval
 #define SIM_INC 0.5
 

@@ -37,6 +37,7 @@ var numload=0;
 var getstate="./getstate";
 var setmpstate="./setmpstate/";
 var setallmash="./setallmash/";
+var iodinealert=0;
 
 for (var i=0;i<cimgfiles.length;i++) {
   cimageObjs[i]=new Image();
@@ -70,6 +71,10 @@ function RunApp() {
   $('#start').click(function() {
     $("#settings-btn").attr("disabled", "true");
     var startstate= $("input[name='mashstate']:checked").val();
+    // if state 7 is entered manually do not alert
+    if (startstate==7) {
+      iodinealert = 1;
+    };
     url=setmpstate + startstate;
     $('#state'+startstate).css("background","red");
     $.get(url, cbstart);
@@ -82,6 +87,7 @@ function RunApp() {
       for (var i=1;i<9;i++) {
         $('#state'+i).css("background","");
       }
+      iodinealert = 0;
     }
   });
   $('#settings-btn').click(function() {
@@ -197,6 +203,14 @@ function parse_getstate_Response(data) {
     jc_heat_img.attr('img', cimageObjs[3]);
   }
   
+  // iodine alert popup once at the beginning of mpstate 7
+  // as some people stop here just cancel this
+  // if lautering temp. > temp.of second rest
+  if ((data.mpstate == 7) && (iodinealert == 0) && (data.resttemp[3] > data.resttemp[2])) {
+    iodinealert = 1;
+    alert(i18n.iodinealert);
+  }
+
   // http://www.protofunc.com/scripts/jquery/checkbox-radiobutton/
   if (data.mpstate == 8) {
     // radiobutton back to start
@@ -204,6 +218,7 @@ function parse_getstate_Response(data) {
     timer.setperiod(0);
     thermo.clrresttemp();
     $('#state7').css("background","");
+    iodinealert = 0;
     alert(i18n.process_finished);
   }
   
@@ -218,6 +233,7 @@ function parse_getstate_Response(data) {
       $("#settings-btn").removeAttr('disabled');
       timer.setperiod(0);
       thermo.clrresttemp();
+      iodinealert=0;
     }
   } else {
     // this is for opera only because Opera does not seem to honor

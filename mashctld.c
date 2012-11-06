@@ -878,8 +878,16 @@ void acq_and_ctrl() {
         if ((index <3)) {
           pstate.tempMust=cfopts.resttemp[index+1];
         }
+        // force process stop after 2. rest (to allow for an iodine test)
+        // as some people stop here anyway just continue if
+        // cfopts.resttemp[3] is not higher than cfopts.resttemp[2]
+        if ((pstate.mash==6) && (cfopts.resttemp[3] > cfopts.resttemp[2])) {
+          pstate.control=0;
+          setRelay(0);
+        }
+        
+        pstate.mash++;        
 	pstate.resttime=0;
-	pstate.mash++;
       }
     }
   }

@@ -52,7 +52,12 @@ actuatortype=heater
 resttemp1=52.5
 resttemp2=62.5
 resttemp3=72.5
-lauteringtemp=78
+# Temperature for lautering
+# This is a optional feature, because some people (including myself)
+# do lautering right after rest 3
+# If you do not want to do this just set lauteringtemp to the
+# same value as resttemp3
+lauteringtemp=76
 # All restimes in Minutes
 resttime1=0
 resttime2=20
