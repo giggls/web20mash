@@ -28,13 +28,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 
 extern struct configopts cfopts;
 extern struct processstate pstate;
+extern char cfgfp[];
 
 /* clig command line Parameters*/  
 extern Cmdline *cmd;
 
-void printSensorActuatorList() {
+void outSensorActuatorList() {
   char buf[255];
   char *s1,*s2,*tok;
+  bool first=1;
   size_t slen1,slen2;
 
   OW_get("/",&s1,&slen1);
@@ -49,10 +51,18 @@ void printSensorActuatorList() {
       if (strcmp(s2,"DS18S20")==0) {
 	tok[strlen(tok)-1]=0;
 	printf("%s (DS18S20)\n",tok);
+	if (cmd->writeP && first) {
+          ini_puts("control", "sensor", tok, cfgfp);
+          first=0;
+	}
       }
       if (strcmp(s2,"DS18B20")==0) {
 	tok[strlen(tok)-1]=0;
 	printf("%s (DS18B20)\n",tok);
+	if (cmd->writeP && first) {
+	  ini_puts("control", "sensor", tok, cfgfp);
+	  first=0;
+        }
       }
     }
     tok=strtok(NULL,",");
@@ -60,6 +70,7 @@ void printSensorActuatorList() {
   free(s1);
   free(s2);
   
+  first=1;
   OW_get("/",&s1,&slen1);
   
   tok=strtok(s1,",");
@@ -72,6 +83,10 @@ void printSensorActuatorList() {
       if (strcmp(s2,"DS2406")==0) {
 	tok[strlen(tok)-1]=0;
 	printf("%s (DS2406)\n",tok);
+	if (cmd->writeP && first) { 
+	  ini_puts("control", "actuator", tok, cfgfp);
+	  first=0;
+	}
       }
     }
     tok=strtok(NULL,",");

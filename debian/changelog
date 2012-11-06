@@ -1,4 +1,4 @@
-web20mash (1.1) unstable; urgency=low
+web20mash (1.1~squeeze0) unstable; urgency=low
 
   * Add additional state for increasing heat up to the temperature where mash has
     to be seperated from the wort

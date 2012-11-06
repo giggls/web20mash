@@ -19,6 +19,12 @@ typedef struct s_Cmdline {
   char configfileP;
   char* configfile;
   int configfileC;
+  /***** -u: username to switch to, when run as root */
+  char usernameP;
+  char* username;
+  int usernameC;
+  /***** -w: update configuration file from list of available sensors and actuators */
+  char writeP;
   /***** uninterpreted command line parameters */
   int argc;
   /*@null*/char **argv;

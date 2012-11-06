@@ -926,6 +926,7 @@ int main(int argc, char **argv) {
   int max,timfd;
   uint64_t exp;
   FILE *cfile;
+  uid_t uid,euid;
   
   cmd = parseCmdline(argc, argv);
 
@@ -939,7 +940,35 @@ int main(int argc, char **argv) {
   }
   readconfig(cfgfp);
   
-  // default is no control mash process off
+  /* this is a security feature, we do not want to run as root
+     at least on a non-embedded system, so we change our userid
+     to nobody or the userid given on the commandline
+  */  
+  euid=geteuid();
+  uid=getuid();
+  if (euid!=uid) {
+    fprintf(stderr,"suid program detected, falling back to uid %u\n",uid);
+    seteuid(uid);
+  }
+  if (uid==0) {
+    struct passwd *pw;
+    debug("running as root, switching to user >%s<",cmd->username);
+    if ((pw = getpwnam(cmd->username)) == NULL) {
+      die("unknown username %s",cmd->username);
+    }
+    /* try to make the configuration file writable by the daemon user */
+    if (0==chown(cfgfp,pw->pw_uid,pw->pw_gid)) {
+      if (0!=chmod(cfgfp,00644))
+        debug("unable to chmod runtime configuration file");
+    } else {
+      debug("unable to chown runtime configuration file");
+    }
+    
+    setuid(pw->pw_uid);
+    setgid(pw->pw_gid);
+  }
+  
+  // default is no control, mash process off
   pstate.control=0;
   pstate.mash=0;
   pstate.tempMust=cfopts.tempMust;
@@ -950,7 +979,7 @@ int main(int argc, char **argv) {
     die("Error connecting owserver on %s\n",cfopts.owparms);
   
   if (cmd->listP) {
-    printSensorActuatorList();
+    outSensorActuatorList();
     OW_finish();
     exit(EXIT_SUCCESS);
   }

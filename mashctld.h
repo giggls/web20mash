@@ -47,6 +47,7 @@ main header file
 #include <magic.h>
 #include <signal.h>
 #include <syslog.h>
+#include <pwd.h>
 #include "minIni.h"
 #include "cmdline.h"
 
@@ -62,7 +63,7 @@ main header file
 #define ACT_COOLER 0
 #define ACT_HEATER 1
 
-void printSensorActuatorList();
+void outSensorActuatorList();
 int doControl();
 void setRelay(int state);
 int loadtemplate(char *filename,char **data);

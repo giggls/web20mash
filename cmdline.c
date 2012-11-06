@@ -32,6 +32,12 @@ static Cmdline cmd = {
   /* configfileP = */ 1,
   /* configfile = */ "/etc/mashctld.conf",
   /* configfileC = */ 1,
+  /***** -u: username to switch to, when run as root */
+  /* usernameP = */ 1,
+  /* username = */ "webmash",
+  /* usernameC = */ 1,
+  /***** -w: update configuration file from list of available sensors and actuators */
+  /* writeP = */ 0,
   /***** uninterpreted rest of command line */
   /* argc = */ 0,
   /* argv = */ (char**)0
@@ -705,7 +711,7 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-l] [-d] [-bd] [-c configfile]\n");
+  fprintf(stderr,"%s","   [-l] [-d] [-bd] [-c configfile] [-u username] [-w]\n");
   fprintf(stderr,"%s","      two-level temperature and mash process controler\n");
   fprintf(stderr,"%s","     -l: List available sensors and actuators on bus and terminate\n");
   fprintf(stderr,"%s","     -d: print debug info\n");
@@ -713,7 +719,10 @@ usage(void)
   fprintf(stderr,"%s","     -c: runtime configuration file\n");
   fprintf(stderr,"%s","         1 char* value\n");
   fprintf(stderr,"%s","         default: `/etc/mashctld.conf'\n");
-  fprintf(stderr,"%s","  ");
+  fprintf(stderr,"%s","     -u: username to switch to, when run as root\n");
+  fprintf(stderr,"%s","         1 char* value\n");
+  fprintf(stderr,"%s","         default: `webmash'\n");
+  fprintf(stderr,"%s","     -w: update configuration file from list of available sensors and actuators\n");
   exit(EXIT_FAILURE);
 }
 /**********************************************************************/
@@ -744,6 +753,19 @@ parseCmdline(int argc, char **argv)
       cmd.configfileP = 1;
       i = getStringOpt(argc, argv, i, &cmd.configfile, 1);
       cmd.configfileC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-u", argv[i]) ) {
+      int keep = i;
+      cmd.usernameP = 1;
+      i = getStringOpt(argc, argv, i, &cmd.username, 1);
+      cmd.usernameC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-w", argv[i]) ) {
+      cmd.writeP = 1;
       continue;
     }
 
