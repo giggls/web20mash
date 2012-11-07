@@ -31,7 +31,7 @@ var cimgfiles = new Array("tux-brew.png","tux-brew-sleep.png","heating-on.png","
 var imagedir="images/";
 var thermo;
 var mpstate=42;
-var settings = {ok: false, open: false, musttemp: 0, resttime: Array(0, 0,  0), resttemp: Array(0, 0, 0, 0)};
+var settings = {ok: false, open: false, musttemp: 0, resttime: Array(0, 0,  0, 0), resttemp: Array(0, 0, 0, 0)};
 // number of loaded canvas images
 var numload=0;
 var getstate="./getstate";
@@ -80,7 +80,7 @@ function RunApp() {
     $.get(url, cbstart);
   });
   $('#stop').click(function() {
-    if ((mpstate > 0) && (mpstate < 8)) {
+    if ((mpstate > 0) && (mpstate < 9)) {
       $('#state'+$("input[name='mashstate']:checked").val()).css("background","");
       url=setmpstate + '0';
       $.get(url, cbstop);
@@ -98,6 +98,7 @@ function RunApp() {
       $("input[name='resttime1']").val(settings.resttime[0]);
       $("input[name='resttime2']").val(settings.resttime[1]);
       $("input[name='resttime3']").val(settings.resttime[2]);
+      $("input[name='resttime4']").val(settings.resttime[3]);
       $("input[name='resttemp1']").val(settings.resttemp[0]);
       $("input[name='resttemp2']").val(settings.resttemp[1]);
       $("input[name='resttemp3']").val(settings.resttemp[2]);
@@ -114,7 +115,8 @@ function RunApp() {
     url+=$("input[name='resttime2']").val()+"/";
     url+=$("input[name='resttemp3']").val()+"/";
     url+=$("input[name='resttime3']").val()+"/";
-    url+=$("input[name='resttemp4']").val();
+    url+=$("input[name='resttemp4']").val()+"/";
+    url+=$("input[name='resttime4']").val();
     $.get(url, cbsettings);
   });
 };
@@ -125,18 +127,18 @@ function thermometerwidget(canvas,x,y,image) {
   jc.rect(x+34,y+18,22,201,'#ffffff',1);
 
   // blue
-  state1=jc.rect(x+34,0,22,0,'#9be1fb',1);
+  state1=jc.rect(x+34,218,22,0,'#9be1fb',1);
   // green
-  state2=jc.rect(x+34,0,22,0,'#99ff99',1);
+  state2=jc.rect(x+34,218,22,0,'#99ff99',1);
   // yellow
-  state3=jc.rect(x+34,0,22,0,'#ffff77',1);
+  state3=jc.rect(x+34,218,22,0,'#ffff77',1);
   // orange
-  state4=jc.rect(x+34,0,22,0,'#FFaa55',1);
+  state4=jc.rect(x+34,218,22,0,'#FFaa55',1);
   // red
-  state5=jc.rect(x+34,0,22,0,'#ff7777',1);
+  state5=jc.rect(x+34,218,22,0,'#ff7777',1);
   
 
-  tscale=jc.rect(x+39,0,12,1,'#8e0000',1);
+  tscale=jc.rect(x+39,218,12,1,'#8e0000',1);
 
   jc.image(image,x+20,y+5);
   templabel=jc.text("--.- °C",x+45,y+300);
@@ -212,12 +214,12 @@ function parse_getstate_Response(data) {
   }
 
   // http://www.protofunc.com/scripts/jquery/checkbox-radiobutton/
-  if (data.mpstate == 8) {
+  if (data.mpstate == 9) {
     // radiobutton back to start
     $("input[name='mashstate'][value=1]").attr("checked","checked");
     timer.setperiod(0);
     thermo.clrresttemp();
-    $('#state7').css("background","");
+    $('#state8').css("background","");
     iodinealert = 0;
     alert(i18n.process_finished);
   }
@@ -241,7 +243,7 @@ function parse_getstate_Response(data) {
     settings.ok=false;
   }
   
-  if ((data.mpstate > 0) && (data.mpstate < 8)) {
+  if ((data.mpstate > 0) && (data.mpstate < 9)) {
     // this condition is met when new state is entered
     if (mpstate != data.mpstate) {
       restno=(data.mpstate/2)-1;

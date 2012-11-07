@@ -36,7 +36,8 @@ state   function
 5       raise the temperature up to 2. rest (german: 2. Verzuckerungsrast)
 6       keep temperature at 2. rest temperature for configured time
 7	raise the temperature up to lautering temperature
-8       pseudo state for signaling end of mash process
+8	keep temperature at lautering temperature for configured time
+9       pseudo state for signaling end of mash process
 
 */
 
@@ -214,13 +215,13 @@ static ssize_t sync_response_generator (void *cls, uint64_t pos, char *buf, size
 		"\"rstate\": %d,\n  \"ctrl\": %d,\n  \"mpstate\": %d,\n  "
 		"\"acttype\": \"%s\",\n  "
 		"\"resttimer\": %f,\n  "
-                "\"resttime\": [ %ju, %ju, %ju ],\n  "
+                "\"resttime\": [ %ju, %ju, %ju, %ju ],\n  "
 		"\"resttemp\": [ %.2f, %.2f, %.2f, %.2f ]\n}\n",
   		pstate.tempCurrent,pstate.tempMust,
 		pstate.relay,pstate.control,pstate.mash,
 		actuatorname[cfopts.acttype],
 		pstate.resttime/60.0,
-		cfopts.resttime[0], cfopts.resttime[1], cfopts.resttime[2],
+		cfopts.resttime[0], cfopts.resttime[1], cfopts.resttime[2], cfopts.resttime[3],
 		cfopts.resttemp[0], cfopts.resttemp[1], cfopts.resttemp[2], cfopts.resttemp[3]);
 
   *gp = -1;
@@ -536,11 +537,19 @@ static int answer_to_connection (void *cls,
 	      debug("setting rest time %d to %u\n",restno,(unsigned) val);
 	    if (val>MAXTIME) val=MAXTIME;
 	    cfopts.resttime[restno-1]=(unsigned) val;
-	    if (cmd->debugP)
-	      debug("updateing ini-file %s with value %u\n",key,cfopts.resttime[restno-1]);
-	    ini_putl("mash-process", key, cfopts.resttime[restno-1], cfgfp);
-	    snprintf(mdata,1024,
-		     "<html><body>OK setting rest time %d to %u</body></html>",restno,(unsigned) val);
+	    if (restno != 4) {
+              if (cmd->debugP)
+	        debug("updateing ini-file %s with value %u\n",key,cfopts.resttime[restno-1]);
+	      ini_putl("mash-process", key, cfopts.resttime[restno-1], cfgfp);
+	      snprintf(mdata,1024,
+                     "<html><body>OK setting rest time %d to %u</body></html>",restno,(unsigned) val);
+            } else {
+              if (cmd->debugP)
+	        debug("updateing ini-file lauteringtime with value %u\n",cfopts.resttime[restno-1]);	     
+              ini_putl("mash-process", "lauteringtime", cfopts.resttime[restno-1], cfgfp);
+              snprintf(mdata,1024,
+                  "<html><body>OK setting lautering time to %u</body></html>",(unsigned) val);
+            }
 	  } else {
 	    if (cmd->debugP)
 	      debug("setting rest temperature %d to %f\n",restno,val);
@@ -549,7 +558,7 @@ static int answer_to_connection (void *cls,
 	    cfopts.resttemp[restno-1]=val;
 	    if (restno != 4) {
 	      if (cmd->debugP)
-	        debug("updateing ini-file %s with value %f\n",key,cfopts.resttime[restno-1]);
+	        debug("updateing ini-file %s with value %f\n",key,cfopts.resttemp[restno-1]);
               ini_putf("mash-process", key, cfopts.resttemp[restno-1], cfgfp);
               snprintf(mdata,1024,
 		     "<html><body>OK setting rest temperature %d to %f</body></html>",restno,val);
@@ -573,8 +582,8 @@ static int answer_to_connection (void *cls,
 	return ret;
       }
 
-      // set all values at once: resttime(1-3) and resttemp(1-4)
-      // Syntax: /setallmash/<temp1>/<time1>/<temp2>/<time2>/<temp3>/<time3>/<temp4>
+      // set all values at once: resttime(1-4) and resttemp(1-4)
+      // Syntax: /setallmash/<temp1>/<time1>/<temp2>/<time2>/<temp3>/<time3>/<temp4>/<time4>
       
       if (setallmash) { 
 	float vtemp[4];
@@ -585,8 +594,8 @@ static int answer_to_connection (void *cls,
 	valid=true;
       
 	if (pstate.mash!=0) valid=false;
-	if (7 != sscanf(url,"/setallmash/%f/%u/%f/%u/%f/%u/%f",
-			&vtemp[0],&vtime[0],&vtemp[1],&vtime[1],&vtemp[2],&vtime[2],&vtemp[3])) {
+	if (8 != sscanf(url,"/setallmash/%f/%u/%f/%u/%f/%u/%f/%u",
+			&vtemp[0],&vtime[0],&vtemp[1],&vtime[1],&vtemp[2],&vtime[2],&vtemp[3],&vtime[3])) {
 	  valid=false;
 	}
 	if (!valid) {
@@ -607,7 +616,7 @@ static int answer_to_connection (void *cls,
             if (cfopts.resttime[i]!=vtime[i]) {
               if (cmd->debugP)
                 debug("updateing ini-file %s with value %u\n",key,vtime[i]);
-                ini_putl("mash-process", key, vtime[i],cfgfp);
+              ini_putl("mash-process", key, vtime[i],cfgfp);
             }
 	    cfopts.resttime[i]=vtime[i];
 	    sprintf(key,"resttemp%d",i+1);
@@ -620,6 +629,14 @@ static int answer_to_connection (void *cls,
 	    }
 	    cfopts.resttemp[i]=vtemp[i];          
 	  }
+	  // the lautering time
+	  if (vtime[i]>MAXTIME) vtime[i]=MAXTIME;
+	  if (cfopts.resttime[i]!=vtime[i]) {
+	    if (cmd->debugP)
+	      debug("updateing ini-file lauteringtime with value %u\n",vtime[i]);
+            ini_putl("mash-process", "lauteringtime", vtime[i],cfgfp);
+          }
+	  cfopts.resttime[i]=vtime[i];
 	  // and the lautering temperature
 	  if (vtemp[i]>MAXTEMP) vtemp[i]=MAXTEMP;
 	  if (vtemp[i]<MINTEMP) vtemp[i]=MINTEMP;
@@ -633,7 +650,8 @@ static int answer_to_connection (void *cls,
           snprintf(mdata,1024,
 		   "<html><body>OK setting all rest and control values</body></html>");
 	  if (cmd->debugP)
-	    debug("OK calling /setallmash/%f/%u/%f/%u/%f/%u/%f\n",vtemp[0],vtime[0],vtemp[1],vtime[1],vtemp[2],vtime[2],vtemp[3]);
+	    debug("OK calling /setallmash/%f/%u/%f/%u/%f/%u/%f/%u\n",
+	    vtemp[0],vtime[0],vtemp[1],vtime[1],vtemp[2],vtime[2],vtemp[3],vtime[3]);
 	}
 	response = MHD_create_response_from_data(strlen(mdata),
 						 (void*) mdata,
@@ -654,7 +672,7 @@ static int answer_to_connection (void *cls,
 	int res;
 	res=sscanf(url,"/setmpstate/%d",&mpstate);
 
-	if ((1 != res) || (mpstate >8) || (mpstate <0)) {
+	if ((1 != res) || (mpstate >9) || (mpstate <0)) {
 	  if (cmd->debugP)
 	    debug("error setting mash process state to %d\n",mpstate);
 	  snprintf(mdata,1024,
@@ -844,7 +862,7 @@ void acq_and_ctrl() {
   }
 
   /* if mash process is running adjust process parameters */
-  if ((pstate.mash>0) && (pstate.mash<8)) {
+  if ((pstate.mash>0) && (pstate.mash<9)) {
     unsigned index;
     
     index=(pstate.mash-1)/2;
@@ -897,7 +915,7 @@ void acq_and_ctrl() {
     expired=false;
   }
 
-  if (pstate.mash==8) {
+  if (pstate.mash==9) {
     expired=true;
   }
 
@@ -920,8 +938,8 @@ void acq_and_ctrl() {
   // is speciefied in runtime configuration file
   if (old_mash_state != pstate.mash) {
     old_mash_state=pstate.mash;
-    // ignore state 8
-    if (pstate.mash == 8) old_mash_state=0;
+    // ignore state 9
+    if (pstate.mash == 9) old_mash_state=0;
     if (cfopts.state_change_cmd[0]!='\0') {
       char command[255];
       sprintf(command,cfopts.state_change_cmd,old_mash_state);

@@ -51,6 +51,7 @@ void readconfig(char *cfgfile) {
     cfopts.resttime[i]=ini_getl("mash-process",cfresttime,defrtime[i], cfgfile);
   }
   cfopts.resttemp[i]=ini_getf("mash-process","lauteringtemp",defrtemp[i], cfgfile);
+  cfopts.resttime[i]=ini_getl("mash-process","lauteringtime",defrtime[i], cfgfile);
 
   ini_gets("mash-process", "state_change_cmd", "", cfopts.state_change_cmd,
 	     sizearray(cfopts.state_change_cmd), cfgfile);

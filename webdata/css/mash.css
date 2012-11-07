@@ -98,9 +98,9 @@ td {
 
 #pstate {
   position:absolute;
-  margin-top:20px;
+  margin-top:5px;
   top: 40px;
-  left: 305px;
+  left: 307px;
   width: 310px;
 }
 
@@ -118,10 +118,10 @@ td {
   position:absolute;
   margin-top:20px;
   background-image:url(../images/elehigru.gif);
-  top: 8px;
-  left: 305px;
-  width: 307px;
-  height: 226px;
+  top: 23px;
+  left: 308px;
+  width: 289px;
+  height: 246px;
   border: solid 3px;
   text-align: right;
   // do not display by default

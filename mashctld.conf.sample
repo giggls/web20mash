@@ -62,6 +62,7 @@ lauteringtemp=76
 resttime1=0
 resttime2=20
 resttime3=20
+lauteringtime=0
 
 # external command to be executed when mash state is entered
 # can be used to control external displays, LEDs etc.

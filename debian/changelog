@@ -1,4 +1,16 @@
-web20mash (1.1~squeeze0) unstable; urgency=low
+web20mash (1.2) unstable; urgency=low
+
+  New features:
+    * Some people do a yet another rest called "mashing out rest", so
+      add this one as well
+    * Also add an alert for the last chance to do an iodine test
+      before enzymes are disabled by lautering temperature
+    * Add a simple simulation/demo mode
+    * Make daemon to drop privileges if run as root
+
+ -- Sven Geggus <sven-deb@geggus.net>  Wed, 07 Nov 2012 23:14:36 +0100
+
+web20mash (1.1) unstable; urgency=low
 
   * Add additional state for increasing heat up to the temperature where mash has
     to be seperated from the wort
