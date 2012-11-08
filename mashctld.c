@@ -587,7 +587,7 @@ static int answer_to_connection (void *cls,
       
       if (setallmash) { 
 	float vtemp[4];
-	unsigned vtime[3];
+	unsigned vtime[4];
 	int ret;
 	bool valid;
       
