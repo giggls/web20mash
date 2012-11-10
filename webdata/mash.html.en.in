@@ -11,6 +11,8 @@
     <script type="text/javascript" src="js/jcsector.js"></script>
     <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
     <script type="text/javascript" src="js/jquery.jstepper.min.js"></script>
+    <script type="text/javascript" src="js/spin.min.js"></script>
+    <script type="text/javascript" src="js/procind.js"></script>
     <script type="text/javascript" src="js/ctimer.js"></script>
     <script type="text/javascript" src="js/webmash.js"></script>
     <script type="text/javascript" src="js/en.js"></script>
@@ -28,6 +30,7 @@
          <h2>All Versions of Internet Explorer &lt version 9 dont.</h2>
          <h2>NOTE: In newer Versions of Internet Explorer compatibility modes has to be disabled</h2>
       </canvas>
+      <div id="procind"></div>
       <div id='settings'>
       <button id='settings-btn' type='button'><img src="images/config.png"></button>&nbsp;&nbsp;</p>
       </div>

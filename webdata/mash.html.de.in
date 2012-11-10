@@ -10,6 +10,8 @@
     <script type="text/javascript" src="js/jcsector.js"></script>
     <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
     <script type="text/javascript" src="js/jquery.jstepper.min.js"></script>
+    <script type="text/javascript" src="js/spin.min.js"></script>
+    <script type="text/javascript" src="js/procind.js"></script>
     <script type="text/javascript" src="js/ctimer.js"></script>
     <script type="text/javascript" src="js/webmash.js"></script>
     <script type="text/javascript" src="js/de.js"></script>
@@ -27,6 +29,7 @@
          <h2>Das ist z.B. bei Internet Explorer &lt; Version 9 der Fall</h2>
 	 <h2>WICHTIG: Der Internet Explorer 9 darf nicht im Kompatibilitätsmodus laufen</h2>
       </canvas>
+      <div id="procind"></div>
       <div id='settings'>
       <button id='settings-btn' type='button'><img src="images/config.png"></button>&nbsp;&nbsp;</p>
       </div>

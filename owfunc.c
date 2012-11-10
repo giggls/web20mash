@@ -28,11 +28,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 
 extern struct configopts cfopts;
 extern struct processstate pstate;
-extern char cfgfp[];
+extern char cfgfp[PATH_MAX + 1];
 
 /* clig command line Parameters*/  
 extern Cmdline *cmd;
 
+#ifndef NO1W
 void outSensorActuatorList() {
   char buf[255];
   char *s1,*s2,*tok;
@@ -144,6 +145,7 @@ static void setOWRelay(int state) {
     die("still got a write error after retrying 30 times\n");
   return;
 }
+#endif
 
 int doControl() {
   float ubarrier;
@@ -180,6 +182,7 @@ int doControl() {
   return(0);
 }
 
+#ifndef NO1W
 float getTemp() {
   float temperature;
   char *s;
@@ -211,6 +214,7 @@ float getTemp() {
   free(s);
   return temperature;
 }
+#endif
 
 void setRelay(int state) {
   if (!cmd->simulationP) {
@@ -224,8 +228,10 @@ void setRelay(int state) {
 	  debug("running external actuator command: %s\n",cfopts.extactuatoroff);
 	  system(cfopts.extactuatoroff);
       }
+#ifndef NO1W
     } else {
       setOWRelay(state);
+#endif
     }
   }
   pstate.relay=state;

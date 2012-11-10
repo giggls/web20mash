@@ -854,12 +854,16 @@ void acq_and_ctrl() {
   static int old_mash_state=42;
 
   /* acquire temperature */
+#ifndef NO1W
   if (!cmd->simulationP) {
     pstate.tempCurrent=getTemp();
   } else {
+#endif
     if (pstate.relay)
       pstate.tempCurrent+=SIM_INC;
+#ifndef NO1W
   }
+#endif
 
   /* if mash process is running adjust process parameters */
   if ((pstate.mash>0) && (pstate.mash<9)) {
@@ -896,12 +900,16 @@ void acq_and_ctrl() {
         if ((index <3)) {
           pstate.tempMust=cfopts.resttemp[index+1];
         }
-        // force process stop after 2. rest (to allow for an iodine test)
-        // as some people stop here anyway just continue if
-        // cfopts.resttemp[3] is not higher than cfopts.resttemp[2]
-        if ((pstate.mash==6) && (cfopts.resttemp[3] > cfopts.resttemp[2])) {
-          pstate.control=0;
-          setRelay(0);
+        // force process pause after 2. rest (to allow for an iodine test)
+        // as some people stop here anyway skip states 7 and 8 if
+        // cfopts.resttemp[3] is not higher than cfopts.resttemp[2] and do not pause
+        if (pstate.mash==6) {
+          if (cfopts.resttemp[3] > cfopts.resttemp[2]) {
+            pstate.control=0;
+            setRelay(0);
+          } else {
+            pstate.mash+=2;
+          }
         }
         
         pstate.mash++;        
@@ -1007,7 +1015,7 @@ int main(int argc, char **argv) {
   pstate.tempMust=cfopts.tempMust;
   pstate.resttime=0;
   pstate.ttrigger=0;
-
+#ifndef NO1W
   if (!cmd->simulationP) {
     if(OW_init(cfopts.owparms) !=0)
       die("Error connecting owserver on %s\n",cfopts.owparms);
@@ -1029,10 +1037,15 @@ int main(int argc, char **argv) {
           die("%s is unavailable or not a DS2406 actuator\n",cfopts.actuator);
       }
   } else {
+#endif
     // in simulation mode we start with SIM_INIT_TEMP°C and increase by SIM_INC°C on each read
     pstate.tempCurrent=SIM_INIT_TEMP;
+#ifndef NO1W
   }
-  
+#else
+  cmd->simulationP=1;
+#endif
+
   if (-1==chdir(cfopts.webroot)) {
     // try ./webdata as webroot bevore giving up
     if (-1==chdir("./webdata"))

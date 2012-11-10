@@ -5,6 +5,10 @@ PREFIX = $(DESTDIR)
 CFLAGS = -g -Wall -W -std=gnu99 -pedantic
 LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt
 
+# Use this to generate a simulation only binary without 1-wire support
+#CFLAGS = -g -Wall -W -std=gnu99 -pedantic -D NO1W
+#LDLIBS = -lmicrohttpd -lmagic -lrt
+
 SRC = cmdline.c mashctld.c owfunc.c minIni.c readcfg.c
 
 OBJ = $(SRC:%.c=%.o)

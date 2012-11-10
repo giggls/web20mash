@@ -7,10 +7,13 @@ JCANVASCRIPT=jCanvaScript.1.5.18.min.js
 JSTEPPER_BASE=http://jstepper.emkay.dk/scripts
 JSTEPPER=jquery.jstepper.min.js
 
+SPINNER_BASE=http://fgnass.github.com/spin.js/dist/
+SPINNER=spin.min.js
+
 HTML_IN_FILES := $(wildcard *.html.*.in)
 HTML_OUT_FILES := $(patsubst %.in, %, ${HTML_IN_FILES})
 
-all: images/thermometer.png images/sudpfanne.png js/$(JQUERY) js/$(JCANVASCRIPT) js/$(JSTEPPER) images/en.png ${HTML_OUT_FILES}
+all: images/thermometer.png images/sudpfanne.png js/$(JQUERY) js/$(JCANVASCRIPT) js/$(JSTEPPER) images/en.png ${HTML_OUT_FILES} js/$(SPINNER)
 
 index.html.%: index.html.%.in
 	./html_from_template.sh index $*
@@ -35,6 +38,9 @@ js/$(JCANVASCRIPT):
 	
 js/$(JSTEPPER):
 	wget -P js $(JSTEPPER_BASE)/$(JSTEPPER)
+
+js/$(SPINNER):
+	wget -P js $(SPINNER_BASE)/$(SPINNER)
 
 images/en.png:
 	wget -O - -q http://qt.osdn.org.ua/kbflags-1.0.tar.gz |tar xvz -C /tmp

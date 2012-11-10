@@ -4,7 +4,7 @@ Webmash
 
 a Web 2.0 mash process controler
 
-(c) 2011 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2011-2012 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ var getstate="./getstate";
 var setmpstate="./setmpstate/";
 var setallmash="./setallmash/";
 var iodinealert=0;
+var pi;
 
 for (var i=0;i<cimgfiles.length;i++) {
   cimageObjs[i]=new Image();
@@ -66,7 +67,8 @@ function RunApp() {
   $(".timeinput").jStepper({minValue:0, maxValue:120, allowDecimals:false, decimalSeparator:"."});
 
   drawcanvas();
-  
+  pi=new procindicator('procind');
+
   $.getJSON(getstate,parse_getstate_Response);
   $('#start').click(function() {
     $("#settings-btn").attr("disabled", "true");
@@ -74,6 +76,7 @@ function RunApp() {
     // if state 7 is entered manually do not alert
     if (startstate==7) {
       iodinealert = 1;
+      pi.cs("red",0.6);
     };
     url=setmpstate + startstate;
     $('#state'+startstate).css("background","red");
@@ -88,6 +91,7 @@ function RunApp() {
         $('#state'+i).css("background","");
       }
       iodinealert = 0;
+      pi.cs('black',0);
     }
   });
   $('#settings-btn').click(function() {
@@ -210,7 +214,12 @@ function parse_getstate_Response(data) {
   // if lautering temp. > temp.of second rest
   if ((data.mpstate == 7) && (iodinealert == 0) && (data.resttemp[3] > data.resttemp[2])) {
     iodinealert = 1;
-    alert(i18n.iodinealert);
+    if (data.ctrl == 0) {
+        pi.cs("black",0);
+	alert(i18n.iodinealert);
+    } else {
+        pi.cs("red",0.6);
+    }
   }
 
   // http://www.protofunc.com/scripts/jquery/checkbox-radiobutton/
@@ -219,8 +228,10 @@ function parse_getstate_Response(data) {
     $("input[name='mashstate'][value=1]").attr("checked","checked");
     timer.setperiod(0);
     thermo.clrresttemp();
+    $('#state6').css("background","");
     $('#state8').css("background","");
     iodinealert = 0;
+    pi.cs('black',0);
     alert(i18n.process_finished);
   }
   
@@ -236,6 +247,7 @@ function parse_getstate_Response(data) {
       timer.setperiod(0);
       thermo.clrresttemp();
       iodinealert=0;
+      pi.cs('black',0);
     }
   } else {
     // this is for opera only because Opera does not seem to honor
@@ -250,9 +262,11 @@ function parse_getstate_Response(data) {
       thermo.setresttemp(data.resttemp[0],data.resttemp[1],data.resttemp[2],data.resttemp[3]);
       // this condition is met when rest is entered
       if (0 == (data.mpstate % 2)) {
+        pi.cs("black",0.2);
         timer.setperiod(data.resttime[restno]);
       } else {
         timer.setperiod(0);
+        if (data.mpstate != 7) pi.cs("red",0.6);
       }
       $("input[name='mashstate'][value="+data.mpstate+"]").attr("checked","checked");
       for (var j=1;j<data.mpstate;j++) {
