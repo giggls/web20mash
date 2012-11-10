@@ -78,11 +78,13 @@ void debug(char* fmt, ...) {
   va_list ap;
   
   va_start(ap, fmt);
-  if (isdaemon)
-    vsyslog(LOG_DEBUG, fmt, ap);
-  else
-    vfprintf(stderr,fmt, ap);
-  va_end(ap);
+  if (cmd->debugP) {
+    if (isdaemon)
+      vsyslog(LOG_DEBUG, fmt, ap);
+    else
+      vfprintf(stderr,fmt, ap);
+    va_end(ap);
+  }
 }
 
 void die(char* fmt, ...) {
@@ -162,8 +164,7 @@ char *getintlname(const char *alang, const char *ourl, char *nurl[]) {
     tail[0]='.';
     strncpy(tail+1,tok,3);
     tail[3]='\0';
-    if (cmd->debugP)
-      debug("getintlname: looking for file: %s\n",url);
+    debug("getintlname: looking for file: %s\n",url);
     if ((0 == stat(url, &buf)) && (S_ISREG (buf.st_mode)) ) {
       if (cmd->debugP)
 	printf("getintlname: OK, found file %s\n",url);
@@ -176,8 +177,7 @@ char *getintlname(const char *alang, const char *ourl, char *nurl[]) {
   }
   if (tok==NULL) {
     char *tail;
-    if (cmd->debugP)
-      debug("getintlname: requested languages unavailable using default: %s\n",url,DEFAULTLANG);
+    debug("getintlname: requested languages unavailable using default: %s\n",url,DEFAULTLANG);
     tail=url+strlen(ourl);
     tail[0]='.';
     strncpy(tail+1,DEFAULTLANG,3);
@@ -318,8 +318,7 @@ static int answer_to_connection (void *cls,
 	setacttype=1;
       }
     }
-    if (cmd->debugP)
-      debug("requested URL: %s\n",url);
+    debug("requested URL: %s\n",url);
 
     /* getstate is synchroniced to data acquisition */
     if (getstate) {
@@ -345,21 +344,18 @@ static int answer_to_connection (void *cls,
 
 	float must;
 	if ((1 != sscanf(url,"/setmust/%f",&must)) || (pstate.mash!=0)) {
-	  if (cmd->debugP)
-	    debug("error setting must temperature\n");
+        debug("error setting must temperature\n");
 	  snprintf(mdata,1024,
 		   "<html><body>Error setting must value!</body></html>");
 	} else {
 	  if (must>MAXTEMP) must=MAXTEMP;
 	  if (must<MINTEMP) must=MINTEMP;
 	  if (pstate.tempMust!=must) {
-	    if (cmd->debugP)
-	      debug("updating inifile must temperature: %f\n",must);
+          debug("updating inifile must temperature: %f\n",must);
 	    ini_putf("control","tempMust", must, cfgfp);
 	  }
 	  pstate.tempMust=must;
-	  if (cmd->debugP)
-	    debug("setting must temperature to: %f\n",must);  
+          debug("setting must temperature to: %f\n",must);  
 	  snprintf(mdata,1024,
 		   "<html><body>OK setting must value to %f</body></html>",must);
 	}
@@ -380,8 +376,7 @@ static int answer_to_connection (void *cls,
 
 	int ctl;
 	if ((1 != sscanf(url,"/setctl/%d",&ctl)) || (pstate.mash!=0)) {
-	  if (cmd->debugP)
-	    debug("error setting control\n");
+          debug("error setting control\n");
 	  snprintf(mdata,1024,
 		   "<html><body>Error setting control value!</body></html>");
 	} else {
@@ -391,8 +386,7 @@ static int answer_to_connection (void *cls,
 	    setRelay(0);
 	    pstate.relay=0;
 	  };
-	  if (cmd->debugP)
-	    debug("setting control to: %d\n",ctl);  
+          debug("setting control to: %d\n",ctl);  
 	  snprintf(mdata,1024,
 		   "<html><body>OK setting control to %d</body></html>",ctl);
 	}
@@ -425,15 +419,13 @@ static int answer_to_connection (void *cls,
 	}
 	
 	if (valid==false) {
-	  if (cmd->debugP)
-	    debug("error setting actuator state\n");
+          debug("error setting actuator state\n");
 	  snprintf(mdata,1024,
 		   "<html><body>Error setting actuator state!</body></html>");
 	} else {
 	  pstate.relay=astate;
 	  setRelay(astate);
-	  if (cmd->debugP)
-	    debug("setting actuator state to: %d\n",astate);  
+          debug("setting actuator state to: %d\n",astate);  
 	  snprintf(mdata,1024,
 		   "<html><body>OK setting actuator state to %d</body></html>",astate);
 	}
@@ -471,19 +463,16 @@ static int answer_to_connection (void *cls,
 	}
 
 	if ((valid==false) || (pstate.control!=0)) {
-	  if (cmd->debugP)
-	    debug("error setting actuator value\n");
+          debug("error setting actuator value\n");
 	  snprintf(mdata,1024,
 		   "<html><body>Error setting actuator value!</body></html>");
 	} else {
 	  if (cfopts.acttype!=acttype) {
 	    cfopts.acttype=acttype;
-	    if (cmd->debugP)
-	      debug("updating inifile actuatortype: %s\n",sacttype);
+            debug("updating inifile actuatortype: %s\n",sacttype);
 	    ini_puts("control", "actuatortype", sacttype, cfgfp);
 	  }
-	  if (cmd->debugP)
-	    debug("setting actuator to: %s\n",sacttype);  
+          debug("setting actuator to: %s\n",sacttype);  
 	  snprintf(mdata,1024,
 		   "<html><body>OK setting actuator to %s</body></html>",sacttype);
 	}
@@ -524,8 +513,7 @@ static int answer_to_connection (void *cls,
 	  }
 	}
 	if (!valid) {
-	  if (cmd->debugP)
-	    debug("error setting resttime/resttemp value\n");
+          debug("error setting resttime/resttemp value\n");
 	  snprintf(mdata,1024,
 		   "<html><body>Error setting rest value, should be /setrest/&lt;time or temp&gt;/&lt;no&gt;/&lt;val&gt;</body></html>");
 	} else {
@@ -533,38 +521,32 @@ static int answer_to_connection (void *cls,
 	  sprintf(key,"rest%s%d",rtype,restno);
 	  // now we have to set resttime or resttemp
 	  if (0==strcmp("time",rtype)) {
-	    if (cmd->debugP)
-	      debug("setting rest time %d to %u\n",restno,(unsigned) val);
+            debug("setting rest time %d to %u\n",restno,(unsigned) val);
 	    if (val>MAXTIME) val=MAXTIME;
 	    cfopts.resttime[restno-1]=(unsigned) val;
 	    if (restno != 4) {
-              if (cmd->debugP)
-	        debug("updateing ini-file %s with value %u\n",key,cfopts.resttime[restno-1]);
+              debug("updateing ini-file %s with value %u\n",key,cfopts.resttime[restno-1]);
 	      ini_putl("mash-process", key, cfopts.resttime[restno-1], cfgfp);
 	      snprintf(mdata,1024,
                      "<html><body>OK setting rest time %d to %u</body></html>",restno,(unsigned) val);
             } else {
-              if (cmd->debugP)
-	        debug("updateing ini-file lauteringtime with value %u\n",cfopts.resttime[restno-1]);	     
+              debug("updateing ini-file lauteringtime with value %u\n",cfopts.resttime[restno-1]);	     
               ini_putl("mash-process", "lauteringtime", cfopts.resttime[restno-1], cfgfp);
               snprintf(mdata,1024,
                   "<html><body>OK setting lautering time to %u</body></html>",(unsigned) val);
             }
 	  } else {
-	    if (cmd->debugP)
-	      debug("setting rest temperature %d to %f\n",restno,val);
+            debug("setting rest temperature %d to %f\n",restno,val);
 	    if (val>MAXTEMP) val=MAXTEMP;
 	    if (val<MINTEMP) val=MINTEMP;
 	    cfopts.resttemp[restno-1]=val;
 	    if (restno != 4) {
-	      if (cmd->debugP)
-	        debug("updateing ini-file %s with value %f\n",key,cfopts.resttemp[restno-1]);
+              debug("updateing ini-file %s with value %f\n",key,cfopts.resttemp[restno-1]);
               ini_putf("mash-process", key, cfopts.resttemp[restno-1], cfgfp);
               snprintf(mdata,1024,
 		     "<html><body>OK setting rest temperature %d to %f</body></html>",restno,val);
             } else {
-	      if (cmd->debugP)
-	        debug("updateing ini-file lauteringtemp with value %f\n",cfopts.resttime[restno-1]);	     
+              debug("updateing ini-file lauteringtemp with value %f\n",cfopts.resttime[restno-1]);	     
               ini_putf("mash-process", "lauteringtemp", cfopts.resttemp[restno-1], cfgfp);
               snprintf(mdata,1024,
                   "<html><body>OK setting lautering temperature to %f</body></html>",val);
@@ -599,8 +581,7 @@ static int answer_to_connection (void *cls,
 	  valid=false;
 	}
 	if (!valid) {
-	  if (cmd->debugP)
-	    debug("error setting all rest and control values values\n");
+          debug("error setting all rest and control values values\n");
 	  snprintf(mdata,1024,
 		   "<html><body>Error setting all rest and control values<br />"
 		   "Syntax: /setallmash/&lt;temp1&gt;/&lt;time1&gt;/&lt;temp2&gt;/&lt;time2&gt;/&lt;temp3&gt;/&lt;time3&gt;/&lt;temp4&gt;"
@@ -614,8 +595,7 @@ static int answer_to_connection (void *cls,
             sprintf(key,"resttime%d",i+1);
             if (vtime[i]>MAXTIME) vtime[i]=MAXTIME;
             if (cfopts.resttime[i]!=vtime[i]) {
-              if (cmd->debugP)
-                debug("updateing ini-file %s with value %u\n",key,vtime[i]);
+              debug("updateing ini-file %s with value %u\n",key,vtime[i]);
               ini_putl("mash-process", key, vtime[i],cfgfp);
             }
 	    cfopts.resttime[i]=vtime[i];
@@ -623,8 +603,7 @@ static int answer_to_connection (void *cls,
 	    if (vtemp[i]>MAXTEMP) vtemp[i]=MAXTEMP;
 	    if (vtemp[i]<MINTEMP) vtemp[i]=MINTEMP;
 	    if (cfopts.resttemp[i]!=vtemp[i]) {
-	      if (cmd->debugP)
-		debug("updateing ini-file %s with value %f\n",key,vtemp[i]);
+              debug("updateing ini-file %s with value %f\n",key,vtemp[i]);
 	      ini_putf("mash-process", key, vtemp[i],cfgfp);
 	    }
 	    cfopts.resttemp[i]=vtemp[i];          
@@ -632,8 +611,7 @@ static int answer_to_connection (void *cls,
 	  // the lautering time
 	  if (vtime[i]>MAXTIME) vtime[i]=MAXTIME;
 	  if (cfopts.resttime[i]!=vtime[i]) {
-	    if (cmd->debugP)
-	      debug("updateing ini-file lauteringtime with value %u\n",vtime[i]);
+            debug("updateing ini-file lauteringtime with value %u\n",vtime[i]);
             ini_putl("mash-process", "lauteringtime", vtime[i],cfgfp);
           }
 	  cfopts.resttime[i]=vtime[i];
@@ -641,16 +619,14 @@ static int answer_to_connection (void *cls,
 	  if (vtemp[i]>MAXTEMP) vtemp[i]=MAXTEMP;
 	  if (vtemp[i]<MINTEMP) vtemp[i]=MINTEMP;
 	  if (cfopts.resttemp[i]!=vtemp[i]) {
-	    if (cmd->debugP)
-	      debug("updateing ini-file lauteringtemp with value %f\n",vtemp[i]);
+            debug("updateing ini-file lauteringtemp with value %f\n",vtemp[i]);
             ini_putf("mash-process", "lauteringtemp", vtemp[i],cfgfp);
           }
           cfopts.resttemp[i]=vtemp[i];
 	  
           snprintf(mdata,1024,
 		   "<html><body>OK setting all rest and control values</body></html>");
-	  if (cmd->debugP)
-	    debug("OK calling /setallmash/%f/%u/%f/%u/%f/%u/%f/%u\n",
+          debug("OK calling /setallmash/%f/%u/%f/%u/%f/%u/%f/%u\n",
 	    vtemp[0],vtime[0],vtemp[1],vtime[1],vtemp[2],vtime[2],vtemp[3],vtime[3]);
 	}
 	response = MHD_create_response_from_data(strlen(mdata),
@@ -673,13 +649,11 @@ static int answer_to_connection (void *cls,
 	res=sscanf(url,"/setmpstate/%d",&mpstate);
 
 	if ((1 != res) || (mpstate >9) || (mpstate <0)) {
-	  if (cmd->debugP)
-	    debug("error setting mash process state to %d\n",mpstate);
+          debug("error setting mash process state to %d\n",mpstate);
 	  snprintf(mdata,1024,
 		   "<html><body>Error setting mash process state to %d!</body></html>",mpstate);
 	} else {
-	  if (cmd->debugP)
-	    debug("setting mash process state to: %d\n",mpstate);  
+          debug("setting mash process state to: %d\n",mpstate);  
 
 	  pstate.mash=mpstate;
 	  // if mash process is set to 0 control needs to be turned of as well
@@ -696,8 +670,7 @@ static int answer_to_connection (void *cls,
 	      pstate.starttime=time(NULL);
 	      unsigned index;
 	      index=(mpstate-1)/2;
-	      if (cmd->debugP)
-		debug("setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
+              debug("setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
 	    }
 	  }
 
@@ -735,8 +708,7 @@ static int answer_to_connection (void *cls,
 	alang=MHD_lookup_connection_value(connection, MHD_HEADER_KIND, MHD_HTTP_HEADER_ACCEPT_LANGUAGE);
 	/* no language header given */
 	if (alang==NULL) {
-	  if (cmd->debugP)
-	    debug("no language header in http-request setting default: %s\n",DEFAULTLANG);
+          debug("no language header in http-request setting default: %s\n",DEFAULTLANG);
 	  alang=DEFAULTLANG;
 	}
 	nurl=malloc(sizeof(char)*(strlen(relative_url)+4));
@@ -744,8 +716,7 @@ static int answer_to_connection (void *cls,
 	relative_url=getintlname(alang,relative_url,&nurl);
       }
 	
-      if (cmd->debugP)
-	debug("trying to open file: %s\n",relative_url);
+      debug("trying to open file: %s\n",relative_url);
       if ((0 == stat(relative_url, &buf)) && (S_ISREG (buf.st_mode)) )
 	file = fopen(relative_url, "rb");
       else
@@ -772,19 +743,16 @@ static int answer_to_connection (void *cls,
 
 	/* mime types we know better than libmagic are for .js and .css */
 	if (strncmp(getExt(relative_url),".js",3)==0) {
-	  if (cmd->debugP)
-	    debug("setting mime type to %s\n", "text/javascript");
+          debug("setting mime type to %s\n", "text/javascript");
 	  MHD_add_response_header(response,"Content-Type", "text/javascript");
 	} else {
 	  if (strncmp(getExt(relative_url),".css",4)==0) {
-	    if (cmd->debugP)
-	      debug("setting mime type to %s\n", "text/css");
+            debug("setting mime type to %s\n", "text/css");
 	    MHD_add_response_header(response,"Content-Type", "text/css");
 	  } else {
 	    /* use libmagic for the rest */
 	    magic_full = magic_file(magic_cookie, relative_url);
-	    if (cmd->debugP)
-	      debug("setting mime type to %s\n", magic_full);
+            debug("setting mime type to %s\n", magic_full);
 	    MHD_add_response_header(response,"Content-Type", magic_full);
 	  }
 	}
@@ -884,8 +852,7 @@ void acq_and_ctrl() {
 	if ((index <3) && (cfopts.resttime[index] == 0)) {
 	  pstate.tempMust=cfopts.resttemp[index+1];
 	}
-	if (cmd->debugP)
-	  debug("setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
+        debug("setting timer for rest%d to %jd minutes\n",index+1,cfopts.resttime[index]);
         pstate.resttime=60*cfopts.resttime[index];
 	pstate.mash++;
       }
@@ -894,8 +861,7 @@ void acq_and_ctrl() {
       pstate.resttime=endtime-time(NULL);
       // rest until timer expired
       if (pstate.resttime <= 0) {
-	if (cmd->debugP)
-	  debug("timer for rest%d expired\n",index+1);
+        debug("timer for rest%d expired\n",index+1);
         // set must temperature to the next value
         if ((index <3)) {
           pstate.tempMust=cfopts.resttemp[index+1];
@@ -951,8 +917,7 @@ void acq_and_ctrl() {
     if (cfopts.state_change_cmd[0]!='\0') {
       char command[255];
       sprintf(command,cfopts.state_change_cmd,old_mash_state);
-      if (cmd->debugP)
-	debug("running state changed command: %s\n",command);
+      debug("running state changed command: %s\n",command);
       system(command);
     }
   }
@@ -1038,16 +1003,14 @@ int main(int argc, char **argv) {
 		         cfopts.port,
 		         NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
   if (dv6 == NULL)
-    if (cmd->debugP)
-      debug("Error running IPv6 HTTP-server\n");
+    debug("Error running IPv6 HTTP-server\n");
   
   dv4 = MHD_start_daemon(MHD_NO,
                          cfopts.port,
                          NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
   
   if (dv4 == NULL)
-    if (cmd->debugP)
-      debug("Error running IPv4 HTTP-server\n");
+    debug("Error running IPv4 HTTP-server\n");
   
   if ((dv4 == NULL) && (dv6 == NULL))
     die("error starting http server\n");
@@ -1087,8 +1050,7 @@ int main(int argc, char **argv) {
     }
     /* try to make the configuration file writable by the daemon user */
     if (0==chown(cfgfp,pw->pw_uid,pw->pw_gid)) {
-      if (0!=chmod(cfgfp,00644))
-        debug("unable to chmod runtime configuration file\n");
+      if (0!=chmod(cfgfp,00644)) debug("unable to chmod runtime configuration file\n");
     } else {
       debug("unable to chown runtime configuration file\n");
     }
