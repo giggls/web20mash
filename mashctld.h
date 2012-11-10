@@ -39,7 +39,9 @@ main header file
 #include <stdarg.h>
 #include <sys/socket.h>
 #include <microhttpd.h>
+#ifndef NO1W
 #include <owcapi.h>
+#endif
 #include <sys/ioctl.h>
 #include <sys/timerfd.h>
 #include <time.h>
