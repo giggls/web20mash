@@ -1061,14 +1061,14 @@ int main(int argc, char **argv) {
     magic_close(magic_cookie);
     die("cannot load magic database - %s\n", magic_error(magic_cookie));
   }
-
+#ifndef BINDLOCALHOST
   dv6 = MHD_start_daemon(MHD_USE_IPv6,
 		         cfopts.port,
 		         NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
   if (dv6 == NULL)
     if (cmd->debugP)
       debug("Error running IPv6 HTTP-server\n");
-    
+  
   dv4 = MHD_start_daemon(MHD_NO,
                          cfopts.port,
                          NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
@@ -1079,7 +1079,23 @@ int main(int argc, char **argv) {
   
   if ((dv4 == NULL) && (dv6 == NULL))
     die("error starting http server\n");
-
+#else
+  {
+  dv6=NULL;
+  struct sockaddr_in daemon_ip_addr;
+  memset (&daemon_ip_addr, 0, sizeof (struct sockaddr_in));
+  daemon_ip_addr.sin_family = AF_INET;
+  daemon_ip_addr.sin_port = htons(cfopts.port);
+  
+  inet_pton(AF_INET, "127.0.0.1", &daemon_ip_addr.sin_addr);
+  dv4 = MHD_start_daemon(MHD_NO,
+                         cfopts.port,
+                         NULL, NULL, &answer_to_connection, PAGE,
+                         MHD_OPTION_SOCK_ADDR, &daemon_ip_addr, MHD_OPTION_END);
+  if (dv4 == NULL)
+    die("error starting http server\n");
+  }
+#endif
 
   timfd=init_timerfd(DELAY);
   if (cmd->debugP)

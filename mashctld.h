@@ -39,6 +39,7 @@ main header file
 #include <stdarg.h>
 #include <sys/socket.h>
 #include <microhttpd.h>
+#include <arpa/inet.h>
 #ifndef NO1W
 #include <owcapi.h>
 #endif

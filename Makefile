@@ -6,7 +6,8 @@ CFLAGS = -g -Wall -W -std=gnu99 -pedantic
 LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt
 
 # Use this to generate a simulation only binary without 1-wire support
-#CFLAGS = -g -Wall -W -std=gnu99 -pedantic -D NO1W
+# If BINDLOCALHOST is defined build a binary listening on 127.0.0.1 only
+#CFLAGS = -g -Wall -W -std=gnu99 -pedantic -D NO1W -D BINDLOCALHOST
 #LDLIBS = -lmicrohttpd -lmagic -lrt
 
 SRC = cmdline.c mashctld.c owfunc.c minIni.c readcfg.c
@@ -53,4 +54,3 @@ install: debian/copyright mashctld
 	chmod 755 $(DESTDIR)/bin/mashctld
 	chmod 755 $(DESTDIR)/share/web20mash $(DESTDIR)/share/web20mash/images $(DESTDIR)/share/web20mash/js $(DESTDIR)/share/web20mash/css
 	chmod 644 $(DESTDIR)/share/web20mash/*/*
-	
