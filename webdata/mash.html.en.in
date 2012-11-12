@@ -53,6 +53,7 @@
           <tr id="state8"><td><input type="radio" name="mashstate" value="8">
                 <td>Mashing Out Rest
         </table>
+	<br />
         <button id='start' type='button'>start process</button>
         <button id='stop' type='button'>cancel process</button>
       </div>

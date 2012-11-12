@@ -43,11 +43,11 @@ table {
   border-spacing: 0;
   width: 100%;
   align: center;
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 button {
-  margin-top: 10px;
+  margin-top: 2px;
   font-size: 10pt;
   -webkit-appearance: none;
   border-width: 3px;
@@ -123,7 +123,7 @@ td {
   top: 23px;
   left: 308px;
   width: 289px;
-  height: 246px;
+  height: 215px;
   border: solid 3px;
   text-align: right;
   // do not display by default

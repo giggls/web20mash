@@ -52,6 +52,7 @@
 	  <tr id="state8"><td><input type="radio" name="mashstate" value="8">
 	        <td>Abmaischrast
         </table>
+	<br />
         <button id='start' type='button'>Prozess starten</button>
         <button id='stop' type='button'>Prozess abbrechen</button>
       </div>
