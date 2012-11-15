@@ -29,8 +29,9 @@ tempMust=0
 sensor=10.B963D4000800
 
 # actuator to use
-# this can be either a DS2406 ID or "external"
-actuator=12.9B6E45000000
+# this can be either a supported 1-wire device
+# (currently DS2406, DS2408 and DS2413) ID/PIO.X or "external"
+actuator=12.9B6E45000000/PIO.A
 #actuator=external
 
 # if actuator is set to "external" the following

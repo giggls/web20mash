@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 
 */
 #include "mashctld.h"
+#include "sensact.h"
 
 extern struct configopts cfopts;
 extern struct processstate pstate;
@@ -33,33 +34,39 @@ extern char cfgfp[PATH_MAX + 1];
 /* clig command line Parameters*/  
 extern Cmdline *cmd;
 
+int stringInArray(char * str, const char **arr) {
+  const char **i;
+  int c=0;
+  for (i=arr; *i; i++) {
+    if (0==strcmp(*i,str))
+      return c;
+    c++;
+  }
+  return -1;
+}
+
 #ifndef NO1W
 void outSensorActuatorList() {
-  char buf[255];
+  char buf1[255],buf2[255];
   char *s1,*s2,*tok;
+  const char **i;
   bool first=1;
   size_t slen1,slen2;
+  int pos;
 
   OW_get("/",&s1,&slen1);
     
   tok=strtok(s1,",");
   printf("sensors:\n");
   while (tok != NULL) {
-    /* wenn a sensor id is found scan for DS18S20/DS18B20 */
+    /* if a sensor id is found scan for a supported sensor */
     if (tok[2] == '.') {
-      sprintf(buf,"/%stype",tok);
-      OW_get(buf,&s2,&slen2);
-      if (strcmp(s2,"DS18S20")==0) {
+      sprintf(buf1,"/%stype",tok);
+      OW_get(buf1,&s2,&slen2);
+      pos=stringInArray(s2,sensors);
+      if (-1 != pos) {
 	tok[strlen(tok)-1]=0;
-	printf("%s (DS18S20)\n",tok);
-	if (cmd->writeP && first) {
-          ini_puts("control", "sensor", tok, cfgfp);
-          first=0;
-	}
-      }
-      if (strcmp(s2,"DS18B20")==0) {
-	tok[strlen(tok)-1]=0;
-	printf("%s (DS18B20)\n",tok);
+	printf("%s: %s\n",sensors[pos],tok);
 	if (cmd->writeP && first) {
 	  ini_puts("control", "sensor", tok, cfgfp);
 	  first=0;
@@ -75,17 +82,24 @@ void outSensorActuatorList() {
   OW_get("/",&s1,&slen1);
   
   tok=strtok(s1,",");
-  printf("\naktors:\n");
+  printf("\nactuators:\n");
   while (tok != NULL) {
-    /* wenn a sensor id is found scan for type */
+    /* if an actuators id is found scan for type */
     if (tok[2] == '.') {
-      sprintf(buf,"/%stype",tok);
-      OW_get(buf,&s2,&slen2);
-      if (strcmp(s2,"DS2406")==0) {
+      sprintf(buf1,"/%stype",tok);
+      OW_get(buf1,&s2,&slen2);
+      pos = stringInArray(s2,actuators);
+      if (-1 != pos) {
 	tok[strlen(tok)-1]=0;
-	printf("%s (DS2406)\n",tok);
+	printf("%s:",actuators[pos]);
+	for (i=actuator_ports[pos]; *i; i++)
+	  printf(" %s/%s",tok,*i);
+        printf("\n");
 	if (cmd->writeP && first) { 
-	  ini_puts("control", "actuator", tok, cfgfp);
+	  strcpy(buf2,tok);
+	  strcpy(buf2+strlen(tok),"/");
+	  strcpy(buf2+strlen(tok)+1,actuator_ports[pos][0]);
+	  ini_puts("control", "actuator", buf2, cfgfp);
 	  first=0;
 	}
       }
@@ -96,25 +110,40 @@ void outSensorActuatorList() {
   free(s2);
 }
 
-/* check if device with given ID and type is available on the bus */
-bool search4Device(char *id, char *type) {
+int search4Device(char *device, const char **devlist) {
+  
   char curdev[22];
   char *type_found_on_bus;
   size_t slen;
   
   curdev[0]='/';
-  strncpy(curdev+1,id,15);
+  strncpy(curdev+1,device,15);
   strcpy(curdev+16,"/type");
   type_found_on_bus=NULL;
   OW_get(curdev,&type_found_on_bus,&slen);
   // return false if requested sensor is not available at all
-  if (NULL==type_found_on_bus)  return false;
+  if (NULL==type_found_on_bus)  return -1;
   // return false if requested has wrong type
-  if (0==strcmp(type,type_found_on_bus)) {
-    return true;
-  } else {
-    return false;
+  return stringInArray(type_found_on_bus,devlist);
+}
+
+
+/* check if sensor device with given ID and known type is available on the bus */
+int search4Sensor() {
+  return search4Device(cfopts.sensor,sensors);
+}
+
+int search4Actuator() {
+  int devno;
+  devno=search4Device(cfopts.actuator,actuators);
+  // if a supported actuator has been found check if the given port ID
+  // is valid for this type of sensor
+  if (devno>-1) {
+    if (-1 == stringInArray(cfopts.actuator_port,actuator_ports[devno]))
+      return -1;
   }
+  
+  return devno;  
 }
 
 static void setOWRelay(int state) {
@@ -129,7 +158,7 @@ static void setOWRelay(int state) {
   }
   cstate[1]='\0';
 
-  sprintf(buf,"/%s/PIO.A",cfopts.actuator);
+  sprintf(buf,"/%s/%s",cfopts.actuator,cfopts.actuator_port);
   for (i=0;i<60;i++) {
     if (-1==OW_put(buf,cstate,strlen(buf))) {
       errorlog("owfs WRITE error, retrying in 1 seconds\n");

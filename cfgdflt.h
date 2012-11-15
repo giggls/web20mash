@@ -16,7 +16,7 @@ Sll these values can be changed using the runtime configuration file
 #define CTLD_PORT 8888
 #define CTLD_OWPARMS "-u"
 #define CTLD_SENSORID "10.B963D4000800"
-#define CTLD_ACTUATORID "12.9B6E45000000"
+#define CTLD_ACTUATORID "12.9B6E45000000/PIO.A"
 #define CTLD_EXTACTON "sispm +1"
 #define CTLD_EXTACTOFF "sispm -1"
 #define CTLD_TEMPMUST 0

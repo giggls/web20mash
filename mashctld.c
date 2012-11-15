@@ -43,6 +43,7 @@ state   function
 
 
 #include "mashctld.h"
+#include "sensact.h"
 
 #define PAGE "<html><head><title>File not found</title></head><body>File not found</body></html>"
 
@@ -933,6 +934,7 @@ int main(int argc, char **argv) {
   uint64_t exp;
   FILE *cfile;
   uid_t uid,euid;
+  int stype, atype;
   
   cmd = parseCmdline(argc, argv);
 
@@ -963,15 +965,24 @@ int main(int argc, char **argv) {
       exit(EXIT_SUCCESS);
     }
  
-    /* check if requested sensor is available on the bus */
-    if (false==search4Device(cfopts.sensor,"DS18S20"))
-      if (false==search4Device(cfopts.sensor,"DS18B20"))
-        die("%s is unavailable or not a DS18S20/DS18B20 sensor\n",cfopts.sensor);
+    /* check if requested sensor is available on the bus and is one of the supported ones*/
+    stype=search4Sensor();
+    if (-1==stype)
+      die("%s is unavailable or an unsupported sensor\n",cfopts.sensor);
+    else
+      debug("OK, found sensor of type %s (id %s)...\n",sensors[stype],cfopts.sensor);
 
       if (cfopts.extactuator==false) {
-        /* check if requested 1-wire actuator is available on the bus */
-        if (false==search4Device(cfopts.actuator,"DS2406"))
-          die("%s is unavailable or not a DS2406 actuator\n",cfopts.actuator);
+        /* check if requested 1-wire actuator is available on the bus and is one of the supported ones*/
+        atype=search4Actuator();
+        if (-1==atype)
+            die("%s/%s is unavailable or not a supported actuator or actuator_port\n",
+              cfopts.actuator,cfopts.actuator_port);
+        else
+          debug("OK, found actuator of type %s (id %s/%s)...\n",
+          actuators[atype],cfopts.actuator,cfopts.actuator_port);
+      } else {
+        debug("Using external actuator command...\n");
       }
   } else {
 #endif

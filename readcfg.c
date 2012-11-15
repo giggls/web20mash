@@ -12,6 +12,7 @@ void readconfig(char *cfgfile) {
   char cfresttemp[]="resttempX";
   char cfresttime[]="resttimeX";
   char acttype[7];
+  char buf[100];
 
   cfopts.port=ini_getl("global","port",CTLD_PORT, cfgfile);  
 
@@ -20,15 +21,21 @@ void readconfig(char *cfgfile) {
   cfopts.authactive=ini_getbool("auth", "active",CTLD_AUTHACTIVE, cfgfile);
   ini_gets("control", "owparms", CTLD_OWPARMS, cfopts.owparms, sizearray(cfopts.owparms), cfgfile);
   ini_gets("control", "sensor", CTLD_SENSORID, cfopts.sensor, sizearray(cfopts.sensor), cfgfile);
-  ini_gets("control", "actuator", CTLD_ACTUATORID, cfopts.actuator, sizearray(cfopts.actuator), cfgfile);
-
-  if (0==strcmp("external",cfopts.actuator)) {
+  ini_gets("control", "actuator", CTLD_ACTUATORID, buf, sizearray(buf), cfgfile);
+  
+  if (0==strcmp("external",buf)) {
     cfopts.extactuator=true;
+    strncpy(cfopts.actuator,buf,16);
+    cfopts.actuator[15]='\0';
     ini_gets("control", "extactuatoron", CTLD_EXTACTON, cfopts.extactuatoron,
 	     sizearray(cfopts.extactuatoron), cfgfile);
     ini_gets("control", "extactuatoroff", CTLD_EXTACTOFF, cfopts.extactuatoroff,
 	     sizearray(cfopts.extactuatoroff), cfgfile);
   } else {
+    strncpy(cfopts.actuator,buf,16);
+    cfopts.actuator[15]='\0';
+    strncpy(cfopts.actuator_port,buf+16,6);
+    cfopts.actuator_port[5]='\0';
     cfopts.extactuator=false;
   }
   
