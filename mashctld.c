@@ -1057,20 +1057,19 @@ int main(int argc, char **argv) {
     struct passwd *pw;
     debug("running as root, switching to user >%s<\n",cmd->username);
     if ((pw = getpwnam(cmd->username)) == NULL) {
-      die("unknown username %s",cmd->username);
-    }
-    /* try to make the configuration file writable by the daemon user */
-    if (0==chown(cfgfp,pw->pw_uid,pw->pw_gid)) {
-      if (0!=chmod(cfgfp,00644)) debug("unable to chmod runtime configuration file\n");
+      fprintf(stderr,"WARNING: unknown username >%s<, running as root!\n",cmd->username);
     } else {
-      debug("unable to chown runtime configuration file\n");
+      /* try to make the configuration file writable by the daemon user */
+      if (0==chown(cfgfp,pw->pw_uid,pw->pw_gid)) {
+        if (0!=chmod(cfgfp,00644)) debug("unable to chmod runtime configuration file\n");
+      } else {
+        debug("unable to chown runtime configuration file\n");
+      }    
+      setuid(pw->pw_uid);
+      setgid(pw->pw_gid);
     }
-    
-    setuid(pw->pw_uid);
-    setgid(pw->pw_gid);
   }
-
-
+  
   timfd=init_timerfd(DELAY);
   if (cmd->debugP)
     get_elapsed_time();
