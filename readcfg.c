@@ -2,6 +2,7 @@
 #include "cfgdflt.h"
 
 extern struct configopts cfopts;
+int gpiofd;
 
 #define sizearray(a)  (sizeof(a) / sizeof((a)[0]))
 
@@ -23,20 +24,26 @@ void readconfig(char *cfgfile) {
   ini_gets("control", "sensor", CTLD_SENSORID, cfopts.sensor, sizearray(cfopts.sensor), cfgfile);
   ini_gets("control", "actuator", CTLD_ACTUATORID, buf, sizearray(buf), cfgfile);
   
-  if (0==strcmp("external",buf)) {
+  cfopts.extactuator=false;
+  cfopts.gpioactuator=false;
+  strncpy(cfopts.actuator,buf,100);
+  cfopts.actuator[100]='\0';
+  if (0==strcmp("external",cfopts.actuator)) {
     cfopts.extactuator=true;
-    strncpy(cfopts.actuator,buf,16);
-    cfopts.actuator[15]='\0';
     ini_gets("control", "extactuatoron", CTLD_EXTACTON, cfopts.extactuatoron,
 	     sizearray(cfopts.extactuatoron), cfgfile);
     ini_gets("control", "extactuatoroff", CTLD_EXTACTOFF, cfopts.extactuatoroff,
 	     sizearray(cfopts.extactuatoroff), cfgfile);
   } else {
-    strncpy(cfopts.actuator,buf,16);
-    cfopts.actuator[15]='\0';
-    strncpy(cfopts.actuator_port,buf+16,6);
-    cfopts.actuator_port[5]='\0';
-    cfopts.extactuator=false;
+    if (strncmp(buf,"/sys/",5)==0) {
+      cfopts.gpioactuator=true;
+      gpiofd = open(cfopts.actuator, O_RDWR);
+      if (gpiofd < 0)
+        die("unable to open GPIO device >%s<\n",cfopts.actuator);
+    } else {
+     strncpy(cfopts.actuator_port,buf+16,6);
+     cfopts.actuator_port[5]='\0';
+    }
   }
   
   ini_gets("control", "actuatortype", CTLD_ACTTYPE, acttype, sizearray(acttype), cfgfile);

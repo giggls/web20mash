@@ -88,11 +88,12 @@ struct configopts {
   uint16_t port;
   char owparms[100];
   char sensor[16];
-  char actuator[16];
+  char actuator[100];
   char actuator_port[6];
   bool extactuator;
   char extactuatoron[255];
   char extactuatoroff[255];
+  bool gpioactuator;
   float tempMust;
   float hysteresis;
   int acttype;

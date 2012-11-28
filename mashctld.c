@@ -972,7 +972,7 @@ int main(int argc, char **argv) {
     else
       debug("OK, found sensor of type %s (id %s)...\n",sensors[stype],cfopts.sensor);
 
-      if (cfopts.extactuator==false) {
+      if ((cfopts.extactuator==false) && (cfopts.gpioactuator==false)) {
         /* check if requested 1-wire actuator is available on the bus and is one of the supported ones*/
         atype=search4Actuator();
         if (-1==atype)

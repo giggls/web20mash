@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 extern struct configopts cfopts;
 extern struct processstate pstate;
 extern char cfgfp[PATH_MAX + 1];
+extern int gpiofd;
 
 /* clig command line Parameters*/  
 extern Cmdline *cmd;
@@ -257,10 +258,17 @@ void setRelay(int state) {
 	  debug("running external actuator command: %s\n",cfopts.extactuatoroff);
 	  system(cfopts.extactuatoroff);
       }
-#ifndef NO1W
     } else {
-      setOWRelay(state);
+      if (cfopts.gpioactuator) {
+        if (state)
+         write(gpiofd,"1",1);
+        else
+         write(gpiofd,"0",1);
+#ifndef NO1W
+      } else {   
+        setOWRelay(state);
 #endif
+      }
     }
   }
   pstate.relay=state;

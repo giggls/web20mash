@@ -29,10 +29,18 @@ tempMust=0
 sensor=10.B963D4000800
 
 # actuator to use
-# this can be either a supported 1-wire device
-# (currently DS2406, DS2408 and DS2413) ID/PIO.X or "external"
+# this can be one of the following:
+
+# a supported 1-wire device/port
+# (currently DS2406, DS2408 and DS2413) ID/PIO.X
 actuator=12.9B6E45000000/PIO.A
+
+# a sysfs file for Linux GPIO driver
+#actuator=/sys/class/gpio/gpio25/value
+
+# "external" to use an external command
 #actuator=external
+
 
 # if actuator is set to "external" the following
 # external commands are run to switch on and off
