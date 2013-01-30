@@ -22,28 +22,63 @@ void readconfig(char *cfgfile) {
   cfopts.authactive=ini_getbool("auth", "active",CTLD_AUTHACTIVE, cfgfile);
   ini_gets("control", "owparms", CTLD_OWPARMS, cfopts.owparms, sizearray(cfopts.owparms), cfgfile);
   ini_gets("control", "sensor", CTLD_SENSORID, cfopts.sensor, sizearray(cfopts.sensor), cfgfile);
-  ini_gets("control", "actuator", CTLD_ACTUATORID, buf, sizearray(buf), cfgfile);
   
-  cfopts.extactuator=false;
-  cfopts.gpioactuator=false;
-  strncpy(cfopts.actuator,buf,100);
-  cfopts.actuator[100]='\0';
-  if (0==strcmp("external",cfopts.actuator)) {
-    cfopts.extactuator=true;
-    ini_gets("control", "extactuatoron", CTLD_EXTACTON, cfopts.extactuatoron,
-	     sizearray(cfopts.extactuatoron), cfgfile);
-    ini_gets("control", "extactuatoroff", CTLD_EXTACTOFF, cfopts.extactuatoroff,
-	     sizearray(cfopts.extactuatoroff), cfgfile);
-  } else {
-    if (strncmp(buf,"/sys/",5)==0) {
-      cfopts.gpioactuator=true;
-      gpiofd = open(cfopts.actuator, O_RDWR);
-      if (gpiofd < 0)
-        die("unable to open GPIO device >%s<\n",cfopts.actuator);
+  /* get actuator options heating/cooling and stirring devices */
+  for (i=0;i<2;i++) {
+    if (0==i) {
+      ini_gets("control", "actuator", CTLD_ACTUATORID, buf, sizearray(buf), cfgfile);
     } else {
-     strncpy(cfopts.actuator_port,buf+16,6);
-     cfopts.actuator_port[5]='\0';
+      ini_gets("control", "stirring_device", CTLD_STIRRINGID, buf, sizearray(buf), cfgfile);
+      if (strlen(buf)==0) cfopts.stirring=0; else cfopts.stirring=1;
     }
+    cfopts.extactuator[i]=false;
+    cfopts.gpioactuator[i]=false;
+    strncpy(cfopts.actuator[i],buf,100);
+    cfopts.actuator[i][100]='\0';
+    if (0==strcmp("external",cfopts.actuator[i])) {
+      cfopts.extactuator[i]=true;
+      if (0==i) {
+        ini_gets("control", "extactuatoron", CTLD_EXTACTON, cfopts.extactuatoron[i],
+	         sizearray(cfopts.extactuatoron[i]), cfgfile);
+        ini_gets("control", "extactuatoroff", CTLD_EXTACTOFF, cfopts.extactuatoroff[i],
+	         sizearray(cfopts.extactuatoroff[i]), cfgfile);        
+      } else {
+        ini_gets("control", "ext_stirring_device_on", CTLD_EXTSTIRON, cfopts.extactuatoron[i],
+                 sizearray(cfopts.extactuatoron[i]), cfgfile);
+        ini_gets("control", "ext_stirring_device_off", CTLD_EXTSTIROFF, cfopts.extactuatoroff[i],
+                 sizearray(cfopts.extactuatoroff[i]), cfgfile);
+      }
+    } else {
+      if (strncmp(buf,"/sys/",5)==0) {
+        cfopts.gpioactuator[i]=true;
+        gpiofd = open(cfopts.actuator[i], O_RDWR);
+        if (gpiofd < 0)
+          die("unable to open GPIO device >%s<\n",cfopts.actuator[i]);
+        } else {
+          strncpy(cfopts.actuator_port[i],buf+16,6);
+          cfopts.actuator_port[i][5]='\0';
+        }
+      }
+  }
+  
+  /* get additional options for stirring */
+  if (cfopts.stirring) {
+    int res;
+    ini_gets("control", "stirring_states", CTLD_STIRSTATES, buf, sizearray(buf), cfgfile);
+    cfopts.stirring_states[9][0]=0;
+    cfopts.stirring_states[9][1]=0;
+    res=sscanf(buf,"%d:%d,%d:%d,%d:%d,%d:%d,%d:%d,%d:%d,%d:%d,%d:%d,%d:%d",
+      &cfopts.stirring_states[0][0], &cfopts.stirring_states[0][1],
+      &cfopts.stirring_states[1][0], &cfopts.stirring_states[1][1],
+      &cfopts.stirring_states[2][0], &cfopts.stirring_states[2][1],
+      &cfopts.stirring_states[3][0], &cfopts.stirring_states[3][1],
+      &cfopts.stirring_states[4][0], &cfopts.stirring_states[4][1],
+      &cfopts.stirring_states[5][0], &cfopts.stirring_states[5][1],
+      &cfopts.stirring_states[6][0], &cfopts.stirring_states[6][1],
+      &cfopts.stirring_states[7][0], &cfopts.stirring_states[7][1],
+      &cfopts.stirring_states[8][0], &cfopts.stirring_states[8][1]);
+      
+    if (res!=18) die("invalid syntax of option stirring_states, needs to be exactly 9: %s\n",buf);
   }
   
   ini_gets("control", "actuatortype", CTLD_ACTTYPE, acttype, sizearray(acttype), cfgfile);

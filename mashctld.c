@@ -66,9 +66,9 @@ struct processstate pstate;
 static void resetMashProcess() {
   pstate.mash=0;
   pstate.control=0;
-  pstate.relay=0;
   pstate.tempMust=cfopts.tempMust;
-  setRelay(0);
+  setRelay(0,0);
+  setRelay(1,0);
   if (cmd->simulationP)
     pstate.tempCurrent=SIM_INIT_TEMP;
 }
@@ -213,13 +213,13 @@ static ssize_t sync_response_generator (void *cls, uint64_t pos, char *buf, size
 
   ret=snprintf (&buf[ret], max,
 		"{\n  \"curtemp\": %5.1f,\n  \"musttemp\": %5.1f,\n  "
-		"\"rstate\": %d,\n  \"ctrl\": %d,\n  \"mpstate\": %d,\n  "
+		"\"rstate\": [ %d, %d ],\n  \"ctrl\": %d,\n  \"mpstate\": %d,\n  "
 		"\"acttype\": \"%s\",\n  "
 		"\"resttimer\": %f,\n  "
                 "\"resttime\": [ %ju, %ju, %ju, %ju ],\n  "
 		"\"resttemp\": [ %.2f, %.2f, %.2f, %.2f ]\n}\n",
   		pstate.tempCurrent,pstate.tempMust,
-		pstate.relay,pstate.control,pstate.mash,
+		pstate.relay[0],pstate.relay[1],pstate.control,pstate.mash,
 		actuatorname[cfopts.acttype],
 		pstate.resttime/60.0,
 		cfopts.resttime[0], cfopts.resttime[1], cfopts.resttime[2], cfopts.resttime[3],
@@ -384,8 +384,7 @@ static int answer_to_connection (void *cls,
 	  pstate.control=ctl;
 	  // relay need to be off without control
 	  if (ctl==0) {
-	    setRelay(0);
-	    pstate.relay=0;
+	    setRelay(0,0);
 	  };
           debug("setting control to: %d\n",ctl);  
 	  snprintf(mdata,1024,
@@ -424,8 +423,7 @@ static int answer_to_connection (void *cls,
 	  snprintf(mdata,1024,
 		   "<html><body>Error setting actuator state!</body></html>");
 	} else {
-	  pstate.relay=astate;
-	  setRelay(astate);
+	  setRelay(0,astate);
           debug("setting actuator state to: %d\n",astate);  
 	  snprintf(mdata,1024,
 		   "<html><body>OK setting actuator state to %d</body></html>",astate);
@@ -816,6 +814,43 @@ int init_timerfd(int seconds) {
   return(fd);
 }
 
+void doStirControl() {
+  static int last_mash_state=0;
+  static int starttime=0;
+  int curtime,etime,stirring_cycle;
+  
+  /* lenght of stirring device on/off cycle */
+  stirring_cycle=cfopts.stirring_states[pstate.mash][0]+cfopts.stirring_states[pstate.mash][1];
+  
+  /* we need to change/not change the state off the stirring device
+     depending on the following parameters:
+     pstate.mash (current state of the mash process)
+     cfgopts.stirring_states (stirring device behaviour depoending on state of the mash process)
+     elapsed time since start of current state.
+  */
+  curtime=time(NULL);
+  if (last_mash_state!=pstate.mash) {
+    starttime=curtime;
+  }
+  etime=curtime-starttime;
+  
+  if (0==stirring_cycle) {
+    // switch off if relay state is 1
+    if (pstate.relay[1]==1) setRelay(1,0);
+    //printf("doStirControl: %d stirring device: 0 %d\n",pstate.mash,etime);
+  } else {
+    if (etime%stirring_cycle < cfopts.stirring_states[pstate.mash][0]) {
+      if (pstate.relay[1]==0) setRelay(1,1);
+      //printf("doStirControl: %d stirring device: 1 %d %d\n",pstate.mash,etime,etime%stirring_cycle);
+    } else {
+      if (pstate.relay[1]==1) setRelay(1,0);
+      //printf("doStirControl: %d stirring device: 0 %d %d\n",pstate.mash,etime,etime%stirring_cycle);
+    }
+  }
+  
+  last_mash_state=pstate.mash;
+}
+
 /* cyclically called control and state machine function */
 void acq_and_ctrl() {
   uint64_t endtime;
@@ -828,7 +863,7 @@ void acq_and_ctrl() {
     pstate.tempCurrent=getTemp();
   } else {
 #endif
-    if (pstate.relay)
+    if (pstate.relay[0])
       pstate.tempCurrent+=SIM_INC;
 #ifndef NO1W
   }
@@ -873,7 +908,8 @@ void acq_and_ctrl() {
         if (pstate.mash==6) {
           if (cfopts.resttemp[3] > cfopts.resttemp[2]) {
             pstate.control=0;
-            setRelay(0);
+            setRelay(0,0);
+            setRelay(1,0);
           } else {
             pstate.mash+=2;
           }
@@ -895,17 +931,20 @@ void acq_and_ctrl() {
   }
 
   /* Run two-level control if desired */
-  if (pstate.control)
-    doControl();
+  if (pstate.control) {
+    doTempControl();    
+    if (cfopts.stirring)
+      doStirControl();
+  }
 
   if (cmd->debugP) {
     if (pstate.mash) {
-      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relay:%d, control:%d, mash:%d, timer: %.2f)\n",
-	    get_elapsed_time(), pstate.tempMust,pstate.tempCurrent,pstate.relay,pstate.control,
+      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d, mash:%d, timer: %.2f)\n",
+	    get_elapsed_time(), pstate.tempMust,pstate.tempCurrent,pstate.relay[0],pstate.relay[1],pstate.control,
 	    pstate.mash, pstate.resttime/60.0);
     } else {
-      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relay:%d, control:%d)\n",
-	    get_elapsed_time(),pstate.tempMust,pstate.tempCurrent,pstate.relay,pstate.control);
+      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d)\n",
+	    get_elapsed_time(),pstate.tempMust,pstate.tempCurrent,pstate.relay[0],pstate.relay[1],pstate.control);
     }
   }
 
@@ -934,8 +973,9 @@ int main(int argc, char **argv) {
   uint64_t exp;
   FILE *cfile;
   uid_t uid,euid;
+#ifndef NO1W
   int stype, atype;
-  
+#endif
   cmd = parseCmdline(argc, argv);
 
   /* parse the configfile if available and readable */
@@ -971,19 +1011,25 @@ int main(int argc, char **argv) {
       die("%s is unavailable or an unsupported sensor\n",cfopts.sensor);
     else
       debug("OK, found sensor of type %s (id %s)...\n",sensors[stype],cfopts.sensor);
-
-      if ((cfopts.extactuator==false) && (cfopts.gpioactuator==false)) {
+    
+    {
+    int i,j;
+    j = cfopts.stirring == 1 ? 2 :1;
+    for (i=0;i<j;i++) {
+      if ((cfopts.extactuator[i]==false) && (cfopts.gpioactuator[i]==false)) {
         /* check if requested 1-wire actuator is available on the bus and is one of the supported ones*/
         atype=search4Actuator();
         if (-1==atype)
             die("%s/%s is unavailable or not a supported actuator or actuator_port\n",
               cfopts.actuator,cfopts.actuator_port);
         else
-          debug("OK, found actuator of type %s (id %s/%s)...\n",
-          actuators[atype],cfopts.actuator,cfopts.actuator_port);
+          debug("OK, found actuator %d of type %s (id %s/%s)...\n",
+          i,actuators[atype],cfopts.actuator,cfopts.actuator_port);
       } else {
-        debug("Using external actuator command...\n");
+        debug("Using external actuator command for actuator %d...\n",i);
       }
+    }
+    }
   } else {
 #endif
     // in simulation mode we start with SIM_INIT_TEMP°C and increase by SIM_INC°C on each read
@@ -1074,7 +1120,8 @@ int main(int argc, char **argv) {
   if (cmd->debugP)
     get_elapsed_time();
 
-  setRelay(0);
+  setRelay(0,0);
+  setRelay(1,0);
 
   signal(SIGINT,signalHandler);
   signal(SIGTERM,signalHandler);
@@ -1088,7 +1135,8 @@ int main(int argc, char **argv) {
   
   while (1) {
     if (terminate) {
-      setRelay(0);
+      setRelay(0,0);
+      if (cfopts.stirring) setRelay(1,0);
       break;
     }
     max = 0;

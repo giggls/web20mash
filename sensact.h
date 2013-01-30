@@ -1,3 +1,4 @@
+#ifndef NO1W
 /* Supported sensors */
 static const char* sensors[] = {"DS18S20","DS18B20",NULL};
 
@@ -10,4 +11,4 @@ static const char* ds2413ports[] = {"PIO.A","PIO.B",NULL};
 
 /* possible output ports on actors */
 __attribute__ ((unused)) static const char** actuator_ports[] = {ds2406ports,ds2408ports,ds2413ports};
-
+#endif

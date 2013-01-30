@@ -136,18 +136,18 @@ int search4Sensor() {
 
 int search4Actuator() {
   int devno;
-  devno=search4Device(cfopts.actuator,actuators);
+  devno=search4Device(cfopts.actuator[0],actuators);
   // if a supported actuator has been found check if the given port ID
   // is valid for this type of sensor
   if (devno>-1) {
-    if (-1 == stringInArray(cfopts.actuator_port,actuator_ports[devno]))
+    if (-1 == stringInArray(cfopts.actuator_port[0],actuator_ports[devno]))
       return -1;
   }
   
   return devno;  
 }
 
-static void setOWRelay(int state) {
+static void setOWRelay(int devno,int state) {
   char cstate[2];
   char buf[255];
   int i;
@@ -159,7 +159,7 @@ static void setOWRelay(int state) {
   }
   cstate[1]='\0';
 
-  sprintf(buf,"/%s/%s",cfopts.actuator,cfopts.actuator_port);
+  sprintf(buf,"/%s/%s",cfopts.actuator[devno],cfopts.actuator_port[devno]);
   for (i=0;i<60;i++) {
     if (-1==OW_put(buf,cstate,strlen(buf))) {
       errorlog("owfs WRITE error, retrying in 1 seconds\n");
@@ -177,7 +177,8 @@ static void setOWRelay(int state) {
 }
 #endif
 
-int doControl() {
+/* two level control function, assume control actuator to be always device number 0 */
+int doTempControl() {
   float ubarrier;
   float lbarrier;
 
@@ -185,26 +186,26 @@ int doControl() {
     ubarrier=pstate.tempMust;
     lbarrier=pstate.tempMust-(cfopts.hysteresis);
     if (pstate.tempCurrent < lbarrier) {
-      if (pstate.relay==0) {
-	setRelay(1);
+      if (pstate.relay[0]==0) {
+	setRelay(0,1);
       }
     } 
     if (pstate.tempCurrent >= ubarrier) {
-      if (pstate.relay==1) {
-	setRelay(0);
+      if (pstate.relay[0]==1) {
+	setRelay(0,0);
       }
     }
   } else {
     ubarrier=pstate.tempMust+(cfopts.hysteresis);
     lbarrier=pstate.tempMust;
     if (pstate.tempCurrent > ubarrier) {
-      if (pstate.relay==0) {
-	setRelay(1);
+      if (pstate.relay[0]==0) {
+	setRelay(0,1);
       }
     }
     if (pstate.tempCurrent <=  lbarrier) {
-      if (pstate.relay==1) {
-	setRelay(0);
+      if (pstate.relay[0]==1) {
+	setRelay(0,0);
       }
     }
   }
@@ -246,30 +247,30 @@ float getTemp() {
 }
 #endif
 
-void setRelay(int state) {
+void setRelay(int devno, int state) {
   if (!cmd->simulationP) {
-    if (cfopts.extactuator) {
+    if (cfopts.extactuator[devno]) {
       if (state) {
         if (cmd->debugP)
-	  debug("running external actuator command: %s\n",cfopts.extactuatoron);
-	  system(cfopts.extactuatoron);
+	  debug("running external actuator command: %s\n",cfopts.extactuatoron[devno]);
+	  system(cfopts.extactuatoron[devno]);
       } else {
         if (cmd->debugP)
-	  debug("running external actuator command: %s\n",cfopts.extactuatoroff);
-	  system(cfopts.extactuatoroff);
+	  debug("running external actuator command: %s\n",cfopts.extactuatoroff[devno]);
+	  system(cfopts.extactuatoroff[devno]);
       }
     } else {
-      if (cfopts.gpioactuator) {
+      if (cfopts.gpioactuator[devno]) {
         if (state)
          write(gpiofd,"1",1);
         else
          write(gpiofd,"0",1);
 #ifndef NO1W
       } else {   
-        setOWRelay(state);
+        setOWRelay(devno,state);
 #endif
       }
     }
   }
-  pstate.relay=state;
+  pstate.relay[devno]=state;
 }

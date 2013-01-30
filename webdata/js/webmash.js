@@ -203,7 +203,7 @@ function parse_getstate_Response(data) {
   settings.resttemp=data.resttemp;
   
   thermo.setvalue(data.curtemp,data.musttemp);
-  if (data.rstate) {
+  if (data.rstate[0]) {
     jc_heat_img.attr('img', cimageObjs[2]);
   } else {
     jc_heat_img.attr('img', cimageObjs[3]);

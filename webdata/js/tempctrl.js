@@ -173,7 +173,7 @@ function parse_getstate_Response(data) {
   }
 
   // actuator checkbox
-  if (data.rstate) {
+  if (data.rstate[0]) {
     $('input[name=actuator]').attr('checked', true);
   } else {
     $('input[name=actuator]').attr('checked', false);

@@ -57,6 +57,16 @@ hysteresis=0.2
 # valid options: heater, cooler
 actuatortype=heater
 
+# If you want to control a stirring device in addition to a heater
+# add something like this
+# stirring_device=external
+#
+# stirring device on/off parameters for each state
+# values are times in seconds always off is 0:0, always on is x:0 (x>0)
+#stirring_states=0:0,1:0,16:8,1:0,16:8,1:0,16:8,1:0,16:8
+#ext_stirring_device_on=sispm +2
+#ext_stirring_device_off=sispm -2
+
 [mash-process]
 resttemp1=52.5
 resttemp2=62.5

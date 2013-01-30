@@ -27,6 +27,7 @@ main header file
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -73,8 +74,8 @@ main header file
 #define SIM_INC 0.5
 
 void outSensorActuatorList();
-int doControl();
-void setRelay(int state);
+int doTempControl();
+void setRelay(int devno, int state);
 int loadtemplate(char *filename,char **data);
 float getTemp();
 int search4Sensor();
@@ -88,12 +89,21 @@ struct configopts {
   uint16_t port;
   char owparms[100];
   char sensor[16];
-  char actuator[100];
-  char actuator_port[6];
-  bool extactuator;
-  char extactuatoron[255];
-  char extactuatoroff[255];
-  bool gpioactuator;
+  /* depending on the configuration there are one or two actuators
+     heating/cooling device in any case and an optional stirring device
+     first device is heating/cooling, second device is stirring
+  */
+  char actuator[2][100];
+  char actuator_port[2][6];
+  bool extactuator[2];
+  char extactuatoron[2][255];
+  char extactuatoroff[2][255];
+  bool gpioactuator[2];
+  /* this variable is true if we have a stirring device and false otherwise */
+  bool stirring;
+  /* two times for stirring device on every state (on and off) 0,0 if always off */
+  int stirring_states[10][2];
+  
   float tempMust;
   float hysteresis;
   int acttype;
@@ -111,7 +121,7 @@ struct processstate {
   float tempMust;
   time_t resttime;
   uint64_t starttime;
-  bool relay;
+  bool relay[2];
   int mash;
   bool control;
   bool ttrigger;
