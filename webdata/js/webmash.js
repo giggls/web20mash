@@ -37,6 +37,7 @@ var numload=0;
 var getstate="./getstate";
 var setmpstate="./setmpstate/";
 var setallmash="./setallmash/";
+var setactuator="./setactuator/";
 var iodinealert=0;
 var stirring_active=0;
 var stirring_state=0;
@@ -126,6 +127,24 @@ function RunApp() {
     url+=$("input[name='resttime4']").val();
     $.get(url, cbsettings);
   });
+  $("input[name='actuator']").click(function() {
+     if ($(this).is (':checked')) {
+       url=setactuator+'0/1';
+       $.get(url, function(data){cbsetactuator(data, 1,'actuator')});
+     } else {
+       url=setactuator+'0/0';
+       $.get(url, function(data){cbsetactuator(data, 0,'actuator')});
+     }
+  });
+  $("input[name='stirrer']").click(function() {
+     if ($(this).is (':checked')) {
+       url=setactuator+'1/1';
+       $.get(url, function(data){cbsetactuator(data, 1,'stirrer')});
+     } else {
+       url=setactuator+'1/0';
+       $.get(url, function(data){cbsetactuator(data, 0,'stirrer')});
+     }
+  });
 };
 
 function thermometerwidget(canvas,x,y,image) {
@@ -205,8 +224,11 @@ function parse_getstate_Response(data) {
   settings.resttime=data.resttime;
   settings.resttemp=data.resttemp;
 
+  
+
   if (data.stirring) {
     if (!stirring_active) {
+      $('#stirrer').show();
       propeller=new Propeller("ControlCanvas",350,290,"images/");
       stirring_active=1;
     } else {
@@ -229,7 +251,15 @@ function parse_getstate_Response(data) {
   } else {
     jc_heat_img.attr('img', cimageObjs[3]);
   }
-  
+
+  if (data.ctrl == 0) {
+    $("input[name='actuator']").removeAttr("disabled");
+    $("input[name='stirrer']").removeAttr("disabled");
+  } else {
+    $("input[name='actuator']").attr("disabled", true);
+    $("input[name='stirrer']").attr("disabled", true);
+  }
+
   // iodine alert popup once at the beginning of mpstate 7
   // as some people stop here just cancel this
   // if lautering temp. > temp.of second rest
@@ -330,4 +360,25 @@ function cbstop(data) {
    alert(i18n.process_canceled);
    $("#settings-btn").removeAttr('disabled');
  }
+}
+
+function cbsetactuator(data,state,name) {
+ if (!data) {
+   AjaxError('cbsetactuator');
+ }
+ if (name=='actuator') {
+   if (state) {
+     jc_heat_img.attr('img', cimageObjs[2]);
+   } else {
+     jc_heat_img.attr('img', cimageObjs[3]);
+   }
+  } else {
+    stirring_state=state;
+    if (state) {
+      propeller.start();
+    } else {
+      propeller.stop();
+    }
+  }
+  jc.start(mashCanvas);
 }

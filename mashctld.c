@@ -407,13 +407,13 @@ static int answer_to_connection (void *cls,
          this only works when control is turned off */
       if (setactuator) {
 
-	int astate;
+	int astate,ano;
 	bool valid;
 
-	if ((1 != sscanf(url,"/setactuator/%d",&astate)) || (pstate.control!=0)) {
+	if ((2 != sscanf(url,"/setactuator/%d/%d",&ano,&astate)) || (pstate.control!=0)) {
 	  valid=false;
 	} else {
-	  if ((astate == 0) || (astate == 1)) {
+	  if (((astate == 0) || (astate == 1)) && ((ano == 0) || (ano == 1))) {
 	    valid=true;
 	  } else {
 	    valid=false;
@@ -425,10 +425,10 @@ static int answer_to_connection (void *cls,
 	  snprintf(mdata,1024,
 		   "<html><body>Error setting actuator state!</body></html>");
 	} else {
-	  setRelay(0,astate);
-          debug("setting actuator state to: %d\n",astate);  
+	  setRelay(ano,astate);
+          debug("setting actuator %d state to: %d\n",ano,astate);  
 	  snprintf(mdata,1024,
-		   "<html><body>OK setting actuator state to %d</body></html>",astate);
+		   "<html><body>OK setting actuator %d state to %d</body></html>",ano,astate);
 	}
 	response = MHD_create_response_from_data(strlen(mdata),
 						 (void*) mdata,

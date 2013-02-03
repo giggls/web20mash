@@ -32,7 +32,7 @@ var first = true;
 var getstate="./getstate";
 var setmust="./setmust/";
 var setctl="./setctl/";
-var setactuator="./setactuator/";
+var setactuator="./setactuator/0/";
 var setacttype="./setacttype/";
 
 timg.onload = function() {
