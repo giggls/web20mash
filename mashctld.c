@@ -68,7 +68,7 @@ static void resetMashProcess() {
   pstate.control=0;
   pstate.tempMust=cfopts.tempMust;
   setRelay(0,0);
-  setRelay(1,0);
+  if (cfopts.stirring) setRelay(1,0);
   if (cmd->simulationP)
     pstate.tempCurrent=SIM_INIT_TEMP;
 }
@@ -909,7 +909,7 @@ void acq_and_ctrl() {
           if (cfopts.resttemp[3] > cfopts.resttemp[2]) {
             pstate.control=0;
             setRelay(0,0);
-            setRelay(1,0);
+            if (cfopts.stirring) setRelay(1,0);
           } else {
             pstate.mash+=2;
           }
@@ -1121,7 +1121,7 @@ int main(int argc, char **argv) {
     get_elapsed_time();
 
   setRelay(0,0);
-  setRelay(1,0);
+  if (cfopts.stirring) setRelay(1,0);
 
   signal(SIGINT,signalHandler);
   signal(SIGTERM,signalHandler);
