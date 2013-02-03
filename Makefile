@@ -10,7 +10,7 @@ LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt
 #CFLAGS = -g -Wall -W -std=gnu99 -pedantic -D NO1W -D BINDLOCALHOST
 #LDLIBS = -lmicrohttpd -lmagic -lrt
 
-SRC = cmdline.c mashctld.c owfunc.c minIni.c readcfg.c
+SRC = cmdline.c mashctld.c owfunc.c minIni.c readcfg.c bgexec.c
 
 OBJ = $(SRC:%.c=%.o)
 
