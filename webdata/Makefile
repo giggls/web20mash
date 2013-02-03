@@ -13,7 +13,7 @@ SPINNER=spin.min.js
 HTML_IN_FILES := $(wildcard *.html.*.in)
 HTML_OUT_FILES := $(patsubst %.in, %, ${HTML_IN_FILES})
 
-all: images/thermometer.png images/sudpfanne.png js/$(JQUERY) js/$(JCANVASCRIPT) js/$(JSTEPPER) images/en.png ${HTML_OUT_FILES} js/$(SPINNER)
+all: images/thermometer.png images/sudpfanne.png images/propeller1.png js/$(JQUERY) js/$(JCANVASCRIPT) js/$(JSTEPPER) images/en.png ${HTML_OUT_FILES} js/$(SPINNER) 
 
 index.html.%: index.html.%.in
 	./html_from_template.sh index $*
@@ -29,6 +29,17 @@ images/thermometer.png: images/thermometer.xcf
 
 images/sudpfanne.png: images/sudpfanne.svg
 	inkscape images/sudpfanne.svg -D -w 400 --export-png=images/sudpfanne.png
+	
+images/propeller1.png: images/propeller_anim.svg
+	inkscape images/propeller_anim.svg -D -w 50 -i layer1 -j --export-png=images/propeller1.png
+	inkscape images/propeller_anim.svg -D -w 50 -i layer2 -j --export-png=images/propeller2.png
+	inkscape images/propeller_anim.svg -D -w 50 -i layer3 -j --export-png=images/propeller3.png
+	inkscape images/propeller_anim.svg -D -w 50 -i layer4 -j --export-png=images/propeller4.png
+	inkscape images/propeller_anim.svg -D -w 50 -i layer5 -j --export-png=images/propeller5.png
+	inkscape images/propeller_anim.svg -D -w 50 -i layer6 -j --export-png=images/propeller6.png
+	inkscape images/propeller_anim.svg -D -w 50 -i layer7 -j --export-png=images/propeller7.png
+	inkscape images/propeller_anim.svg -D -w 50 -i layer8 -j --export-png=images/propeller8.png
+	
 	
 js/$(JQUERY):
 	wget -P js $(JQUERY_BASE)/$(JQUERY)
@@ -51,7 +62,8 @@ images/en.png:
 clean:
 	rm -f images/thermometer.png
 	rm -f images/sudpfanne.png
+	rm -f images/propeller?.png
 	rm -f js/$(JQUERY)
 	rm -f js/$(JCANVASCRIPT)
-	rm index.html.??
+	rm -f index.html.??
 	

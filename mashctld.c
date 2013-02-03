@@ -216,12 +216,14 @@ static ssize_t sync_response_generator (void *cls, uint64_t pos, char *buf, size
 		"\"rstate\": [ %d, %d ],\n  \"ctrl\": %d,\n  \"mpstate\": %d,\n  "
 		"\"acttype\": \"%s\",\n  "
 		"\"resttimer\": %f,\n  "
+		"\"stirring\": %d,\n  "
                 "\"resttime\": [ %ju, %ju, %ju, %ju ],\n  "
 		"\"resttemp\": [ %.2f, %.2f, %.2f, %.2f ]\n}\n",
   		pstate.tempCurrent,pstate.tempMust,
 		pstate.relay[0],pstate.relay[1],pstate.control,pstate.mash,
 		actuatorname[cfopts.acttype],
 		pstate.resttime/60.0,
+		cfopts.stirring,
 		cfopts.resttime[0], cfopts.resttime[1], cfopts.resttime[2], cfopts.resttime[3],
 		cfopts.resttemp[0], cfopts.resttemp[1], cfopts.resttemp[2], cfopts.resttemp[3]);
 

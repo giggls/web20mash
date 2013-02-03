@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+      canvas {
+           border: 1px solid #9C9898;
+       }
+    </style>
+      <script src="js/jCanvaScript.1.5.18.min.js"></script>
+      <script src="js/propanim.js"></script>
+      <script>
+      var imagedir="images/";
+      var myanim;
+      
+      function init() {
+        jc.start("mycanvas");
+        propeller=new Propeller("mycanvas",25,25,imagedir);
+      }
+      </script>
+  </head>
+  <body onLoad="init();">
+    <canvas id="mycanvas" width="100px" height="100px"></canvas>
+    <p>
+    <input type="button" value="start" onclick="propeller.start();">
+    <input type="button" value="stop" onclick="propeller.stop();">
+    </p>
+  </body>
+</html>

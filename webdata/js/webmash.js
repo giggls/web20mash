@@ -38,6 +38,9 @@ var getstate="./getstate";
 var setmpstate="./setmpstate/";
 var setallmash="./setallmash/";
 var iodinealert=0;
+var stirring_active=0;
+var stirring_state=0;
+var propeller;
 var pi;
 
 for (var i=0;i<cimgfiles.length;i++) {
@@ -201,7 +204,25 @@ function parse_getstate_Response(data) {
   settings.musttemp=data.musttemp;
   settings.resttime=data.resttime;
   settings.resttemp=data.resttemp;
-  
+
+  if (data.stirring) {
+    if (!stirring_active) {
+      propeller=new Propeller("ControlCanvas",350,290,"images/");
+      stirring_active=1;
+    } else {
+      // edge detector for stirring state
+      // turn propeller animation on or off
+      if (stirring_state != data.rstate[1]) {
+        stirring_state = data.rstate[1];
+        if (stirring_state==1) {
+          propeller.start();
+        } else {
+          propeller.stop();
+        }
+      }
+    }
+  }
+
   thermo.setvalue(data.curtemp,data.musttemp);
   if (data.rstate[0]) {
     jc_heat_img.attr('img', cimageObjs[2]);

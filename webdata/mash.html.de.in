@@ -13,6 +13,7 @@
     <script type="text/javascript" src="js/spin.min.js"></script>
     <script type="text/javascript" src="js/procind.js"></script>
     <script type="text/javascript" src="js/ctimer.js"></script>
+    <script src="js/propanim.js"></script>
     <script type="text/javascript" src="js/webmash.js"></script>
     <script type="text/javascript" src="js/de.js"></script>
   </head>
