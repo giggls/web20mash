@@ -27,11 +27,10 @@ function Propeller(canvas,x,y,imgdir) {
   };
  
   this.drawnext = function() {
-    var self = this;
     if (curImage==7) curImage=0; else curImage++;
     animimgObj.attr('img', propImgObjs[curImage]);
     jc.start(canvas);
-    if (animate) setTimeout(function(thisObj) {thisObj.drawnext();},100,this);
+    if (animate) setTimeout( this.drawnext.bind(this) , 100)
   }
   this.start = function() {
     animate=1;
