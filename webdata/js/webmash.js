@@ -4,7 +4,7 @@ Webmash
 
 a Web 2.0 mash process controler
 
-(c) 2011-2012 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2011-2013 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ var stirring_active=0;
 var stirring_state=0;
 var propeller;
 var pi;
+var control=0;
 
 for (var i=0;i<cimgfiles.length;i++) {
   cimageObjs[i]=new Image();
@@ -252,12 +253,24 @@ function parse_getstate_Response(data) {
     jc_heat_img.attr('img', cimageObjs[3]);
   }
 
-  if (data.ctrl == 0) {
-    $("input[name='actuator']").removeAttr("disabled");
-    $("input[name='stirrer']").removeAttr("disabled");
-  } else {
-    $("input[name='actuator']").attr("disabled", true);
-    $("input[name='stirrer']").attr("disabled", true);
+  // edge detection for change of control state on/off
+  if (control != data.ctrl) {
+    control=data.ctrl;
+    if (data.rstate[0])
+      $("input[name='actuator']").attr('checked', true);
+    else
+      $("input[name='actuator']").attr('checked', false);
+    if (data.rstate[1])
+       $("input[name='stirrer']").attr('checked', true);
+    else
+       $("input[name='stirrer']").attr('checked', false);
+    if (data.ctrl == 0) {
+      $("input[name='actuator']").removeAttr("disabled");
+      $("input[name='stirrer']").removeAttr("disabled");
+    } else {
+      $("input[name='actuator']").attr("disabled", true);
+      $("input[name='stirrer']").attr("disabled", true);
+    }
   }
 
   // iodine alert popup once at the beginning of mpstate 7
