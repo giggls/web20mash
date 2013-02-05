@@ -2,7 +2,7 @@
 #include "cfgdflt.h"
 
 extern struct configopts cfopts;
-int gpiofd;
+int gpiofd[2];
 
 #define sizearray(a)  (sizeof(a) / sizeof((a)[0]))
 
@@ -51,8 +51,8 @@ void readconfig(char *cfgfile) {
     } else {
       if (strncmp(buf,"/sys/",5)==0) {
         cfopts.gpioactuator[i]=true;
-        gpiofd = open(cfopts.actuator[i], O_RDWR);
-        if (gpiofd < 0)
+        gpiofd[i] = open(cfopts.actuator[i], O_RDWR);
+        if (gpiofd[i] < 0)
           die("unable to open GPIO device >%s<\n",cfopts.actuator[i]);
         } else {
           strncpy(cfopts.actuator_port[i],buf+16,6);
