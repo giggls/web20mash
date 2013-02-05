@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web 2.0 Mash</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/mash.css" type="text/css" />
+</head>
+<body>
+<div id="info">
+<h2>About Web 2.0 Mash (Version 2.0)</h2>
+<p>&copy; 2011-2013 Sven Geggus</p>
+<p>Web 2.0 Mash ist a multi-rest mash process automation software using interactive web technology (Web 2.0/Ajax).</p>
+<p>More information is available at
+<a href="http://fangobräu.de/web20mash.shtml">http://fangobräu.de/web20mash.shtml</a>
+</p>
+<p>
+<pre>
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by  
+the Free Software Foundation, either version 3 of the License, or    
+(at your option) any later version.    
+
+This program is distributed in the hope that it will be useful,    
+but WITHOUT ANY WARRANTY; without even the implied warranty of     
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the     
+GNU General Public License for more details.    
+</pre>
+</p>
+</div>
+</body>
+</html>

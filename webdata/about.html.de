@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web 2.0 Mash</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/mash.css" type="text/css" />
+</head>
+<body>
+<div id="info">
+<h2>Über Web 2.0 Mash (Version 2.0)</h2>
+<p>&copy; 2011-2013 Sven Geggus</p>
+<p>Web 2.0 Mash ist eine Bierbrausteuerungssoftware, die interaktive Webtechnologie (Web 2.0/Ajax) verwendet.</p>
+<p>Mehr Infos unter
+<a href="http://fangobräu.de/web20mash.shtml">http://fangobräu.de/web20mash.shtml</a>
+</p>
+<p>
+<pre>
+Dieses Programm ist freie Software. Sie können es unter den Bedingungen der
+GNU General Public License, wie von der Free Software Foundation veröffentlicht,
+weitergeben und/oder modifizieren, entweder gemäß Version 3 der Lizenz oder
+(nach Ihrer Option) jeder späteren Version.
+
+Die Veröffentlichung dieses Programms erfolgt in der Hoffnung, daß es Ihnen
+von Nutzen sein wird, aber OHNE IRGENDEINE GARANTIE, sogar ohne die implizite
+Garantie der MARKTREIFE oder der VERWENDBARKEIT FÜR EINEN BESTIMMTEN ZWECK.
+Details finden Sie in der GNU General Public License.
+</pre>
+</p>
+</div>
+</body>
+</html>
