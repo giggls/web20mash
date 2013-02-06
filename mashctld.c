@@ -44,8 +44,7 @@ state   function
 
 #include "mashctld.h"
 #include "sensact.h"
-
-extern pid_t bgexec (const char *command);
+#include "myexec.h"
 
 #define PAGE "<html><head><title>File not found</title></head><body>File not found</body></html>"
 
@@ -116,10 +115,6 @@ void errorlog(char* fmt, ...) {
 void signalHandler() {
   fflush(stdout);
   terminate=true;
-}
-
-void childHandler() {
-  waitpid(-1,NULL,0);
 }
 
 void daemonize() {
@@ -966,7 +961,7 @@ void acq_and_ctrl() {
       char command[255];
       sprintf(command,cfopts.state_change_cmd,old_mash_state);
       debug("running state changed command: %s\n",command);
-      bgexec(command);
+      myexec(command,0);
     }
   }
 }
@@ -1133,7 +1128,7 @@ int main(int argc, char **argv) {
 
   signal(SIGINT,signalHandler);
   signal(SIGTERM,signalHandler);
-  signal(SIGCHLD,childHandler);
+  signal(SIGCHLD,SIG_IGN);
   
   if (cmd->daemonP) {
     isdaemon=true;

@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 */
 #include "mashctld.h"
 #include "sensact.h"
+#include "myexec.h"
 
 extern struct configopts cfopts;
 extern struct processstate pstate;
@@ -253,11 +254,12 @@ void setRelay(int devno, int state) {
       if (state) {
         if (cmd->debugP)
 	  debug("running external actuator command: %s\n",cfopts.extactuatoron[devno]);
-	  system(cfopts.extactuatoron[devno]);
+	  myexec(cfopts.extactuatoron[devno],1);
+	  
       } else {
         if (cmd->debugP)
 	  debug("running external actuator command: %s\n",cfopts.extactuatoroff[devno]);
-	  system(cfopts.extactuatoroff[devno]);
+	  myexec(cfopts.extactuatoroff[devno],1);
       }
     } else {
       if (cfopts.gpioactuator[devno]) {
