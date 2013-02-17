@@ -105,8 +105,4 @@ void readconfig(char *cfgfile) {
   ini_gets("mash-process", "state_change_cmd", "", cfopts.state_change_cmd,
 	     sizearray(cfopts.state_change_cmd), cfgfile);
 
-  if (cfopts.state_change_cmd[0]!='\0')
-    // check for %d in state_change_cmd string
-    if (NULL==strstr(cfopts.state_change_cmd,"%d"))
-      die("invalid value for state_change_cmd (%%d missing)!\n");
 }

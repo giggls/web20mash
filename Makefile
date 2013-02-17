@@ -14,9 +14,13 @@ SRC = cmdline.c mashctld.c owfunc.c minIni.c readcfg.c myexec.c
 
 OBJ = $(SRC:%.c=%.o)
 
+all:mashctld gpio_buzzer
+
 mashctld:$(OBJ)
 	$(CC) -o $@ $(CFLAGS) $(OBJ) $(LDLIBS)
 
+gpio_buzzer:gpio_buzzer.o
+	$(CC) -o $@ $(CFLAGS) gpio_buzzer.o
 
 cmdline.c: cmdline.cli
 	clig $<
@@ -35,7 +39,7 @@ mrproper: clean
 debian/copyright:
 	cp COPYING debian/copyright
 
-install: debian/copyright mashctld
+install: debian/copyright mashctld gpio_buzzer
 	cd webdata/; make
 	mkdir -p $(DESTDIR)/share/web20mash/images
 	mkdir -p $(DESTDIR)/share/web20mash/js
@@ -50,6 +54,7 @@ install: debian/copyright mashctld
 	sed -e 's;^webroot.*;webroot = $(PREFIX)/share/web20mash;' \
 		-e 's;^port.*;port = 80;' mashctld.conf.sample >$(CFDIR)/mashctld.conf
 	cp mashctld $(DESTDIR)/bin
+	cp gpio_buzzer $(DESTDIR)/bin
 	cp mps2iConnectLED $(DESTDIR)/bin
 	chmod 755 $(DESTDIR)/bin/mashctld
 	chmod 755 $(DESTDIR)/share/web20mash $(DESTDIR)/share/web20mash/images $(DESTDIR)/share/web20mash/js $(DESTDIR)/share/web20mash/css
