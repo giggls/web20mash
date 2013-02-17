@@ -1029,7 +1029,10 @@ int main(int argc, char **argv) {
           debug("OK, found actuator %d of type %s (id %s/%s)...\n",
           i,actuators[atype],cfopts.actuator,cfopts.actuator_port);
       } else {
-        debug("Using external actuator command for actuator %d...\n",i);
+        if (cfopts.gpioactuator[i]==false)
+          debug("Using external actuator command for actuator %d...\n",i);
+        else
+           debug("Using GPIO %s for actuator %d...\n",cfopts.actuator[i],i);
       }
     }
     }
