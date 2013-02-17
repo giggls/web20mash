@@ -1,3 +1,10 @@
+web20mash (2.0) unstable; urgency=low
+
+  * Full support for Raspberry Pi GPIO (e.g. on my own RaspIO Hardware)
+    and an optional stirring device, that's why we call this 2.0 now
+
+ -- Sven Geggus <sven-deb@geggus.net>  Sun, 17 Feb 2013 18:07:28 +0100
+
 web20mash (1.4) unstable; urgency=low
 
   * Add support for DS2408 and DS2413 actuators
