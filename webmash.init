@@ -1,0 +1,69 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          webmash
+# Required-Start:    $remote_fs $network
+# Required-Stop:     $remote_fs $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start Web 2.0 Mash daemon (mashctld)
+# Description:       Initscript for Web 2.0 Mash daemon (mashctld)
+### END INIT INFO
+
+# Author: Sven Geggus <sven-web20mash@geggus.net>
+
+# Do NOT "set -e"
+
+# PATH should only include /usr/* if it runs after the mountnfs.sh script
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="Web 2.0 Mash daemon"
+NAME=mashctld
+DAEMON=/usr/bin/$NAME
+DAEMON_ARGS="-bd"
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+CONFIGFILE=/etc/mashctld.conf
+TMPCONFIGFILE=/tmp/mashctld.conf
+ROSCRIPT=/usr/bin/mashctld_readonly_root_script.sh
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
+# and status_of_proc is working.
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+  	log_daemon_msg "Starting Web 2.0 Mash" "mashctld"
+  	# if we are supposed to run on a readonly root fs
+  	# copy runtime configuration file to writable location
+  	# and start daemon using this file
+     	eval $(grep -e "^ *conf_change_script *=" $CONFIGFILE)
+     	if [ "$conf_change_script" = "$ROSCRIPT" ]; then
+     	  cp $CONFIGFILE $TMPCONFIGFILE
+       	  $DAEMON $DAEMON_ARGS -c $TMPCONFIGFILE -p $PIDFILE
+     	else
+     	  $DAEMON $DAEMON_ARGS -c $CONFIGFILE -p $PIDFILE
+     	fi
+     	log_end_msg 0
+     	;;
+  stop)
+  	log_daemon_msg "Stopping Web 2.0 Mash" "mashctld"
+  	if [ -f $PIDFILE ]; then
+  	  kill $(cat $PIDFILE) 2>/dev/null
+  	fi
+  	rm -f $PIDFILE
+  	log_end_msg 0
+	;;
+  *)
+	#echo "Usage: $SCRIPTNAME {start|stop}" >&2
+	echo "Usage: $SCRIPTNAME {start|stop}" >&2
+	exit 3
+	;;
+esac
+
+:

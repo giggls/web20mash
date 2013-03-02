@@ -1,6 +1,10 @@
 [global]
 port=8888
 webroot=/usr/share/web20mash/
+# If our root-filesysystem is readonly (e.g. on Raspberry pi) we might need to call
+# an external script, which will do something after our runtime configuration file has
+# been changed.
+#conf_change_script=/usr/bin/mashctld_readonly_root_script.sh
 
 [auth]
 active=0
@@ -10,12 +14,17 @@ password=secret
 [control]
 # owfs parameters
 #
-# this is usually the address of an owserver (host:port)
+# this is usually the address of an owserver
+# (host:port or just host using default port 4304)
 # or just something like "-u" for direct connection via usb.
 # However direct connection does only make sense if mashctld
 # is the only software accessing the 1-wire bus
-owparms=-u
-#owparms=localhost:12345
+# For DS2483 e.g. RaspIO
+owparms=--i2c=/dev/i2c-1:18 --no_PPM
+# for DS2490 e.g. DS9490R
+#owparms=-u
+# for owserver running on localhost connected to any busmaster
+#owparms=localhost
 
 # initial must temperature for control
 tempMust=0
@@ -87,3 +96,8 @@ lauteringtime=0
 # can be used to control external displays, LEDs etc.
 # %d will be replaced by state number
 # state_change_cmd=mps2iConnectLED %d
+# this is for running a buzzer on gpio18 for 1 second
+#state_change_cmd=gpio_buzzer 1
+
+
+

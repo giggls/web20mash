@@ -1,0 +1,29 @@
+For using Linux GPIO on Raspberry Pi they need to be set up correctly
+
+Using sysfsutils you can add something like this to /etc/sysfs.conf
+(Example for RaspIO Hardware)
+
+# buzzer
+class/gpio/export = 18
+class/gpio/gpio18/direction = out
+mode class/gpio/gpio18/value = 666
+
+# mains socket 1
+class/gpio/export = 22
+class/gpio/gpio22/direction = out 
+mode class/gpio/gpio22/value = 666
+
+# mains socket 2
+class/gpio/export = 23
+class/gpio/gpio23/direction = out 
+mode class/gpio/gpio23/value = 666
+
+# mains socket 3
+class/gpio/export = 24
+class/gpio/gpio24/direction = out 
+mode class/gpio/gpio24/value = 666
+
+# mains socket 4
+class/gpio/export = 25
+class/gpio/gpio25/direction = out 
+mode class/gpio/gpio25/value = 666

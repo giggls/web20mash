@@ -1,3 +1,10 @@
+web20mash (2.1) UNRELEASED; urgency=low
+
+  * enhance debian package, add initscript, autogen. system user etc.
+  * allow for readonly root filesystem
+
+ -- Sven Geggus <sven-deb@geggus.net>  Sat, 02 Mar 2013 15:34:03 +0100
+
 web20mash (2.0) unstable; urgency=low
 
   * Full support for Raspberry Pi GPIO (e.g. on my own RaspIO Hardware)

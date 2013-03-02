@@ -23,6 +23,10 @@ typedef struct s_Cmdline {
   char usernameP;
   char* username;
   int usernameC;
+  /***** -p: pidfile location, when run as root and in background */
+  char pidfileP;
+  char* pidfile;
+  int pidfileC;
   /***** -w: update configuration file from list of available sensors and actuators */
   char writeP;
   /***** -s: simulate temperature measurements */

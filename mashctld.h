@@ -115,6 +115,7 @@ struct configopts {
   char password[255];
   bool authactive;
   char state_change_cmd[255];
+  char conf_change_script[255];
 };
 
 struct processstate {

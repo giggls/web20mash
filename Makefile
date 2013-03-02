@@ -44,6 +44,8 @@ install: debian/copyright mashctld gpio_buzzer
 	mkdir -p $(DESTDIR)/share/web20mash/images
 	mkdir -p $(DESTDIR)/share/web20mash/js
 	mkdir -p $(CFDIR)
+	mkdir -p $(CFDIR)/sudoers.d
+	mkdir -p $(CFDIR)/init.d
 	mkdir -p $(DESTDIR)/bin
 	cp -a webdata/*.html.?? $(DESTDIR)/share/web20mash/
 	cp -a webdata/css $(DESTDIR)/share/web20mash/
@@ -54,8 +56,14 @@ install: debian/copyright mashctld gpio_buzzer
 	sed -e 's;^webroot.*;webroot = $(PREFIX)/share/web20mash;' \
 		-e 's;^port.*;port = 80;' mashctld.conf.sample >$(CFDIR)/mashctld.conf
 	cp mashctld $(DESTDIR)/bin
+	chmod 755 $(DESTDIR)/bin/mashctld
 	cp gpio_buzzer $(DESTDIR)/bin
 	cp mps2iConnectLED $(DESTDIR)/bin
-	chmod 755 $(DESTDIR)/bin/mashctld
+	cp mashctld_readonly_root_script.sh $(DESTDIR)/bin
+	chmod 755 $(DESTDIR)/bin/mashctld_readonly_root_script.sh
+	cp web20mash.sudo $(CFDIR)/sudoers.d/web20mash
+	chmod 755 $(CFDIR)/sudoers.d/web20mash
+	cp webmash.init $(CFDIR)/init.d/webmash
 	chmod 755 $(DESTDIR)/share/web20mash $(DESTDIR)/share/web20mash/images $(DESTDIR)/share/web20mash/js $(DESTDIR)/share/web20mash/css
 	chmod 644 $(DESTDIR)/share/web20mash/*/*
+	chmod 755 $(DESTDIR)/bin/mashctld_readonly_root_script.sh

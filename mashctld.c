@@ -58,7 +58,7 @@ static bool isdaemon=false;
 /* clig command line Parameters*/  
 Cmdline *cmd;
 
-/* runtime configuration file with full path */
+/* name of runtime configuration file with full path */
 char cfgfp[PATH_MAX + 1];
   
 struct configopts cfopts;
@@ -145,6 +145,13 @@ static void strtolower(char* str, unsigned len) {
   unsigned i;
   for (i=0;i<len;i++) {
     str[i]=tolower(str[i]);
+  }
+}
+
+void cfg_change_script() {
+  if (cfopts.conf_change_script[0]!='\0') {
+    debug("running config change script: %s\n",cfopts.conf_change_script,0);
+    myexec(cfopts.conf_change_script,0);
   }
 }
 
@@ -355,8 +362,9 @@ static int answer_to_connection (void *cls,
 	  if (must>MAXTEMP) must=MAXTEMP;
 	  if (must<MINTEMP) must=MINTEMP;
 	  if (pstate.tempMust!=must) {
-          debug("updating inifile must temperature: %f\n",must);
+            debug("updating inifile must temperature: %f\n",must);
 	    ini_putf("control","tempMust", must, cfgfp);
+	    cfg_change_script();
 	  }
 	  pstate.tempMust=must;
           debug("setting must temperature to: %f\n",must);  
@@ -473,6 +481,7 @@ static int answer_to_connection (void *cls,
 	    cfopts.acttype=acttype;
             debug("updating inifile actuatortype: %s\n",sacttype);
 	    ini_puts("control", "actuatortype", sacttype, cfgfp);
+	    cfg_change_script();
 	  }
           debug("setting actuator to: %s\n",sacttype);  
 	  snprintf(mdata,1024,
@@ -537,6 +546,7 @@ static int answer_to_connection (void *cls,
               snprintf(mdata,1024,
                   "<html><body>OK setting lautering time to %u</body></html>",(unsigned) val);
             }
+            cfg_change_script();            
 	  } else {
             debug("setting rest temperature %d to %f\n",restno,val);
 	    if (val>MAXTEMP) val=MAXTEMP;
@@ -553,6 +563,7 @@ static int answer_to_connection (void *cls,
               snprintf(mdata,1024,
                   "<html><body>OK setting lautering temperature to %f</body></html>",val);
 	    }
+	    cfg_change_script();
 	  }
 	}
 	response = MHD_create_response_from_data(strlen(mdata),
@@ -625,11 +636,11 @@ static int answer_to_connection (void *cls,
             ini_putf("mash-process", "lauteringtemp", vtemp[i],cfgfp);
           }
           cfopts.resttemp[i]=vtemp[i];
-	  
           snprintf(mdata,1024,
 		   "<html><body>OK setting all rest and control values</body></html>");
           debug("OK calling /setallmash/%f/%u/%f/%u/%f/%u/%f/%u\n",
 	    vtemp[0],vtime[0],vtemp[1],vtime[1],vtemp[2],vtime[2],vtemp[3],vtime[3]);
+          cfg_change_script();
 	}
 	response = MHD_create_response_from_data(strlen(mdata),
 						 (void*) mdata,
@@ -828,7 +839,7 @@ void doStirControl() {
   /* we need to change/not change the state off the stirring device
      depending on the following parameters:
      pstate.mash (current state of the mash process)
-     cfgopts.stirring_states (stirring device behaviour depoending on state of the mash process)
+     cfopts.stirring_states (stirring device behaviour depoending on state of the mash process)
      elapsed time since start of current state.
   */
   curtime=time(NULL);
@@ -976,6 +987,7 @@ int main(int argc, char **argv) {
   uint64_t exp;
   FILE *cfile;
   uid_t uid,euid;
+  FILE *pidfile;
 #ifndef NO1W
   int stype, atype;
 #endif
@@ -1116,7 +1128,12 @@ int main(int argc, char **argv) {
         if (0!=chmod(cfgfp,00644)) debug("unable to chmod runtime configuration file\n");
       } else {
         debug("unable to chown runtime configuration file\n");
-      }    
+      }
+      /* create pid file */
+      if (NULL==(pidfile=fopen(cmd->pidfile,"w+")))
+        die("unable to open pidfile: %s\n",cmd->pidfile);
+      fclose(pidfile);
+      chown(cmd->pidfile,pw->pw_uid,pw->pw_gid);
       setuid(pw->pw_uid);
       setgid(pw->pw_gid);
     }
@@ -1137,6 +1154,10 @@ int main(int argc, char **argv) {
     isdaemon=true;
     openlog(Program,LOG_PID,LOG_DAEMON);
     daemonize();
+    if (NULL==(pidfile=fopen(cmd->pidfile,"w+")))
+      die("unable to open pidfile: %s\n",cmd->pidfile);
+    fprintf(pidfile,"%d\n",getpid());
+    fclose(pidfile);
   }
   acq_and_ctrl();
   

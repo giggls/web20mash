@@ -11,6 +11,7 @@ Homepage: <insert the upstream URL, if relevant>
 Package: web20mash
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: sudo, sysfsutils
 Description: Web 2.0 base mash control software
  Web 2.0 Mash is a Software for automatic control of mash procedure
  in beer brewing process. This is achieved using a 1-wire temperature

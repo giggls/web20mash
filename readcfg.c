@@ -104,5 +104,6 @@ void readconfig(char *cfgfile) {
 
   ini_gets("mash-process", "state_change_cmd", "", cfopts.state_change_cmd,
 	     sizearray(cfopts.state_change_cmd), cfgfile);
-
+  ini_gets("global", "conf_change_script", "", cfopts.conf_change_script,
+	     sizearray(cfopts.conf_change_script), cfgfile);
 }
