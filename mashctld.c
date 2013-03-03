@@ -1134,8 +1134,9 @@ int main(int argc, char **argv) {
         die("unable to open pidfile: %s\n",cmd->pidfile);
       fclose(pidfile);
       chown(cmd->pidfile,pw->pw_uid,pw->pw_gid);
-      setuid(pw->pw_uid);
+      setgroups(0,NULL);
       setgid(pw->pw_gid);
+      setuid(pw->pw_uid);
     }
   }
   

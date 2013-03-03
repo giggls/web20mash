@@ -53,6 +53,7 @@ main header file
 #include <signal.h>
 #include <syslog.h>
 #include <pwd.h>
+#include <grp.h>
 #include "minIni.h"
 #include "cmdline.h"
 
