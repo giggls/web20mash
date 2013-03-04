@@ -1036,10 +1036,10 @@ int main(int argc, char **argv) {
         atype=search4Actuator();
         if (-1==atype)
             die("%s/%s is unavailable or not a supported actuator or actuator_port\n",
-              cfopts.actuator,cfopts.actuator_port);
+              cfopts.actuator[i],cfopts.actuator_port[i]);
         else
           debug("OK, found actuator %d of type %s (id %s/%s)...\n",
-          i,actuators[atype],cfopts.actuator,cfopts.actuator_port);
+          i,actuators[atype],cfopts.actuator[i],cfopts.actuator_port[i]);
       } else {
         if (cfopts.gpioactuator[i]==false)
           debug("Using external actuator command for actuator %d...\n",i);
