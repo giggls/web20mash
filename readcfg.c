@@ -34,7 +34,7 @@ void readconfig(char *cfgfile) {
     cfopts.extactuator[i]=false;
     cfopts.gpioactuator[i]=false;
     strncpy(cfopts.actuator[i],buf,100);
-    cfopts.actuator[i][100]='\0';
+    cfopts.actuator[i][99]='\0';
     if (0==strcmp("external",cfopts.actuator[i])) {
       cfopts.extactuator[i]=true;
       if (0==i) {
@@ -57,6 +57,7 @@ void readconfig(char *cfgfile) {
         } else {
           strncpy(cfopts.actuator_port[i],buf+16,6);
           cfopts.actuator_port[i][5]='\0';
+          cfopts.actuator[i][15]='\0';
         }
       }
   }
