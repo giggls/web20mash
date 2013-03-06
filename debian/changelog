@@ -1,4 +1,10 @@
-web20mash (2.1) UNRELEASED; urgency=low
+web20mash (2.2) unstable; urgency=low
+
+  * pre 3.0 release with plugin system for actuator control
+
+ -- Sven Geggus <sven-deb@geggus.net>  Wed, 06 Mar 2013 19:05:29 +0100
+
+web20mash (2.1) unstable; urgency=low
 
   * enhance debian package, add initscript, autogen. system user etc.
   * allow for readonly root filesystem

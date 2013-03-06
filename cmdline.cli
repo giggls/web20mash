@@ -38,7 +38,5 @@ String -u username {username to switch to, when run as root} -d webmash
 
 String -p pidfile {pidfile location, when run as root and in background} -d /var/run/mashctld.pid
 
-Flag -w write {update configuration file from list of available sensors and actuators}
-
 Flag -s simulation {simulate temperature measurements}
 

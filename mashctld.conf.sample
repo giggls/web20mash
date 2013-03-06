@@ -1,6 +1,12 @@
 [global]
+# port to listen to for integrated webserver
 port=8888
+
+# the following two directories configurations can be 
+# omitted if an installed version (e.g. debian package or make install)
 webroot=/usr/share/web20mash/
+plugin_dir=/usr/lib/web20mash/plugins
+
 # If our root-filesysystem is readonly (e.g. on Raspberry pi) we might need to call
 # an external script, which will do something after our runtime configuration file has
 # been changed.
@@ -15,7 +21,8 @@ password=secret
 # owfs parameters
 #
 # this is usually the address of an owserver
-# (host:port or just host using default port 4304)
+# (host:port default server port is 4304,
+# so localhost:4304 should be common)
 # or just something like "-u" for direct connection via usb.
 # However direct connection does only make sense if mashctld
 # is the only software accessing the 1-wire bus
@@ -34,28 +41,14 @@ tempMust=0
 #
 
 # 1-wire temperature sensor ID
-#sensor=10.7B7935000800
-sensor=10.B963D4000800
+sensor=10.AAAAAAAAAAAA
 
-# actuator to use
-# this can be one of the following:
-
-# a supported 1-wire device/port
-# (currently DS2406, DS2408 and DS2413) ID/PIO.X
-actuator=12.9B6E45000000/PIO.A
-
-# a sysfs file for Linux GPIO driver
-#actuator=/sys/class/gpio/gpio25/value
-
-# "external" to use an external command
-#actuator=external
-
-
-# if actuator is set to "external" the following
-# external commands are run to switch on and off
-# state respectively instead of using a 1-wire actuator
-extactuatoron=sispm +1
-extactuatoroff=sispm -1
+# actuator device type (onewire, gpio or external):
+# device ID, external command etc. must be specified
+# in the plugin section of the particular type
+actuator=external
+# stirring device type (onewire,gpio or external):
+stirring_device=gpio
 
 # hysteresis of two-level controller
 hysteresis=0.2
@@ -99,5 +92,19 @@ lauteringtime=0
 # this is for running a buzzer on gpio18 for 1 second
 #state_change_cmd=gpio_buzzer 1
 
+# actuator plugin configuration
+[actuator_plugin_external]
+actuator_on=sispm +1
+actuator_off=sispm -1
+stirring_device_on=sispm +2
+stirring_device_off=sispm -2
 
+[actuator_plugin_gpio]
+actuator=/sys/class/gpio/gpio25/value
+stirring_device=/sys/class/gpio/gpio26/value
 
+[actuator_plugin_onewire]
+actuator=12.AAAAAAAAAAAA
+actuator_port=PIO.A
+stirring_device=12.AAAAAAAAAAAA
+stirring_device_port=PIO.B

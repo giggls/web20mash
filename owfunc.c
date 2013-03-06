@@ -25,13 +25,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 
 */
 #include "mashctld.h"
-#include "sensact.h"
+#include "sensors.h"
+#include "actuators.h"
 #include "myexec.h"
 
 extern struct configopts cfopts;
 extern struct processstate pstate;
 extern char cfgfp[PATH_MAX + 1];
-extern int gpiofd[2];
+extern void (*plugin_setstate_call[2])(int devno, int state);
 
 /* clig command line Parameters*/  
 extern Cmdline *cmd;
@@ -47,12 +48,11 @@ int stringInArray(char * str, const char **arr) {
   return -1;
 }
 
-#ifndef NO1W
+#ifndef NOSENSACT
 void outSensorActuatorList() {
-  char buf1[255],buf2[255];
+  char buf[255];
   char *s1,*s2,*tok;
   const char **i;
-  bool first=1;
   size_t slen1,slen2;
   int pos;
 
@@ -63,16 +63,12 @@ void outSensorActuatorList() {
   while (tok != NULL) {
     /* if a sensor id is found scan for a supported sensor */
     if (tok[2] == '.') {
-      sprintf(buf1,"/%stype",tok);
-      OW_get(buf1,&s2,&slen2);
+      sprintf(buf,"/%stype",tok);
+      OW_get(buf,&s2,&slen2);
       pos=stringInArray(s2,sensors);
       if (-1 != pos) {
 	tok[strlen(tok)-1]=0;
 	printf("%s: %s\n",sensors[pos],tok);
-	if (cmd->writeP && first) {
-	  ini_puts("control", "sensor", tok, cfgfp);
-	  first=0;
-        }
       }
     }
     tok=strtok(NULL,",");
@@ -80,7 +76,6 @@ void outSensorActuatorList() {
   free(s1);
   free(s2);
   
-  first=1;
   OW_get("/",&s1,&slen1);
   
   tok=strtok(s1,",");
@@ -88,8 +83,8 @@ void outSensorActuatorList() {
   while (tok != NULL) {
     /* if an actuators id is found scan for type */
     if (tok[2] == '.') {
-      sprintf(buf1,"/%stype",tok);
-      OW_get(buf1,&s2,&slen2);
+      sprintf(buf,"/%stype",tok);
+      OW_get(buf,&s2,&slen2);
       pos = stringInArray(s2,actuators);
       if (-1 != pos) {
 	tok[strlen(tok)-1]=0;
@@ -97,13 +92,6 @@ void outSensorActuatorList() {
 	for (i=actuator_ports[pos]; *i; i++)
 	  printf(" %s/%s",tok,*i);
         printf("\n");
-	if (cmd->writeP && first) { 
-	  strcpy(buf2,tok);
-	  strcpy(buf2+strlen(tok),"/");
-	  strcpy(buf2+strlen(tok)+1,actuator_ports[pos][0]);
-	  ini_puts("control", "actuator", buf2, cfgfp);
-	  first=0;
-	}
       }
     }
     tok=strtok(NULL,",");
@@ -135,47 +123,6 @@ int search4Sensor() {
   return search4Device(cfopts.sensor,sensors);
 }
 
-int search4Actuator() {
-  int devno;
-  devno=search4Device(cfopts.actuator[0],actuators);
-  // if a supported actuator has been found check if the given port ID
-  // is valid for this type of sensor
-  if (devno>-1) {
-    if (-1 == stringInArray(cfopts.actuator_port[0],actuator_ports[devno]))
-      return -1;
-  }
-  
-  return devno;  
-}
-
-static void setOWRelay(int devno,int state) {
-  char cstate[2];
-  char buf[255];
-  int i;
-
-  if (state) {
-    cstate[0]='1';
-  } else {
-    cstate[0]='0';
-  }
-  cstate[1]='\0';
-
-  sprintf(buf,"/%s/%s",cfopts.actuator[devno],cfopts.actuator_port[devno]);
-  for (i=0;i<60;i++) {
-    if (-1==OW_put(buf,cstate,strlen(buf))) {
-      errorlog("owfs WRITE error, retrying in 1 seconds\n");
-      OW_finish();
-      sleep(2);
-      if(OW_init(cfopts.owparms) !=0)
-	die("Error connecting owserver on %s\n",cfopts.owparms);
-    } else {
-      break;
-    }
-  }
-  if (i==60)
-    die("still got a write error after retrying 30 times\n");
-  return;
-}
 #endif
 
 /* two level control function, assume control actuator to be always device number 0 */
@@ -214,7 +161,7 @@ int doTempControl() {
   return(0);
 }
 
-#ifndef NO1W
+#ifndef NOSENSACT
 float getTemp() {
   float temperature;
   char *s;
@@ -249,30 +196,7 @@ float getTemp() {
 #endif
 
 void setRelay(int devno, int state) {
-  if (!cmd->simulationP) {
-    if (cfopts.extactuator[devno]) {
-      if (state) {
-        if (cmd->debugP)
-	  debug("running external actuator command: %s\n",cfopts.extactuatoron[devno]);
-	  myexec(cfopts.extactuatoron[devno],1);
-	  
-      } else {
-        if (cmd->debugP)
-	  debug("running external actuator command: %s\n",cfopts.extactuatoroff[devno]);
-	  myexec(cfopts.extactuatoroff[devno],1);
-      }
-    } else {
-      if (cfopts.gpioactuator[devno]) {
-        if (state)
-         write(gpiofd[devno],"1",1);
-        else
-         write(gpiofd[devno],"0",1);
-#ifndef NO1W
-      } else {   
-        setOWRelay(devno,state);
-#endif
-      }
-    }
-  }
+  if (!cmd->simulationP)
+    plugin_setstate_call[devno](devno,state);
   pstate.relay[devno]=state;
 }

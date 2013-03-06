@@ -1,0 +1,36 @@
+#
+# Testconfiguration for Raspberry Pi with GPIO acuators
+# and 1-wire connected via DS2483/I2C
+
+[global]
+port=8888
+webroot=../webdata
+plugin_dir=plugins/
+
+[auth]
+active=0
+
+[control]
+owparms=--i2c=/dev/i2c-1:18 --no_PPM
+tempMust=0
+# put real sensor ID here
+sensor=10.B963D4000800
+actuator=gpio
+hysteresis=0.2
+actuatortype=heater
+stirring_device=gpio
+stirring_states=0:0,1:0,16:8,1:0,16:8,1:0,16:8,1:0,16:8
+
+[mash-process]
+resttemp1=52.5
+resttemp2=62.5
+resttemp3=72.5
+lauteringtemp=76
+resttime1=0
+resttime2=20
+resttime3=20
+lauteringtime=0
+
+[actuator_plugin_gpio]
+actuator=/sys/class/gpio/gpio22/value
+stirring_device=/sys/class/gpio/gpio23/value

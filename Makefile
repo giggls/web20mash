@@ -3,18 +3,26 @@ CFDIR = /etc
 PREFIX = $(DESTDIR)
 
 CFLAGS = -g -Wall -W -std=gnu99 -pedantic
-LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt
+EXTRAFLAGS =  -DCTLD_PLUGINDIR=\"$(PREFIX)/lib/web20mash/plugins\" -DCTLD_WEBROOT=\"$(PREFIX)/share/web20mash/\"
+LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt -rdynamic -ldl
 
-# Use this to generate a simulation only binary without 1-wire support
+# Use this to generate a simulation only binary without sensor/actor support
 # If BINDLOCALHOST is defined build a binary listening on 127.0.0.1 only
-#CFLAGS = -g -Wall -W -std=gnu99 -pedantic -D NO1W -D BINDLOCALHOST
+#
+# In addition just call "make mashctld" because it does not make sense to
+# build plugins
+#CFLAGS = -g -Wall -W -std=gnu99 -pedantic -D NOSENSACT -D BINDLOCALHOST
 #LDLIBS = -lmicrohttpd -lmagic -lrt
 
-SRC = cmdline.c mashctld.c owfunc.c minIni.c readcfg.c myexec.c
 
-OBJ = $(SRC:%.c=%.o)
+OBJ = cmdline.o mashctld.o owfunc.o minIni.o readcfg.o myexec.o
 
-all:mashctld gpio_buzzer
+%.o: %.c
+	$(CC) $(EXTRAFLAGS) $(CFLAGS) -c $<
+	
+#-DCTLD_PLUGINDIR=\"$(DESTDIR)/lib/web20mash/plugins\" -DCTLD_WEBROOT=\"$(DESTDIR)/share/web20mash/\" $(CFLAGS)
+
+all:mashctld gpio_buzzer plugins
 
 mashctld:$(OBJ)
 	$(CC) -o $@ $(CFLAGS) $(OBJ) $(LDLIBS)
@@ -29,8 +37,13 @@ mudflap: CFLAGS += -fmudflap
 mudflap: LDLIBS += -lmudflap
 mudflap: mashctld
 
+.PHONY: plugins
+plugins:
+	make -C plugins
+
 clean:
 	rm -f *.o *~ mashctld
+	make -C plugins clean
 
 mrproper: clean
 	rm -f cmdline.c cmdline.h mashctld.1
@@ -43,6 +56,7 @@ install: debian/copyright mashctld gpio_buzzer
 	cd webdata/; make
 	mkdir -p $(DESTDIR)/share/web20mash/images
 	mkdir -p $(DESTDIR)/share/web20mash/js
+	mkdir -p $(DESTDIR)/lib/web20mash/plugins
 	mkdir -p $(CFDIR)
 	mkdir -p $(CFDIR)/sudoers.d
 	mkdir -p $(CFDIR)/init.d
@@ -54,7 +68,7 @@ install: debian/copyright mashctld gpio_buzzer
 	cp webdata/images/*.gif $(DESTDIR)/share/web20mash/images/
 	cp webdata/images/favicon.ico $(DESTDIR)/share/web20mash/images/
 	sed -e 's;^webroot.*;webroot = $(PREFIX)/share/web20mash;' \
-		-e 's;^port.*;port = 80;' mashctld.conf.sample >$(CFDIR)/mashctld.conf
+		-e 's;^plugin_dir.*;plugin_dir= $(PREFIX)/lib/web20mash/plugins;' -e 's;^port.*;port = 80;' mashctld.conf.sample >$(CFDIR)/mashctld.conf
 	cp mashctld $(DESTDIR)/bin
 	chmod 755 $(DESTDIR)/bin/mashctld
 	cp gpio_buzzer $(DESTDIR)/bin
@@ -67,3 +81,6 @@ install: debian/copyright mashctld gpio_buzzer
 	chmod 755 $(DESTDIR)/share/web20mash $(DESTDIR)/share/web20mash/images $(DESTDIR)/share/web20mash/js $(DESTDIR)/share/web20mash/css
 	chmod 644 $(DESTDIR)/share/web20mash/*/*
 	chmod 755 $(DESTDIR)/bin/mashctld_readonly_root_script.sh
+	cp plugins/*.so $(DESTDIR)/lib/web20mash/plugins
+	chmod 755 $(DESTDIR)/lib/web20mash/plugins/*.so
+	

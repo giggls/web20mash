@@ -6,7 +6,7 @@ include /usr/share/cdbs/1/class/makefile.mk
 
 # Add here any variable or target overrides you need.
 DEB_MAKE_CLEAN_TARGET    := clean
-DEB_MAKE_BUILD_TARGET    := mashctld
+DEB_MAKE_BUILD_TARGET    := all DESTDIR=$(DEB_DESTDIR)/usr CFDIR=$(DEB_DESTDIR)/etc PREFIX=/usr
 DEB_MAKE_INSTALL_TARGET  := install DESTDIR=$(DEB_DESTDIR)/usr CFDIR=$(DEB_DESTDIR)/etc PREFIX=/usr
 # no check for this software
 DEB_MAKE_CHECK_TARGET :=

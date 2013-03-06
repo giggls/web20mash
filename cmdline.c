@@ -40,8 +40,6 @@ static Cmdline cmd = {
   /* pidfileP = */ 1,
   /* pidfile = */ "/var/run/mashctld.pid",
   /* pidfileC = */ 1,
-  /***** -w: update configuration file from list of available sensors and actuators */
-  /* writeP = */ 0,
   /***** -s: simulate temperature measurements */
   /* simulationP = */ 0,
   /***** uninterpreted rest of command line */
@@ -717,7 +715,7 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-l] [-d] [-bd] [-c configfile] [-u username] [-p pidfile] [-w] [-s]\n");
+  fprintf(stderr,"%s","   [-l] [-d] [-bd] [-c configfile] [-u username] [-p pidfile] [-s]\n");
   fprintf(stderr,"%s","      two-level temperature and mash process controler\n");
   fprintf(stderr,"%s","     -l: List available sensors and actuators on bus and terminate\n");
   fprintf(stderr,"%s","     -d: print debug info\n");
@@ -731,7 +729,6 @@ usage(void)
   fprintf(stderr,"%s","     -p: pidfile location, when run as root and in background\n");
   fprintf(stderr,"%s","         1 char* value\n");
   fprintf(stderr,"%s","         default: `/var/run/mashctld.pid'\n");
-  fprintf(stderr,"%s","     -w: update configuration file from list of available sensors and actuators\n");
   fprintf(stderr,"%s","     -s: simulate temperature measurements\n");
   fprintf(stderr,"%s","  ");
   exit(EXIT_FAILURE);
@@ -780,11 +777,6 @@ parseCmdline(int argc, char **argv)
       cmd.pidfileP = 1;
       i = getStringOpt(argc, argv, i, &cmd.pidfile, 1);
       cmd.pidfileC = i-keep;
-      continue;
-    }
-
-    if( 0==strcmp("-w", argv[i]) ) {
-      cmd.writeP = 1;
       continue;
     }
 

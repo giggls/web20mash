@@ -5,7 +5,7 @@ mashctld
 a web-controllable two-level temperature and mash process
 controler for 1-wire sensor (DS18S20/DS18B20) and various actuators
 
-(c) 2011-2012 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2011-2013 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -43,12 +43,12 @@ state   function
 
 
 #include "mashctld.h"
-#include "sensact.h"
+#include "sensors.h"
 #include "myexec.h"
 
 #define PAGE "<html><head><title>File not found</title></head><body>File not found</body></html>"
 
-			   char *indexfile="index.html";
+char *indexfile="index.html";
 magic_t magic_cookie;
 
 static int acgen;
@@ -63,6 +63,8 @@ char cfgfp[PATH_MAX + 1];
   
 struct configopts cfopts;
 struct processstate pstate;
+void (*plugin_setstate_call[2])(int devno, int state);
+void (*plugin_actinit_call[2])(char *cfgfile, int devno);
 
 static void resetMashProcess() {
   pstate.mash=0;
@@ -434,8 +436,8 @@ static int answer_to_connection (void *cls,
 	  snprintf(mdata,1024,
 		   "<html><body>Error setting actuator state!</body></html>");
 	} else {
-	  setRelay(ano,astate);
-          debug("setting actuator %d state to: %d\n",ano,astate);  
+          debug("setting actuator %d state to: %d\n",ano,astate);
+          setRelay(ano,astate);
 	  snprintf(mdata,1024,
 		   "<html><body>OK setting actuator %d state to %d</body></html>",ano,astate);
 	}
@@ -872,14 +874,14 @@ void acq_and_ctrl() {
   static int old_mash_state=42;
 
   /* acquire temperature */
-#ifndef NO1W
+#ifndef NOSENSACT
   if (!cmd->simulationP) {
     pstate.tempCurrent=getTemp();
   } else {
 #endif
     if (pstate.relay[0])
       pstate.tempCurrent+=SIM_INC;
-#ifndef NO1W
+#ifndef NOSENSACT
   }
 #endif
 
@@ -988,9 +990,11 @@ int main(int argc, char **argv) {
   FILE *cfile;
   uid_t uid,euid;
   FILE *pidfile;
-#ifndef NO1W
-  int stype, atype;
-#endif
+  char buf[2048];
+  char *bp;
+  int stype;
+
+  void *acthandle0, *acthandle1;
   cmd = parseCmdline(argc, argv);
 
   /* parse the configfile if available and readable */
@@ -1002,24 +1006,24 @@ int main(int argc, char **argv) {
     realpath(cmd->configfile, cfgfp);
   }
   readconfig(cfgfp);
-  
+
   // default is no control, mash process off
   pstate.control=0;
   pstate.mash=0;
   pstate.tempMust=cfopts.tempMust;
   pstate.resttime=0;
   pstate.ttrigger=0;
-#ifndef NO1W
+#ifndef NOSENSACT
   if (!cmd->simulationP) {
     if(OW_init(cfopts.owparms) !=0)
       die("Error connecting owserver on %s\n",cfopts.owparms);
-  
+      
     if (cmd->listP) {
       outSensorActuatorList();
       OW_finish();
       exit(EXIT_SUCCESS);
     }
- 
+  
     /* check if requested sensor is available on the bus and is one of the supported ones*/
     stype=search4Sensor();
     if (-1==stype)
@@ -1027,35 +1031,54 @@ int main(int argc, char **argv) {
     else
       debug("OK, found sensor of type %s (id %s)...\n",sensors[stype],cfopts.sensor);
     
-    {
-    int i,j;
-    j = cfopts.stirring == 1 ? 2 :1;
-    for (i=0;i<j;i++) {
-      if ((cfopts.extactuator[i]==false) && (cfopts.gpioactuator[i]==false)) {
-        /* check if requested 1-wire actuator is available on the bus and is one of the supported ones*/
-        atype=search4Actuator();
-        if (-1==atype)
-            die("%s/%s is unavailable or not a supported actuator or actuator_port\n",
-              cfopts.actuator[i],cfopts.actuator_port[i]);
-        else
-          debug("OK, found actuator %d of type %s (id %s/%s)...\n",
-          i,actuators[atype],cfopts.actuator[i],cfopts.actuator_port[i]);
-      } else {
-        if (cfopts.gpioactuator[i]==false)
-          debug("Using external actuator command for actuator %d...\n",i);
-        else
-           debug("Using GPIO %s for actuator %d...\n",cfopts.actuator[i],i);
-      }
-    }
-    }
   } else {
 #endif
     // in simulation mode we start with SIM_INIT_TEMP°C and increase by SIM_INC°C on each read
     pstate.tempCurrent=SIM_INIT_TEMP;
-#ifndef NO1W
+#ifndef NOSENSACT
+  }
+  // enable actuator plugins as specified in configfile
+  bp=buf;
+  strcpy(bp,cfopts.plugindir);
+  bp+=strlen(cfopts.plugindir);
+  strcpy(bp,"/actuator_");
+  bp+=10;
+  strcpy(bp,cfopts.actuator[0]);
+  bp+=strlen(cfopts.actuator[0]);
+  strcpy(bp,".so");
+  debug("loading plugin %s\n",buf);
+  acthandle0 = dlopen (buf, RTLD_LAZY);
+  if (!acthandle0) die("error opening plugin %s: %s\n",buf,dlerror());
+  *(void **) (&plugin_actinit_call[0])=dlsym(acthandle0, "actuator_initfunc");
+  if ((bp = dlerror()) != NULL) die(bp);
+  *(void **) (&plugin_setstate_call[0])=dlsym(acthandle0, "actuator_setstate");
+  if ((bp = dlerror()) != NULL) die(bp);
+  plugin_actinit_call[0](cfgfp,0);
+  if (cfopts.stirring) {
+    if (0==strcmp(cfopts.actuator[0],cfopts.actuator[1])) {
+      plugin_actinit_call[1]=plugin_actinit_call[0];
+      plugin_setstate_call[1]=plugin_setstate_call[0];
+    } else {
+      bp=buf;
+      strcpy(bp,cfopts.plugindir);
+      bp+=strlen(cfopts.plugindir);
+      strcpy(bp,"/actuator_");
+      bp+=10;
+      strcpy(bp,cfopts.actuator[1]);
+      bp+=strlen(cfopts.actuator[1]);
+      strcpy(bp,".so");
+      debug("loading plugin %s\n",buf);
+      acthandle1 = dlopen (buf, RTLD_LAZY);
+      if (!acthandle1) die("error opening plugin %s: %s\n",buf,dlerror());
+      *(void **) (&plugin_actinit_call[1])=dlsym(acthandle1, "actuator_initfunc");
+      if ((bp = dlerror()) != NULL) die(bp);
+      *(void **) (&plugin_setstate_call[1])=dlsym(acthandle1, "actuator_setstate");
+      if ((bp = dlerror()) != NULL) die(bp);
+    }
+    plugin_actinit_call[1](cfgfp,1);
   }
 #else
-  cmd->simulationP=1;
+cmd->simulationP=1;
 #endif
 
   if (-1==chdir(cfopts.webroot)) {

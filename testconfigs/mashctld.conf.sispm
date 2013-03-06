@@ -1,0 +1,44 @@
+#
+# Testconfiguration for fake owserver on localhost for temperature
+# and sispm as an external actuator device
+#
+# run owserver as follows
+# owserver --fake=28.AAAAAAAAAAAA --foreground --nozero
+
+[global]
+port=8888
+webroot=../webdata
+plugin_dir=plugins/
+# If our root-filesysystem is readonly (e.g. on Raspberry pi) we might need to call
+# an external script, which will do something after our runtime configuration file has
+# been changed.
+#conf_change_script=/usr/bin/mashctld_readonly_root_script.sh
+
+[auth]
+active=0
+
+[control]
+owparms=localhost:4304
+tempMust=0
+sensor=28.AAAAAAAAAAAA
+actuator=external
+hysteresis=0.2
+actuatortype=heater
+stirring_device=external
+stirring_states=0:0,1:0,16:8,1:0,16:8,1:0,16:8,1:0,16:8
+
+[mash-process]
+resttemp1=52.5
+resttemp2=62.5
+resttemp3=72.5
+lauteringtemp=76
+resttime1=0
+resttime2=20
+resttime3=20
+lauteringtime=0
+
+[actuator_plugin_external]
+actuator_on=sispm +1
+actuator_off=sispm -1
+stirring_device_on=sispm +2
+stirring_device_off=sispm -2

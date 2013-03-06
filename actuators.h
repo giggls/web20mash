@@ -1,8 +1,5 @@
 #ifndef NO1W
-/* Supported sensors */
-static const char* sensors[] = {"DS18S20","DS18B20",NULL};
-
-/* Supported actors */
+/* Supported actuators */
 static const char* actuators[] = {"DS2406","DS2408","DS2413",NULL};
 
 static const char* ds2406ports[] = {"PIO.A","PIO.B",NULL};

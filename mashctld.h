@@ -54,6 +54,8 @@ main header file
 #include <syslog.h>
 #include <pwd.h>
 #include <grp.h>
+#include <dlfcn.h>
+
 #include "minIni.h"
 #include "cmdline.h"
 
@@ -81,7 +83,6 @@ void setRelay(int devno, int state);
 int loadtemplate(char *filename,char **data);
 float getTemp();
 int search4Sensor();
-int search4Actuator();
 void readconfig(char *configfile);
 void errorlog(char* fmt, ...);
 void die(char* fmt, ...);
@@ -96,20 +97,15 @@ struct configopts {
      first device is heating/cooling, second device is stirring
   */
   char actuator[2][100];
-  char actuator_port[2][6];
-  bool extactuator[2];
-  char extactuatoron[2][255];
-  char extactuatoroff[2][255];
-  bool gpioactuator[2];
   /* this variable is true if we have a stirring device and false otherwise */
   bool stirring;
   /* two times for stirring device on every state (on and off) 0,0 if always off */
-  int stirring_states[10][2];
-  
+  int stirring_states[10][2];  
   float tempMust;
   float hysteresis;
   int acttype;
-  char webroot[255];
+  char webroot[1024];
+  char plugindir[1024];
   float resttemp[4];
   uint64_t resttime[4];
   char username[255];
