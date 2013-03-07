@@ -23,11 +23,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 actuator plugin for calling external commands
 
 */
-
+#define _GNU_SOURCE
+#include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <stdbool.h>
 #include "myexec.h"
 #include "minIni.h"
+#include "searchXfile.h"
 #define sizearray(a)    (sizeof(a) / sizeof((a)[0]))
 
 // defaults
@@ -44,9 +47,13 @@ struct s_ext_act_cfg {
 static struct s_ext_act_cfg ext_act_cfg;
 
 extern void debug(char* fmt, ...);
+extern void die(char* fmt, ...);
 
 void actuator_initfunc(char *cfgfile, int devno) {
-
+  char cmd[255];
+  char *cmd_with_path;
+  char *cmd_only;
+  
   debug("[external actuator plugin] actuator_initfunc device %d\n",devno);
 
   if (devno==0) {
@@ -61,6 +68,13 @@ void actuator_initfunc(char *cfgfile, int devno) {
     ini_gets("actuator_plugin_external", "stirring_device_off", EXTSTIRON,
               ext_act_cfg.extactuatoroff[1], sizearray(ext_act_cfg.extactuatoroff[1]), cfgfile);
   }
+  // check if command is available in PATH
+  strcpy(cmd,ext_act_cfg.extactuatoron[devno]);
+  cmd_only=strtok(cmd," ");
+  if (0==searchXfile(cmd_only,&cmd_with_path))
+    free(cmd_with_path);
+  else
+    die("[external actuator plugin] can not find command >%s<\n",cmd_only);
 }
 
 void actuator_setstate(int devno, int state) {
