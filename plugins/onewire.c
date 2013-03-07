@@ -48,6 +48,7 @@ extern void die(char* fmt, ...);
 extern int search4Device(char *device, const char **devlist);
 extern int stringInArray(char * str, const char **arr);
 extern void errorlog(char* fmt, ...);
+extern size_t do_OW_init();
 
 int search4Actuator(char *device,char *port) {
   int devno;
@@ -79,7 +80,7 @@ static void setOWRelay(int devno,int state) {
       errorlog("owfs WRITE error, retrying in 1 seconds\n");
       OW_finish();
       sleep(2);
-      if(OW_init(w1_act_cfg.owparms) !=0)
+      if(do_OW_init() !=0)
 	die("Error connecting owserver on %s\n",w1_act_cfg.owparms);
     } else {
       break;
@@ -92,16 +93,8 @@ static void setOWRelay(int devno,int state) {
 
 void actuator_initfunc(char *cfgfile, int devno) {
   int atype;
-  static int first=1;
 
   debug("[onewire actuator plugin] actuator_initfunc device %d\n",devno);
-
-  // only call this once
-  if (first) {
-    debug("[onewire actuator plugin] read owparms\n");
-    ini_gets("control", "owparms", CTLD_OWPARMS, w1_act_cfg.owparms, sizearray(w1_act_cfg.owparms), cfgfile);
-    first=0;
-  }
 
   if (devno==0) {
     // read actuator specific configuration options

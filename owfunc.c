@@ -123,6 +123,11 @@ int search4Sensor() {
   return search4Device(cfopts.sensor,sensors);
 }
 
+ssize_t do_OW_init() {
+ printf("OW_init(%s)\n",cfopts.owparms);
+ return OW_init(cfopts.owparms);
+}
+
 #endif
 
 /* two level control function, assume control actuator to be always device number 0 */
@@ -179,7 +184,7 @@ float getTemp() {
       free(s);
       OW_finish();
       sleep(3);
-      if(OW_init(cfopts.owparms) !=0)
+      if(do_OW_init() !=0)
 	die("Error connecting owserver on %s\n",cfopts.owparms);
       sleep(1);
     } else {
