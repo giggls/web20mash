@@ -1,0 +1,13 @@
+This software supports a button connected to gpio (e.g. 21) as follows:
+
+GPIO --+---- BUTTON ----- GND
+       |
+       +--- RESISTOR 2k -- VCC (3.3V)
+
+To enable this button install sysfsutils and add something like this to 
+/etc/sysfs.conf:
+
+class/gpio/export = 21
+class/gpio/gpio18/direction = in
+class/gpio/gpio21/edge = falling
+mode class/gpio/gpio18/value = 666

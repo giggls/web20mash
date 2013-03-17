@@ -1,0 +1,17 @@
+Name display_client
+
+Usage {non-browser client for mashctld}
+
+Flag -bd daemon {run Program as a daemon in background}
+
+String -d i2cdev {i2c device LED is connected to} -d /dev/i2c-1
+
+String -g gpio {gpio port for key}
+
+String -u url {url for mashctld state} -d "http://localhost/getstate"
+
+Flag -dbg debug {enable debug output}
+
+Int -a i2caddr {i2c address of LED device} -d 0x70
+
+
