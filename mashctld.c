@@ -1031,54 +1031,54 @@ int main(int argc, char **argv) {
     else
       debug("OK, found sensor of type %s (id %s)...\n",sensors[stype],cfopts.sensor);
     
-  } else {
-#endif
-    // in simulation mode we start with SIM_INIT_TEMP°C and increase by SIM_INC°C on each read
-    pstate.tempCurrent=SIM_INIT_TEMP;
-#ifndef NOSENSACT
-  }
-  // enable actuator plugins as specified in configfile
-  bp=buf;
-  strcpy(bp,cfopts.plugindir);
-  bp+=strlen(cfopts.plugindir);
-  strcpy(bp,"/actuator_");
-  bp+=10;
-  strcpy(bp,cfopts.actuator[0]);
-  bp+=strlen(cfopts.actuator[0]);
-  strcpy(bp,".so");
-  debug("loading plugin %s\n",buf);
-  acthandle0 = dlopen (buf, RTLD_LAZY);
-  if (!acthandle0) die("error opening plugin %s: %s\n",buf,dlerror());
-  *(void **) (&plugin_actinit_call[0])=dlsym(acthandle0, "actuator_initfunc");
-  if ((bp = dlerror()) != NULL) die(bp);
-  *(void **) (&plugin_setstate_call[0])=dlsym(acthandle0, "actuator_setstate");
-  if ((bp = dlerror()) != NULL) die(bp);
-  plugin_actinit_call[0](cfgfp,0);
-  if (cfopts.stirring) {
-    if (0==strcmp(cfopts.actuator[0],cfopts.actuator[1])) {
-      plugin_actinit_call[1]=plugin_actinit_call[0];
-      plugin_setstate_call[1]=plugin_setstate_call[0];
-    } else {
-      bp=buf;
-      strcpy(bp,cfopts.plugindir);
-      bp+=strlen(cfopts.plugindir);
-      strcpy(bp,"/actuator_");
-      bp+=10;
-      strcpy(bp,cfopts.actuator[1]);
-      bp+=strlen(cfopts.actuator[1]);
-      strcpy(bp,".so");
-      debug("loading plugin %s\n",buf);
-      acthandle1 = dlopen (buf, RTLD_LAZY);
-      if (!acthandle1) die("error opening plugin %s: %s\n",buf,dlerror());
-      *(void **) (&plugin_actinit_call[1])=dlsym(acthandle1, "actuator_initfunc");
-      if ((bp = dlerror()) != NULL) die(bp);
-      *(void **) (&plugin_setstate_call[1])=dlsym(acthandle1, "actuator_setstate");
-      if ((bp = dlerror()) != NULL) die(bp);
+    // enable actuator plugins as specified in configfile
+    bp=buf;
+    strcpy(bp,cfopts.plugindir);
+    bp+=strlen(cfopts.plugindir);
+    strcpy(bp,"/actuator_");
+    bp+=10;
+    strcpy(bp,cfopts.actuator[0]);
+    bp+=strlen(cfopts.actuator[0]);
+    strcpy(bp,".so");
+    debug("loading plugin %s\n",buf);
+    acthandle0 = dlopen (buf, RTLD_LAZY);
+    if (!acthandle0) die("error opening plugin %s: %s\n",buf,dlerror());
+    *(void **) (&plugin_actinit_call[0])=dlsym(acthandle0, "actuator_initfunc");
+    if ((bp = dlerror()) != NULL) die(bp);
+    *(void **) (&plugin_setstate_call[0])=dlsym(acthandle0, "actuator_setstate");
+    if ((bp = dlerror()) != NULL) die(bp);
+    plugin_actinit_call[0](cfgfp,0);
+    if (cfopts.stirring) {
+      if (0==strcmp(cfopts.actuator[0],cfopts.actuator[1])) {
+        plugin_actinit_call[1]=plugin_actinit_call[0];
+        plugin_setstate_call[1]=plugin_setstate_call[0];
+      } else {
+        bp=buf;
+        strcpy(bp,cfopts.plugindir);
+        bp+=strlen(cfopts.plugindir);
+        strcpy(bp,"/actuator_");
+        bp+=10;
+        strcpy(bp,cfopts.actuator[1]);
+        bp+=strlen(cfopts.actuator[1]);
+        strcpy(bp,".so");
+        debug("loading plugin %s\n",buf);
+        acthandle1 = dlopen (buf, RTLD_LAZY);
+        if (!acthandle1) die("error opening plugin %s: %s\n",buf,dlerror());
+        *(void **) (&plugin_actinit_call[1])=dlsym(acthandle1, "actuator_initfunc");
+        if ((bp = dlerror()) != NULL) die(bp);
+        *(void **) (&plugin_setstate_call[1])=dlsym(acthandle1, "actuator_setstate");
+        if ((bp = dlerror()) != NULL) die(bp);
+      }
+      plugin_actinit_call[1](cfgfp,1);
     }
-    plugin_actinit_call[1](cfgfp,1);
-  }
+  } else {
 #else
 cmd->simulationP=1;
+#endif
+// in simulation mode we start with SIM_INIT_TEMP°C and just increase by SIM_INC°C on each read
+pstate.tempCurrent=SIM_INIT_TEMP;
+#ifndef NOSENSACT
+  }
 #endif
 
   if (-1==chdir(cfopts.webroot)) {
