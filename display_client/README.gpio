@@ -8,6 +8,6 @@ To enable this button install sysfsutils and add something like this to
 /etc/sysfs.conf:
 
 class/gpio/export = 21
-class/gpio/gpio18/direction = in
+class/gpio/gpio21/direction = in
 class/gpio/gpio21/edge = falling
-mode class/gpio/gpio18/value = 666
+mode class/gpio/gpio21/value = 666

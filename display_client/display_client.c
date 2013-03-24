@@ -58,6 +58,8 @@ char musttemp[]="---.-";
 
 static bool isdaemon=false;
 
+static int i2cfd;
+
 /* clig command line Parameters*/  
 Cmdline *cmd;
 
@@ -156,7 +158,7 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
 	strncpy(curtemp,tok_start,5);
 	curtemp[5]='\0';
 	if (dispval==DISPCUR) 
-	  update_ht16k33_7segm_display(tok_start,false);
+	  update_ht16k33_7segm_display(tok_start,false,i2cfd);
       }
       if (is_musttemp) {
 	is_musttemp=false;
@@ -164,7 +166,7 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
 	strncpy(musttemp,tok_start,5);
 	musttemp[5]='\0';
 	if (dispval==DISPMUST)
-	  update_ht16k33_7segm_display(tok_start,true);
+	  update_ht16k33_7segm_display(tok_start,true,i2cfd);
       }
       break ;
     case JSMN_OBJECT:
@@ -219,6 +221,10 @@ int main(int argc, char **argv) {
   /* init a multi stack */
   multi_handle = curl_multi_init();
   // fetch process state json in an endless loop
+
+  // init i2c display
+  i2cfd=init_ht16k33_7segm_display(cmd->i2cdev,cmd->i2caddr);
+
   while (1) {   
 
        /* add the individual transfers */
@@ -279,10 +285,10 @@ int main(int argc, char **argv) {
 	    if ('0'==c) {
 	      if (dispval==DISPCUR) {
 		dispval=DISPMUST;
-		update_ht16k33_7segm_display(musttemp,true);
+		update_ht16k33_7segm_display(musttemp,true,i2cfd);
 	      } else {
 		dispval=DISPCUR;
-		update_ht16k33_7segm_display(curtemp,false);
+		update_ht16k33_7segm_display(curtemp,false,i2cfd);
 	      }
 	    }
 	  } else {
