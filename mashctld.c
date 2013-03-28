@@ -843,6 +843,8 @@ void doStirControl() {
      pstate.mash (current state of the mash process)
      cfopts.stirring_states (stirring device behaviour depoending on state of the mash process)
      elapsed time since start of current state.
+     In addition to this, the stirring device should be always on in case of an active heating
+     device
   */
   curtime=time(NULL);
   if (last_mash_state!=pstate.mash) {
@@ -855,12 +857,18 @@ void doStirControl() {
     if (pstate.relay[1]==1) setRelay(1,0);
     //printf("doStirControl: %d stirring device: 0 %d\n",pstate.mash,etime);
   } else {
-    if (etime%stirring_cycle < cfopts.stirring_states[pstate.mash][0]) {
+    // force stirring on active heating device
+    if (pstate.relay[0]==1) {
       if (pstate.relay[1]==0) setRelay(1,1);
-      //printf("doStirControl: %d stirring device: 1 %d %d\n",pstate.mash,etime,etime%stirring_cycle);
+      //printf("doStirControl: %d stirring device: FON %d %d\n",pstate.mash,etime,etime%stirring_cycle);
     } else {
-      if (pstate.relay[1]==1) setRelay(1,0);
-      //printf("doStirControl: %d stirring device: 0 %d %d\n",pstate.mash,etime,etime%stirring_cycle);
+      if (etime%stirring_cycle < cfopts.stirring_states[pstate.mash][0]) {
+        if (pstate.relay[1]==0) setRelay(1,1);
+        //printf("doStirControl: %d stirring device:  ON %d %d\n",pstate.mash,etime,etime%stirring_cycle);
+      } else {
+        if (pstate.relay[1]==1) setRelay(1,0);
+        //printf("doStirControl: %d stirring device: OFF %d %d\n",pstate.mash,etime,etime%stirring_cycle);
+      }
     }
   }
   
