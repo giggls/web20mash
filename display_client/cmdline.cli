@@ -1,6 +1,6 @@
-Name display_client
+Name temp_display_client
 
-Usage {non-browser client for mashctld}
+Usage {non-browser 7-segment LED Temperatur display client for mashctld}
 
 Flag -bd daemon {run Program as a daemon in background}
 

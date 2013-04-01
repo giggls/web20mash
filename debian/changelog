@@ -1,3 +1,12 @@
+web20mash (3.0) unstable; urgency=low
+
+  * plugin system for actuator control
+  * non-web client for adafruit ht16k33 based 7-segment dislay
+  * changed control semantic for stirring device:
+    stirring device is now always on, if heating device is on
+
+ -- Sven Geggus <sven-deb@geggus.net>  Mon, 01 Apr 2013 15:19:21 +0200
+
 web20mash (2.2) unstable; urgency=low
 
   * pre 3.0 release with plugin system for actuator control

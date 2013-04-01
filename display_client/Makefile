@@ -6,7 +6,7 @@ LDLIBS = -lcurl
 
 OBJ = display_client.o jsmn.o cmdline.o 7-segm-ht16k33.o
 
-all:display_client
+all:temp_display_client
 
 %.o: %.c
 	$(CC) $(EXTRAFLAGS) $(CFLAGS) -c $<
@@ -14,8 +14,8 @@ all:display_client
 cmdline.c: cmdline.cli
 	clig $<
 
-display_client:$(OBJ)
+temp_display_client:$(OBJ)
 	$(CC) -o $@ $(CFLAGS) $(OBJ) $(LDLIBS)
 
 clean:
-	rm -f *.o display_client *.1
+	rm -f *.o temp_display_client *.1
