@@ -1,0 +1,55 @@
+This software needs 4 buttons connected to a gpio line (e.g. 22, 10, 9 and 11) as follows:
+
+GPIO --+---- BUTTON ----- GND
+       |
+       +--- RESISTOR 2k -- VCC (3.3V)
+
+To enable them install sysfsutils and add something like this to 
+/etc/sysfs.conf:
+
+class/gpio/export = 22
+class/gpio/gpio22/direction = in
+class/gpio/gpio22/edge = falling
+mode class/gpio/gpio22/value = 666
+
+class/gpio/export = 10
+class/gpio/gpio10/direction = in
+class/gpio/gpio10/edge = falling
+mode class/gpio/gpio10/value = 666
+
+class/gpio/export = 9
+class/gpio/gpio9/direction = in
+class/gpio/gpio9/edge = falling
+mode class/gpio/gpio9/value = 666
+
+class/gpio/export = 11
+class/gpio/gpio11/direction = in
+class/gpio/gpio11/edge = falling
+mode class/gpio/gpio11/value = 666
+
+For 20x4 LCD we need another 6 gpio lines (e.g. 4, 7, 8, 23, 24 and 25)
+to enable them via sysfsutils and add something like this to /etc/sysfs.conf:
+
+class/gpio/export = 4
+class/gpio/gpio4/direction = out
+mode class/gpio/gpio4/value = 666
+
+class/gpio/export = 7
+class/gpio/gpio7/direction = out
+mode class/gpio/gpio7/value = 666
+
+class/gpio/export = 8
+class/gpio/gpio8/direction = out
+mode class/gpio/gpio8/value = 666
+
+class/gpio/export = 23
+class/gpio/gpio23/direction = out
+mode class/gpio/gpio23/value = 666
+
+class/gpio/export = 24
+class/gpio/gpio24/direction = out
+mode class/gpio/gpio24/value = 666
+
+class/gpio/export = 25
+class/gpio/gpio25/direction = out
+mode class/gpio/gpio25/value = 666
