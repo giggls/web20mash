@@ -1,4 +1,4 @@
-Name temp_display_client
+Name webmash_7segm_client
 
 Usage {non-browser 7-segment LED Temperatur display client for mashctld}
 

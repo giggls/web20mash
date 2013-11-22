@@ -716,7 +716,7 @@ void
 usage(void)
 {
   fprintf(stderr,"%s","   [-bd] [-d i2cdev] [-g gpio] [-u url] [-dbg] [-a i2caddr]\n");
-  fprintf(stderr,"%s","      non-browser client for mashctld\n");
+  fprintf(stderr,"%s","      non-browser 7-segment LED Temperatur display client for mashctld\n");
   fprintf(stderr,"%s","     -bd: run Program as a daemon in background\n");
   fprintf(stderr,"%s","      -d: i2c device LED is connected to\n");
   fprintf(stderr,"%s","          1 char* value\n");

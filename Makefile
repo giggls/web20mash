@@ -44,7 +44,7 @@ plugins:
 clean:
 	rm -f *.o *~ mashctld
 	make -C plugins clean
-	make -C display_client clean
+	make -C webmash_7segm_client clean
 
 mrproper: clean
 	rm -f cmdline.c cmdline.h mashctld.1
@@ -55,7 +55,7 @@ debian/copyright:
 
 install: debian/copyright mashctld gpio_buzzer
 	cd webdata/; make
-	cd display_client; make
+	cd webmash_7segm_client; make
 	mkdir -p $(DESTDIR)/share/web20mash/images
 	mkdir -p $(DESTDIR)/share/web20mash/js
 	mkdir -p $(DESTDIR)/lib/web20mash/plugins
@@ -75,7 +75,7 @@ install: debian/copyright mashctld gpio_buzzer
 	chmod 755 $(DESTDIR)/bin/mashctld
 	cp gpio_buzzer $(DESTDIR)/bin
 	cp mps2iConnectLED $(DESTDIR)/bin
-	cp display_client/temp_display_client $(DESTDIR)/bin
+	cp webmash_7segm_client/webmash_7segm_client $(DESTDIR)/bin
 	cp mashctld_readonly_root_script.sh $(DESTDIR)/bin
 	chmod 755 $(DESTDIR)/bin/mashctld_readonly_root_script.sh
 	cp web20mash.sudo $(CFDIR)/sudoers.d/web20mash

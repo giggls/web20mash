@@ -4,9 +4,9 @@ PREFIX = $(DESTDIR)
 CFLAGS = -g -Wall -W -std=gnu99 -pedantic
 LDLIBS = -lcurl
 
-OBJ = display_client.o jsmn.o cmdline.o 7-segm-ht16k33.o
+OBJ = 7segm_client.o jsmn.o cmdline.o 7-segm-ht16k33.o
 
-all:temp_display_client
+all:webmash_7segm_client
 
 %.o: %.c
 	$(CC) $(EXTRAFLAGS) $(CFLAGS) -c $<
@@ -14,8 +14,8 @@ all:temp_display_client
 cmdline.c: cmdline.cli
 	clig $<
 
-temp_display_client:$(OBJ)
+webmash_7segm_client:$(OBJ)
 	$(CC) -o $@ $(CFLAGS) $(OBJ) $(LDLIBS)
 
 clean:
-	rm -f *.o temp_display_client *.1
+	rm -f *.o webmash_7segm_client *.1
