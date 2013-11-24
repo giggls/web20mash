@@ -329,15 +329,18 @@ void update_settings_menu(int direction,struct s_menusettings *settings) {
       settings->fval=settings->fval+(-1*direction*settings->increment);
       if ((settings->fval) < (settings->fmin)) settings->fval=settings->fmin;
       if ((settings->fval) > (settings->fmax)) settings->fval=settings->fmax;
+      break;
     case MSETTINGS_TYPE_INT:
       settings->ival=settings->ival+(-1*direction*settings->increment);
       if ((settings->ival) < (settings->imin)) settings->ival=settings->imin;
       if ((settings->ival) > (settings->imax)) settings->ival=settings->imax;
+      break;
     case MSETTINGS_TYPE_BOOL:
       if (settings->ival)
         settings->ival=0;
       else
         settings->ival=1;
+      break;
     default:
       ;
     }
