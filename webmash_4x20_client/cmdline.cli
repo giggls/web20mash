@@ -1,4 +1,4 @@
-Name embedded_client
+Name webmash_4x20_client
 
 Usage {non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports}
 

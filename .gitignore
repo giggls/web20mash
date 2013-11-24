@@ -5,3 +5,7 @@ mashctld.1
 *.o
 mashctld.conf
 TODO
+*.dsc
+*.tar.gz
+*.changes
+*.deb
