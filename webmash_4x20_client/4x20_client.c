@@ -29,6 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <libgen.h>
+#include <locale.h>
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -84,6 +86,8 @@ int ready=0;
     
 // The menu currently displayed
 static int menustate=MSTATE_PSTATE;
+// the menu displayed bevore the current one
+static int previous_menu=-1;
 
 /* ~ symbol ist right arrow in HD44780U charset */
 static char right_arrow[2]="~";
@@ -147,12 +151,14 @@ void displayPstate() {
   char scratch[21];
   //char blank20[]="01234567890123456789";
   char blank20[]="                    ";
-
+  
   debug("LCD: drawing Pstate Info Menu\n");
-
-  lcdClear(lcdHandle);  
-  lcdPosition(lcdHandle, 7, 0);
+  // clear if previous menu has been of another type
+  if (previous_menu != MSTATE_PSTATE)
+    lcdClear(lcdHandle);
+  
   sprintf(scratch,"%s%cC",pstate.curtemp,0xdf);
+  lcdPosition(lcdHandle, 7, 0);
   lcdPuts(lcdHandle, scratch);
   
   lcdPosition(lcdHandle, 0,2);
@@ -164,14 +170,18 @@ void displayPstate() {
       menusettings[3].arrow_pos=0;
       menusettings[3].start_pos=0;
     }
-    lcdPuts(lcdHandle,blank20);
+    if (cmd->bannerP)
+      sprintf(scratch,cmd->banner);
+    else
+      sprintf(scratch,"    fangobr%cu.de",0xe1);
+    lcdPuts(lcdHandle,scratch);
     lcdPosition(lcdHandle, 0,3);
     lcdPuts(lcdHandle,blank20);
   } else {
     if (pstate.mpstate%2) {
-      sprintf(scratch,"%s..",mashstate[pstate.mpstate]);
+      sprintf(scratch,"%s..",gettext(mashstate[pstate.mpstate]));
     } else {
-      sprintf(scratch,"%s:",mashstate[pstate.mpstate]);
+      sprintf(scratch,"%s:",gettext(mashstate[pstate.mpstate]));
     }
     sprintf(scratch,"%-20s",scratch);
     lcdPuts(lcdHandle,scratch);
@@ -186,7 +196,6 @@ void displayPstate() {
     sprintf(scratch,"%-20s",scratch);
     lcdPuts(lcdHandle,scratch);
   }
-  
   if ((pstate.mpstate == 0) && (mpstate!=0)) {
       debug("ECLIENT: resetting client side stuff (init)\n");
       iodinealert = 0;
@@ -230,7 +239,7 @@ void draw_selection_menu(struct s_menusettings *settings) {
     // break if menu is shorter than LCD_ROWS
     if (i>=settings->numitems) break;
     lcdPosition(lcdHandle, 2,i-settings->start_pos);
-    lcdPuts(lcdHandle,settings->menutext[i]);
+    lcdPuts(lcdHandle,gettext(settings->menutext[i]));
   }
   lcdPosition(lcdHandle,0,settings->arrow_pos);
   lcdPuts(lcdHandle,right_arrow);
@@ -242,7 +251,7 @@ void draw_settings_menu(struct s_menusettings *settings) {
   debug("LCD: drawing settings menu #%d\n",settings->number);
   lcdClear(lcdHandle);
   lcdPosition(lcdHandle,0,0);
-  sprintf(line,"%s:",settings->menutext[0]);
+  sprintf(line,"%s:",gettext(settings->menutext[0]));
   lcdPuts(lcdHandle,line);
   lcdPosition(lcdHandle,0,2);
   switch (settings->datatype) {
@@ -528,6 +537,7 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
     menusettings[25].ival=pstate.rstate[1];
     // if we do a iodine test jump to start_menu
     if ((pstate.mpstate == 7) && (iodinealert == 0) && (pstate.resttemp[3] > pstate.resttemp[2])) {
+      previous_menu=menustate;
       menustate=4;
       start_state=7;
       iodinealert = 1;
@@ -537,6 +547,7 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
     }
   } else if (menustate==4) {
     if ((pstate.mpstate >= 7) && (iodinealert == 1) && (pstate.ctrl==1)) {
+      previous_menu=menustate;
       menustate=MSTATE_PSTATE;
       displayPstate();
     }
@@ -550,6 +561,21 @@ int main(int argc, char **argv) {
   cmd = parseCmdline(argc, argv);
   int i,keyfds[4];
   int still_running; /* keep number of running handles */
+  
+  // i10n stuff
+  if (cmd->langP) {
+    setlocale(LC_MESSAGES, cmd->lang);
+  } else {
+    setlocale(LC_MESSAGES, "");
+  }
+  if (cmd->messagecatP) 
+    bindtextdomain( basename(argv[0]), cmd->messagecat);
+  else
+    bindtextdomain( basename(argv[0]), NULL);
+  // HD44780 uses its own 8-bit character set, we use latin1 and manually translate
+  // 8-bit characters in .po files
+  bind_textdomain_codeset( basename(argv[0]), "ISO-8859-1");
+  textdomain( basename(argv[0]) );
   
   // initialize menus
   for (i=1;i<NUMMENUS;i++) {
@@ -595,9 +621,7 @@ int main(int argc, char **argv) {
   }
 
   lcdPosition(lcdHandle, 0,0);
-  lcdPuts(lcdHandle,"Waiting for data");
-  lcdPosition(lcdHandle, 0,1);
-  lcdPuts(lcdHandle,"from mashctld");
+  lcdPuts(lcdHandle,WAITTEXT);
   
   if (cmd->daemonP) {
     isdaemon=true;
@@ -706,12 +730,14 @@ int main(int argc, char **argv) {
                   call_menu_action(&menusettings[menustate]);
                   // call next menu
                   if (0!=next_menu[menustate][item]) {
+                      previous_menu=menustate;
                       menustate=next_menu[menustate][item];
                       if (menusettings[menustate].menutext[0]!=NULL) {
                         draw_menu(&menusettings[menustate]);
                       } else {
                         item=menusettings[menustate].start_pos+menusettings[menustate].arrow_pos;
                         call_menu_action(&menusettings[menustate]);
+                        previous_menu=menustate;
                         menustate=next_menu[menustate][item];
                         if (menustate!=MSTATE_PSTATE) {
                           draw_menu(&menusettings[menustate]);
@@ -730,9 +756,11 @@ int main(int argc, char **argv) {
               debug("pressed key KEY_MENU\n");
               if (ready) {
                 if (menustate==MSTATE_PSTATE) {
+                  previous_menu=menustate;
                   menustate=MSTATE_SELECT;
                   draw_menu(&menusettings[MSTATE_SELECT]);
                 } else {
+                  previous_menu=menustate;
                   menustate=MSTATE_PSTATE;
                   displayPstate();
                 }

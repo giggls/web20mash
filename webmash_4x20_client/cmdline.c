@@ -26,11 +26,11 @@ static int lcdDefault[] = {4, 7, 8, 23, 24, 25};
 static Cmdline cmd = {
   /***** -bd: run Program as a daemon in background */
   /* daemonP = */ 0,
-  /***** -b: gpio ports connected to keys */
+  /***** -k: gpio ports connected to keys */
   /* keysP = */ 1,
   /* keys = */ keysDefault,
   /* keysC = */ 4,
-  /***** -l: gpio ports for LCD */
+  /***** -lcd: gpio ports for LCD */
   /* lcdP = */ 1,
   /* lcd = */ lcdDefault,
   /* lcdC = */ 6,
@@ -40,6 +40,18 @@ static Cmdline cmd = {
   /* urlC = */ 1,
   /***** -dbg: enable debug output */
   /* debugP = */ 0,
+  /***** -l: display language to use e.g. de_DE.UTF-8 */
+  /* langP = */ 0,
+  /* lang = */ (char*)0,
+  /* langC = */ 0,
+  /***** -b: Banner to be displayed e.g. mybrewery */
+  /* bannerP = */ 0,
+  /* banner = */ (char*)0,
+  /* bannerC = */ 0,
+  /***** -mc: base path of message catalog */
+  /* messagecatP = */ 0,
+  /* messagecat = */ (char*)0,
+  /* messagecatC = */ 0,
   /***** uninterpreted rest of command line */
   /* argc = */ 0,
   /* argv = */ (char**)0
@@ -713,19 +725,25 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-bd] [-b keys] [-l lcd] [-u url] [-dbg]\n");
+  fprintf(stderr,"%s","   [-bd] [-k keys] [-lcd lcd] [-u url] [-dbg] [-l lang] [-b banner] [-mc messagecat]\n");
   fprintf(stderr,"%s","      non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports\n");
   fprintf(stderr,"%s","     -bd: run Program as a daemon in background\n");
-  fprintf(stderr,"%s","      -b: gpio ports connected to keys\n");
+  fprintf(stderr,"%s","      -k: gpio ports connected to keys\n");
   fprintf(stderr,"%s","          4 int values\n");
   fprintf(stderr,"%s","          default: `22' `10' `9' `11'\n");
-  fprintf(stderr,"%s","      -l: gpio ports for LCD\n");
+  fprintf(stderr,"%s","    -lcd: gpio ports for LCD\n");
   fprintf(stderr,"%s","          6 int values\n");
   fprintf(stderr,"%s","          default: `4' `7' `8' `23' `24' `25'\n");
   fprintf(stderr,"%s","      -u: base url for mashctld state\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","          default: `http://localhost'\n");
   fprintf(stderr,"%s","    -dbg: enable debug output\n");
+  fprintf(stderr,"%s","      -l: display language to use e.g. de_DE.UTF-8\n");
+  fprintf(stderr,"%s","          1 char* value\n");
+  fprintf(stderr,"%s","      -b: Banner to be displayed e.g. mybrewery\n");
+  fprintf(stderr,"%s","          1 char* value\n");
+  fprintf(stderr,"%s","     -mc: base path of message catalog\n");
+  fprintf(stderr,"%s","          1 char* value\n");
   exit(EXIT_FAILURE);
 }
 /**********************************************************************/
@@ -741,7 +759,7 @@ parseCmdline(int argc, char **argv)
       continue;
     }
 
-    if( 0==strcmp("-b", argv[i]) ) {
+    if( 0==strcmp("-k", argv[i]) ) {
       int keep = i;
       cmd.keysP = 1;
       i = getIntOpts(argc, argv, i, &cmd.keys, 4, 4);
@@ -749,7 +767,7 @@ parseCmdline(int argc, char **argv)
       continue;
     }
 
-    if( 0==strcmp("-l", argv[i]) ) {
+    if( 0==strcmp("-lcd", argv[i]) ) {
       int keep = i;
       cmd.lcdP = 1;
       i = getIntOpts(argc, argv, i, &cmd.lcd, 6, 6);
@@ -767,6 +785,30 @@ parseCmdline(int argc, char **argv)
 
     if( 0==strcmp("-dbg", argv[i]) ) {
       cmd.debugP = 1;
+      continue;
+    }
+
+    if( 0==strcmp("-l", argv[i]) ) {
+      int keep = i;
+      cmd.langP = 1;
+      i = getStringOpt(argc, argv, i, &cmd.lang, 1);
+      cmd.langC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-b", argv[i]) ) {
+      int keep = i;
+      cmd.bannerP = 1;
+      i = getStringOpt(argc, argv, i, &cmd.banner, 1);
+      cmd.bannerC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-mc", argv[i]) ) {
+      int keep = i;
+      cmd.messagecatP = 1;
+      i = getStringOpt(argc, argv, i, &cmd.messagecat, 1);
+      cmd.messagecatC = i-keep;
       continue;
     }
 

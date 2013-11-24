@@ -1,0 +1,6 @@
+Adding more languages than english and german is easy.
+
+If you want to add support for e.g. italian language do the following
+
+1. copy i10n/de.po to i10n/it.po
+2. extend the Makefile on any place where de.po appears

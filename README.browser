@@ -6,3 +6,12 @@ Google Chrome 15 Linux
 Internet Explorer 9 Windows 7
 Opera 12 Linux
 Safari (on iPad)
+
+As of Version 3.1, there are now also two non-Webbrowser clients:
+webmash_4x20_client and webmash_7segm_client.
+
+Both of them are meant to be run on the embedded system itself (connecting to localhost).
+
+While the former is a fully functional Interface for 4x20character LCD and 4 buttons,
+the latter is only a 7-segment display showing the current temperature (must and current).
+

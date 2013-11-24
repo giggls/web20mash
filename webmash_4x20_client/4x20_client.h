@@ -1,3 +1,5 @@
+#define gettext_noop(String) String
+
 void debug(char* fmt, ...);
 void die(char* fmt, ...);
 

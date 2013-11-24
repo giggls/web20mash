@@ -11,11 +11,11 @@
 typedef struct s_Cmdline {
   /***** -bd: run Program as a daemon in background */
   char daemonP;
-  /***** -b: gpio ports connected to keys */
+  /***** -k: gpio ports connected to keys */
   char keysP;
   int *keys;
   int keysC;
-  /***** -l: gpio ports for LCD */
+  /***** -lcd: gpio ports for LCD */
   char lcdP;
   int *lcd;
   int lcdC;
@@ -25,6 +25,18 @@ typedef struct s_Cmdline {
   int urlC;
   /***** -dbg: enable debug output */
   char debugP;
+  /***** -l: display language to use e.g. de_DE.UTF-8 */
+  char langP;
+  char* lang;
+  int langC;
+  /***** -b: Banner to be displayed e.g. mybrewery */
+  char bannerP;
+  char* banner;
+  int bannerC;
+  /***** -mc: base path of message catalog */
+  char messagecatP;
+  char* messagecat;
+  int messagecatC;
   /***** uninterpreted command line parameters */
   int argc;
   /*@null*/char **argv;
