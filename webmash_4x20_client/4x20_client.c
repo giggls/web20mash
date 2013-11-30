@@ -55,10 +55,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 #include "jsmn.h"
 #define jsmnTOKnum 50
 
-#define KEY_MENU 3
-#define KEY_UP 2
-#define KEY_DOWN 1
-#define KEY_ENTER 0 
+#define KEY_MENU 0
+#define KEY_UP 1
+#define KEY_DOWN 2
+#define KEY_ENTER 3 
 #define DEBOUNCE 200000
 
 // Menu states

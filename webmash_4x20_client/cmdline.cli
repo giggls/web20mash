@@ -4,7 +4,7 @@ Usage {non-browser client for mashctld using a HD44780U compatible LCD and 4 key
 
 Flag -bd daemon {run Program as a daemon in background}
 
-Int -k keys {gpio ports connected to keys} -d 22 10 9 11 -c 4 4
+Int -k keys {gpio ports connected to keys (Menu, up, down, Enter)} -d 11 9 10 22 -c 4 4
 
 Int -lcd lcd {gpio ports for LCD} -d 4 7 8 23 24 25 -c 6 6
 

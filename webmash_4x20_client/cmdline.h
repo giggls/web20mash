@@ -11,7 +11,7 @@
 typedef struct s_Cmdline {
   /***** -bd: run Program as a daemon in background */
   char daemonP;
-  /***** -k: gpio ports connected to keys */
+  /***** -k: gpio ports connected to keys (Menu, up, down, Enter) */
   char keysP;
   int *keys;
   int keysC;

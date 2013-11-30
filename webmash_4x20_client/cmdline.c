@@ -20,13 +20,13 @@
 char *Program;
 
 /*@-null*/
-static int keysDefault[] = {22, 10, 9, 11};
+static int keysDefault[] = {11, 9, 10, 22};
 static int lcdDefault[] = {4, 7, 8, 23, 24, 25};
 
 static Cmdline cmd = {
   /***** -bd: run Program as a daemon in background */
   /* daemonP = */ 0,
-  /***** -k: gpio ports connected to keys */
+  /***** -k: gpio ports connected to keys (Menu, up, down, Enter) */
   /* keysP = */ 1,
   /* keys = */ keysDefault,
   /* keysC = */ 4,
@@ -728,9 +728,9 @@ usage(void)
   fprintf(stderr,"%s","   [-bd] [-k keys] [-lcd lcd] [-u url] [-dbg] [-l lang] [-b banner] [-mc messagecat]\n");
   fprintf(stderr,"%s","      non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports\n");
   fprintf(stderr,"%s","     -bd: run Program as a daemon in background\n");
-  fprintf(stderr,"%s","      -k: gpio ports connected to keys\n");
+  fprintf(stderr,"%s","      -k: gpio ports connected to keys (Menu, up, down, Enter)\n");
   fprintf(stderr,"%s","          4 int values\n");
-  fprintf(stderr,"%s","          default: `22' `10' `9' `11'\n");
+  fprintf(stderr,"%s","          default: `11' `9' `10' `22'\n");
   fprintf(stderr,"%s","    -lcd: gpio ports for LCD\n");
   fprintf(stderr,"%s","          6 int values\n");
   fprintf(stderr,"%s","          default: `4' `7' `8' `23' `24' `25'\n");
@@ -744,6 +744,7 @@ usage(void)
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","     -mc: base path of message catalog\n");
   fprintf(stderr,"%s","          1 char* value\n");
+  fprintf(stderr,"%s","  ");
   exit(EXIT_FAILURE);
 }
 /**********************************************************************/
