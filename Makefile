@@ -4,7 +4,7 @@ PREFIX = $(DESTDIR)
 
 CFLAGS = -g -Wall -W -std=gnu99 -pedantic
 EXTRAFLAGS =  -DCTLD_PLUGINDIR=\"$(PREFIX)/lib/web20mash/plugins\" -DCTLD_WEBROOT=\"$(PREFIX)/share/web20mash/\"
-LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt -rdynamic -ldl
+LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt -rdynamic -ldl -lmnl
 
 # Use this to generate a simulation only binary without sensor/actor support
 # If BINDLOCALHOST is defined build a binary listening on 127.0.0.1 only
@@ -15,7 +15,7 @@ LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt -rdynamic -ldl
 #LDLIBS = -lmicrohttpd -lmagic -lrt
 
 
-OBJ = cmdline.o mashctld.o owfunc.o minIni.o readcfg.o myexec.o
+OBJ = cmdline.o mashctld.o owfunc.o minIni.o readcfg.o myexec.o gen_json_4interfaces.o
 
 %.o: %.c
 	$(CC) $(EXTRAFLAGS) $(CFLAGS) -c $<

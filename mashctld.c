@@ -259,7 +259,7 @@ static int answer_to_connection (void *cls,
   FILE *file;
   int *gp;
   struct stat buf;
-  static char mdata[1024];
+  static char mdata[4096];
   const char *relative_url;
   const char *magic_full;
   char *nurl;
@@ -268,7 +268,7 @@ static int answer_to_connection (void *cls,
   int fail=0;
 
   // available request types
-  bool setctl,setmust,getstate,setmpstate,setrest,setactuator,setallmash,setacttype;
+  bool setctl,setmust,getstate,setmpstate,setrest,setactuator,setallmash,setacttype,getifinfo;
 
   // ignore explicitely unused parameters
   // eliminate compiler warnings
@@ -285,6 +285,7 @@ static int answer_to_connection (void *cls,
   setactuator=0;
   setallmash=0;
   setacttype=0;
+  getifinfo=0;
 
   if (0 != strcmp (method, MHD_HTTP_METHOD_GET))
     return MHD_NO;              /* unexpected method */
@@ -329,6 +330,8 @@ static int answer_to_connection (void *cls,
 	setallmash=1;
       } else if (0 == strncmp(url, "/setacttype/",12)) {
 	setacttype=1;
+      } else if (0 == strncmp(url, "/getifinfo",10)) {
+        getifinfo=1;
       }
     }
     debug("requested URL: %s\n",url);
@@ -698,6 +701,22 @@ static int answer_to_connection (void *cls,
 						 MHD_NO);
 	MHD_add_response_header(response,
 				"Content-Type", "text/html; charset=UTF-8");
+      
+	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+	return ret;
+      }
+      
+      if (getifinfo) {
+        debug("querying network interface information\n");
+        update_interf_info();
+        fill_interf_json(mdata,4096);
+        
+	response = MHD_create_response_from_data(strlen(mdata),
+						 (void*) mdata,
+						 MHD_NO,
+						 MHD_NO);
+	MHD_add_response_header(response,
+				"Content-Type", "application/json; charset=UTF-8");
       
 	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
 	return ret;

@@ -58,6 +58,7 @@ main header file
 
 #include "minIni.h"
 #include "cmdline.h"
+#include "gen_json_4interfaces.h"
 
 #define DELAY 4
 

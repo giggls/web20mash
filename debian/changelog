@@ -1,3 +1,9 @@
+web20mash (3.1) unstable; urgency=low
+
+  * add a /getifinfo call for querying network interface settings
+
+ -- Sven Geggus <sven-deb@geggus.net>  Thu, 19 Dec 2013 18:26:49 +0100
+
 web20mash (3.0) unstable; urgency=low
 
   * plugin system for actuator control
