@@ -279,7 +279,7 @@ int fill_buf(char **buf, size_t *size, char *fmt, ...) {
   return 0;
 }
 
-int fill_interf_json(char *buf,unsigned maxlen) {
+int fill_interf_json(char *buf,size_t maxlen) {
   int i,j,first;
 
   fill_buf(&buf,&maxlen,"[\n");  
