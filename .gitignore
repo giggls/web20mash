@@ -1,5 +1,6 @@
 cmdline.o
 mashctld
+ifinfo
 gpio_buzzer
 mashctld.1
 *.o

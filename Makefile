@@ -12,7 +12,7 @@ LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt -rdynamic -ldl -lmnl
 # In addition just call "make mashctld" because it does not make sense to
 # build plugins
 #CFLAGS = -g -Wall -W -std=gnu99 -pedantic -D NOSENSACT -D BINDLOCALHOST
-#LDLIBS = -lmicrohttpd -lmagic -lrt
+#LDLIBS = -lmicrohttpd -lmagic -lrt -lmnl
 
 
 OBJ = cmdline.o mashctld.o owfunc.o minIni.o readcfg.o myexec.o gen_json_4interfaces.o
@@ -33,6 +33,9 @@ gpio_buzzer:gpio_buzzer.o
 cmdline.c: cmdline.cli
 	clig $<
 
+ifinfo: ifinfo.c gen_json_4interfaces.c
+	$(CC) -static -o $@ ifinfo.c gen_json_4interfaces.c -lmnl
+
 mudflap: CFLAGS += -fmudflap
 mudflap: LDLIBS += -lmudflap
 mudflap: mashctld
@@ -42,7 +45,7 @@ plugins:
 	make -C plugins
 
 clean:
-	rm -f *.o *~ mashctld
+	rm -f *.o *~ mashctld ifinfo
 	make -C plugins clean
 	make -C webmash_7segm_client clean
 
