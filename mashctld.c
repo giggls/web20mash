@@ -708,7 +708,11 @@ static int answer_to_connection (void *cls,
       
       if (getifinfo) {
         debug("querying network interface information\n");
-        update_interf_info();
+        if (cmd->netifP)
+          update_interf_info(cmd->netif,cmd->netifC);
+        else
+          update_all_interf_info();
+        
         fill_interf_json(mdata,4096);
         
 	response = MHD_create_response_from_data(strlen(mdata),

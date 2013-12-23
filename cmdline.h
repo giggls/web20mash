@@ -29,6 +29,10 @@ typedef struct s_Cmdline {
   int pidfileC;
   /***** -s: simulate temperature measurements */
   char simulationP;
+  /***** -n: show only given network interfaces in getifinfo call */
+  char netifP;
+  char* *netif;
+  int netifC;
   /***** uninterpreted command line parameters */
   int argc;
   /*@null*/char **argv;

@@ -42,6 +42,10 @@ static Cmdline cmd = {
   /* pidfileC = */ 1,
   /***** -s: simulate temperature measurements */
   /* simulationP = */ 0,
+  /***** -n: show only given network interfaces in getifinfo call */
+  /* netifP = */ 0,
+  /* netif = */ (char**)0,
+  /* netifC = */ 0,
   /***** uninterpreted rest of command line */
   /* argc = */ 0,
   /* argv = */ (char**)0
@@ -715,7 +719,7 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-l] [-d] [-bd] [-c configfile] [-u username] [-p pidfile] [-s]\n");
+  fprintf(stderr,"%s","   [-l] [-d] [-bd] [-c configfile] [-u username] [-p pidfile] [-s] [-n [netif]]\n");
   fprintf(stderr,"%s","      two-level temperature and mash process controler\n");
   fprintf(stderr,"%s","     -l: List available sensors and actuators on bus and terminate\n");
   fprintf(stderr,"%s","     -d: print debug info\n");
@@ -730,6 +734,8 @@ usage(void)
   fprintf(stderr,"%s","         1 char* value\n");
   fprintf(stderr,"%s","         default: `/var/run/mashctld.pid'\n");
   fprintf(stderr,"%s","     -s: simulate temperature measurements\n");
+  fprintf(stderr,"%s","     -n: show only given network interfaces in getifinfo call\n");
+  fprintf(stderr,"%s","         0 or more char* values\n");
   fprintf(stderr,"%s","  ");
   exit(EXIT_FAILURE);
 }
@@ -782,6 +788,14 @@ parseCmdline(int argc, char **argv)
 
     if( 0==strcmp("-s", argv[i]) ) {
       cmd.simulationP = 1;
+      continue;
+    }
+
+    if( 0==strcmp("-n", argv[i]) ) {
+      int keep = i;
+      cmd.netifP = 1;
+      i = getStringOpts(argc, argv, i, &cmd.netif, 0, -1);
+      cmd.netifC = i-keep;
       continue;
     }
 

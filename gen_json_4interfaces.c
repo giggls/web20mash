@@ -166,12 +166,13 @@ static int getaddr_data_cb(const struct nlmsghdr *nlh, void *data) {
   return MNL_CB_OK;
 }
 
-int update_interf_info() {
+int update_interf_info(char **relevant, int rel_len) {
   struct mnl_socket *nl;
   char buf[MNL_SOCKET_BUFFER_SIZE];
   struct nlmsghdr *nlh;
   struct rtgenmsg *rt;
   int i,j,ret;
+  bool found;
   
   unsigned int seq, portid;
   
@@ -265,6 +266,23 @@ int update_interf_info() {
   }
 
   mnl_socket_close(nl);
+  
+  // mark only requested interfaces as relevant
+  if (relevant != NULL) {
+    for (i=0;i<all_interface_count;i++) {
+      if (ip_interface_info[i].relevant) {
+        found=false;
+        for (j=0;j<rel_len;j++) {
+          if (0==strcmp(ip_interface_info[i].name,relevant[j])) {
+            found=true;
+            break;
+          }
+        }
+        if (!found)
+          ip_interface_info[i].relevant=false;
+      }
+    }
+  }
   return 0;
 }
 
@@ -327,3 +345,6 @@ int fill_interf_json(char *buf,size_t maxlen) {
   return 0;
 }
 
+int update_all_interf_info() {
+  return update_interf_info(NULL,0);
+}
