@@ -25,6 +25,8 @@ typedef struct s_Cmdline {
   int urlC;
   /***** -dbg: enable debug output */
   char debugP;
+  /***** -n: enable display of network interface information (IP, MAC, ...)] */
+  char netinfoP;
   /***** -l: display language to use e.g. de_DE.UTF-8 */
   char langP;
   char* lang;

@@ -1,7 +1,7 @@
 #include <stdbool.h>
 
-#define NUMMENUS 30
-#define NUMITEMS 10
+#define NUMMENUS 50
+#define NUMITEMS 13
 
 #define MSETTINGS_TYPE_INT 0
 #define MSETTINGS_TYPE_FLOAT 1
@@ -24,6 +24,7 @@ struct s_menusettings {
   int arrow_pos;
   // first text to be selected (selection type menu)
   int start_pos;
+  bool arrow;
   
 
   // settings menu stuff

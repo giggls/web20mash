@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: menuitems.h:7
+#: menustrings.h
 msgid  "Actuator-Settings"
 msgstr "Aktoreinstellungen"
 
@@ -25,19 +25,19 @@ msgstr "Aktoreinstellungen"
 msgid  "Dextrose Rest"
 msgstr "Dextroserast"
 
-#: menuitems.h:14
+#: menustrings.h
 msgid  "Dur. Dextrose Rest"
 msgstr "Dauer Dextroserast"
 
-#: menuitems.h:12
+#: menustrings.h
 msgid  "Dur. Maltose Rest"
 msgstr "Dauer Maltoserast"
 
-#: menuitems.h:16
+#: menustrings.h
 msgid  "Dur. Mashing out"
 msgstr "Dauer Abmaischen"
 
-#: menuitems.h:10
+#: menustrings.h
 # â is ß in latin-1
 msgid  "Dur. Protein Rest"
 msgstr "Dauer Eiweiârast"
@@ -46,11 +46,11 @@ msgstr "Dauer Eiweiârast"
 msgid  "Maltose Rest"
 msgstr "Maltoserast"
 
-#: menuitems.h:6
+#: menustrings.h
 msgid  "Mash-Control"
 msgstr "Maischesteuerung"
 
-#: menuitems.h:5
+#: menustrings.h
 msgid  "Mash-State"
 msgstr "Prozesszustand"
 
@@ -63,53 +63,53 @@ msgstr "Abmaischrast"
 msgid "Protein Rest"
 msgstr "Eiweiârast"
 
-#: menuitems.h:4
+#: menustrings.h
 msgid  "Rest-Settings"
 msgstr "Einstellung Rasten"
 
-#: menuitems.h:15
+#: menustrings.h
 msgid  "Temp. @Mashing out"
 msgstr "Abmaischtemperatur"
 
-#: menuitems.h:13
+#: menustrings.h
 msgid  "Temp. Dextrose Rest"
 msgstr "Temp. Dextroserast"
 
-#: menuitems.h:11
+#: menustrings.h
 msgid  "Temp. Maltose Rest"
 msgstr "Temp. Maltoserast"
 
-#: menuitems.h:9
+#: menustrings.h
 # â is ß in latin-1
 msgid  "Temp. Protein Rest"
 msgstr "Temp. Eiweiârast"
 
-#: menuitems.h:2
+#: menustrings.h
 msgid  "Waiting for data    from mashctld"
 msgstr "Warte auf Daten     von mashctld"
 
-#: menuitems.h:21
+#: menustrings.h
 msgid "heater"
 msgstr "Heizung"
 
-#: menuitems.h:25
+#: menustrings.h
 msgid  "off"
 msgstr "aus"
 
-#: menuitems.h:24
+#: menustrings.h
 msgid  "on "
 msgstr "ein"
 
-#: menuitems.h:18
+#: menustrings.h
 msgid  "start process"
 msgstr "Prozess starten"
 
-#: menuitems.h:22
+#: menustrings.h
 # õ is ü in latin-1
 msgid  "stirring device"
 msgstr "Rõhrwerk"
 
-#: menuitems.h:19
+#: menustrings.h
 msgid  "cancel process"
 msgstr "Prozess abbrechen"
 
@@ -128,3 +128,20 @@ msgstr "bis Eiweiârast"
 #: mashstates.h:10
 msgid  "to mashing out"
 msgstr "bis Abmaischen"
+
+#: menustrings.h
+msgid "Network info"
+msgstr "Netzwerkinfo"
+
+#: menustrings.h
+msgid "MAC-address"
+msgstr "MAC-Adresse"
+
+#: menustrings.h
+msgid "IPv4-address"
+msgstr "IPv4-Adresse"
+
+#: menustrings.h
+msgid "No active Interface"
+msgstr "Kein Interface aktiv"
+

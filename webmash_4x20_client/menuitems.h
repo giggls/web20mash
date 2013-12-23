@@ -1,35 +1,9 @@
-#include <libintl.h>
-#define WAITTEXT gettext("Waiting for data    from mashctld")
-
-#define MSELECTTXT0 gettext_noop("Rest-Settings")
-#define MSELECTTXT1 gettext_noop("Mash-State")
-#define MSELECTTXT2 gettext_noop("Mash-Control")
-#define MSELECTTXT3 gettext_noop("Actuator-Settings")
-
-#define MRESTTXT0 gettext_noop("Temp. Protein Rest")
-#define MRESTTXT1 gettext_noop("Dur. Protein Rest")
-#define MRESTTXT2 gettext_noop("Temp. Maltose Rest") 
-#define MRESTTXT3 gettext_noop("Dur. Maltose Rest") 
-#define MRESTTXT4 gettext_noop("Temp. Dextrose Rest")
-#define MRESTTXT5 gettext_noop("Dur. Dextrose Rest")
-#define MRESTTXT6 gettext_noop("Temp. @Mashing out")
-#define MRESTTXT7 gettext_noop("Dur. Mashing out")
-
-#define MCTRL_START gettext_noop("start process")
-#define MCTRL_STOP gettext_noop("cancel process")
-
-#define MHEATER_STATE gettext_noop("heater")
-#define MSTIRRING_STATE gettext_noop("stirring device")
-
-#define MSTATE_ON  gettext("on ")
-#define MSTATE_OFF gettext("off")
-
 #define MAX_REST_TIME 1000
 
 // text of all menus (only one for settings type menu, many for seelction type menu)
-static const char* menu_txt[NUMMENUS][NUMITEMS] = {
+char* menu_txt[NUMMENUS][NUMITEMS] = {
 {NULL},
-{MSELECTTXT0,MSELECTTXT1,MSELECTTXT2,MSELECTTXT3,NULL},
+{MSELECTTXT0,MSELECTTXT1,MSELECTTXT2,MSELECTTXT3,MSELECTTXT4,NULL},
 {MRESTTXT0,MRESTTXT1,MRESTTXT2,MRESTTXT3,MRESTTXT4,MRESTTXT5,MRESTTXT6,MRESTTXT7,NULL},
 {MASHSTATE1,MASHSTATE2,MASHSTATE3,MASHSTATE4,MASHSTATE5,MASHSTATE6,MASHSTATE7,MASHSTATE8,NULL},
 {MCTRL_START,MCTRL_STOP,NULL},
@@ -55,17 +29,36 @@ static const char* menu_txt[NUMMENUS][NUMITEMS] = {
 {MHEATER_STATE,NULL},
 {MSTIRRING_STATE,NULL},
 {NULL},
-{NULL},
-{NULL},
+{IFNOTFOUND,NULL},
+{MTEXTMAC,MTEXTIP4,MTEXTIP6,MTEXTIP6L,NULL},
+{MTEXTMAC,MTEXTIP4,MTEXTIP6,MTEXTIP6L,NULL},
+{MTEXTMAC,MTEXTIP4,MTEXTIP6,MTEXTIP6L,NULL},
+{MTEXTMAC,MTEXTIP4,MTEXTIP6,MTEXTIP6L,NULL},
+{"","","","",NULL}, // MAC 0
+{"","","","","","",NULL}, // IP 0
+{"","","","","","","","","","","","",NULL},
+{"","","","","","",NULL}, // V6 ll 0
+{"","","","",NULL}, // MAC 1
+{"","","","","","",NULL}, // IP 1
+{"","","","","","","","","","","","",NULL},
+{"","","","","","",NULL}, // V6 ll 1
+{"","","","",NULL}, // MAC 2
+{"","","","","","",NULL}, // IP 2
+{"","","","","","","","","","","","",NULL},
+{"","","","","","",NULL}, // V6 ll 2
+{"","","","",NULL}, // MAC 3
+{"","","","","","",NULL}, // IP 3
+{"","","","","","","","","","","","",NULL},
+{"","","","","","",NULL}, // V6 ll 3
 {NULL}
 };
 
 // next menu to be called if item is choosen
-static const int next_menu[NUMMENUS][NUMITEMS] = {
+int next_menu[NUMMENUS][NUMITEMS] = {
 // nothing to be done in Menu 0
   {0}, 
 // 4 items "main menu" (1)
-  {2, 3, 4, 5, 0},
+  {2, 3, 4, 5, 26, 0},
   {6, 7, 8, 9, 10, 11, 12, 13, 0},
   {14, 15, 16, 17, 18, 19, 20, 21, 0},
   {22, 23, 0},
@@ -90,10 +83,28 @@ static const int next_menu[NUMMENUS][NUMITEMS] = {
   {0},
   {5},
   {5},
-  {0},
-  {0},
-  {0},
-  {0}
+  {27}, // 26
+  {28, 29, 30, 31, 0}, //27
+  {32, 33, 34, 35, 0}, //28
+  {36, 37, 38, 39, 0}, // 29
+  {40, 41, 42, 43, 0}, // 30
+  {44, 45, 46, 47, 0}, // 31
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0},
+  {27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0}
 };
 
 // menu action functions
@@ -111,6 +122,7 @@ void set_start_7();
 void set_start_8();
 void toggle_actuator0(struct s_menusettings *settings);
 void toggle_actuator1(struct s_menusettings *settings);
+void netinfo();
 
 void (*menu_action[NUMMENUS]) () = {
 NULL,
@@ -139,7 +151,7 @@ start_process,
 stop_process,
 toggle_actuator0,
 toggle_actuator1,
-NULL,
+netinfo,
 NULL,
 NULL,
 NULL

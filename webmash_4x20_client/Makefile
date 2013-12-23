@@ -5,7 +5,7 @@ PREFIX = $(DESTDIR)
 CFLAGS = -g -Wall -W -std=gnu99 -pedantic
 LDLIBS = -lcurl -lwiringPi -lwiringPiDev
 
-OBJ = 4x20_client.o jsmn.o cmdline.o action_functions.o
+OBJ = 4x20_client.o jsmn.o cmdline.o action_functions.o getifinfo.o
 
 all: l10n/de/LC_MESSAGES/$(PROG).mo $(PROG)
 
@@ -17,7 +17,11 @@ cmdline.c: cmdline.cli
 
 $(PROG):$(OBJ)
 	$(CC) -o $@ $(CFLAGS) $(OBJ) $(LDLIBS)
-	
+
+mudflap: CFLAGS += -fmudflap
+mudflap: LDLIBS += -lmudflap
+mudflap: $(PROG)
+
 # l10n
 l10n/de/LC_MESSAGES/$(PROG).mo: l10n/de.po
 	mkdir -p l10n/de/LC_MESSAGES/

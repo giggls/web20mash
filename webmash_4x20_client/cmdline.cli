@@ -12,6 +12,8 @@ String -u url {base url for mashctld state} -d "http://localhost"
 
 Flag -dbg debug {enable debug output}
 
+Flag -n netinfo {enable display of network interface information (IP, MAC, ...)]}
+
 String -l lang {display language to use e.g. de_DE.UTF-8}
 
 String -b banner {Banner to be displayed e.g. mybrewery}

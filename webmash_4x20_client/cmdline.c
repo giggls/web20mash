@@ -40,6 +40,8 @@ static Cmdline cmd = {
   /* urlC = */ 1,
   /***** -dbg: enable debug output */
   /* debugP = */ 0,
+  /***** -n: enable display of network interface information (IP, MAC, ...)] */
+  /* netinfoP = */ 0,
   /***** -l: display language to use e.g. de_DE.UTF-8 */
   /* langP = */ 0,
   /* lang = */ (char*)0,
@@ -725,7 +727,7 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-bd] [-k keys] [-lcd lcd] [-u url] [-dbg] [-l lang] [-b banner] [-mc messagecat]\n");
+  fprintf(stderr,"%s","   [-bd] [-k keys] [-lcd lcd] [-u url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat]\n");
   fprintf(stderr,"%s","      non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports\n");
   fprintf(stderr,"%s","     -bd: run Program as a daemon in background\n");
   fprintf(stderr,"%s","      -k: gpio ports connected to keys (Menu, up, down, Enter)\n");
@@ -738,13 +740,13 @@ usage(void)
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","          default: `http://localhost'\n");
   fprintf(stderr,"%s","    -dbg: enable debug output\n");
+  fprintf(stderr,"%s","      -n: enable display of network interface information (IP, MAC, ...)]\n");
   fprintf(stderr,"%s","      -l: display language to use e.g. de_DE.UTF-8\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","      -b: Banner to be displayed e.g. mybrewery\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","     -mc: base path of message catalog\n");
   fprintf(stderr,"%s","          1 char* value\n");
-  fprintf(stderr,"%s","  ");
   exit(EXIT_FAILURE);
 }
 /**********************************************************************/
@@ -786,6 +788,11 @@ parseCmdline(int argc, char **argv)
 
     if( 0==strcmp("-dbg", argv[i]) ) {
       cmd.debugP = 1;
+      continue;
+    }
+
+    if( 0==strcmp("-n", argv[i]) ) {
+      cmd.netinfoP = 1;
       continue;
     }
 

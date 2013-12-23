@@ -1,7 +1,10 @@
 #define gettext_noop(String) String
+// maximum Number of network Interfaces to be displayed on LCD
+#define MAXINTERFACES 4
 
 void debug(char* fmt, ...);
 void die(char* fmt, ...);
+void err_print(char* fmt, ...);
 
 // these are the settings, the server currently uses
 struct s_pstate {

@@ -46,8 +46,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 #include "cmdline.h"
 #include "mashstates.h"
 #include "menusettings.h"
+#include "menustrings.h"
 #include "menuitems.h"
-
+#include "getifinfo.h"
 
 /* curl stuff */
 #include <curl/curl.h>
@@ -91,6 +92,14 @@ static int previous_menu=-1;
 
 /* ~ symbol ist right arrow in HD44780U charset */
 static char right_arrow[2]="~";
+
+// variables for network information menus
+char ifnames[MAXINTERFACES][21];
+char mac_info[MAXINTERFACES][4][21];
+char blank20[21];
+char ip_info[MAXINTERFACES+2][MAXADDRS][21];
+char ip6g_info[MAXINTERFACES*2+2][MAXADDRS][21];
+char ip6l_info[MAXINTERFACES][4][21];
 
 /* clig command line Parameters*/  
 Cmdline *cmd;
@@ -149,8 +158,6 @@ void daemonize() {
 
 void displayPstate() {
   char scratch[21];
-  //char blank20[]="01234567890123456789";
-  char blank20[]="                    ";
   
   debug("LCD: drawing Pstate Info Menu\n");
   // clear if previous menu has been of another type
@@ -176,7 +183,7 @@ void displayPstate() {
       sprintf(scratch,"    fangobr%cu.de",0xe1);
     lcdPuts(lcdHandle,scratch);
     lcdPosition(lcdHandle, 0,3);
-    lcdPuts(lcdHandle,blank20);
+    lcdPuts(lcdHandle,BLANK20);
   } else {
     if (pstate.mpstate%2) {
       sprintf(scratch,"%s..",gettext(mashstate[pstate.mpstate]));
@@ -214,6 +221,13 @@ void init_menu(int menu_number,struct s_menusettings *settings) {
   settings->number=menu_number;
   settings->arrow_pos=0;
   settings->start_pos=0;
+  // do not show an arrow on pseudo selection
+  // menues for network information
+  if (menu_number <32)
+    settings->arrow=true;
+  else
+    settings->arrow=false;
+  
   settings->menutext=(char **)menu_txt[menu_number];
   // setup menu text and count items
   for (i=0;settings->menutext[i]!=NULL;i++);
@@ -238,11 +252,17 @@ void draw_selection_menu(struct s_menusettings *settings) {
   for (i=settings->start_pos;i<settings->start_pos+LCD_ROWS;i++) {
     // break if menu is shorter than LCD_ROWS
     if (i>=settings->numitems) break;
-    lcdPosition(lcdHandle, 2,i-settings->start_pos);
+    if (settings->arrow) {
+      lcdPosition(lcdHandle, 2,i-settings->start_pos);
+    } else {
+      lcdPosition(lcdHandle, 0,i-settings->start_pos);
+    }
     lcdPuts(lcdHandle,gettext(settings->menutext[i]));
   }
-  lcdPosition(lcdHandle,0,settings->arrow_pos);
-  lcdPuts(lcdHandle,right_arrow);
+  if (settings->arrow) {
+    lcdPosition(lcdHandle,0,settings->arrow_pos);
+    lcdPuts(lcdHandle,right_arrow);
+  }
 }
 
 // draw a selection type menu
@@ -585,6 +605,8 @@ int main(int argc, char **argv) {
     init_menu(i,&menusettings[i]);
   }
   
+  sprintf(blank20,"%s",BLANK20);
+  
   // initialize data types of settings menus
   // also chacnge menutype
   for (i=0;i<4;i++) {
@@ -605,6 +627,10 @@ int main(int argc, char **argv) {
   menusettings[24].menutype=MENUTYPE_SETTINGS;
   menusettings[25].datatype=MSETTINGS_TYPE_BOOL;
   menusettings[25].menutype=MENUTYPE_SETTINGS;
+  
+  // show network Information menu only if requested
+  if (!cmd->netinfoP)
+    menusettings[1].numitems--;
   
   // open gpio ports for keys
   for (i=0;i<4;i++) {
