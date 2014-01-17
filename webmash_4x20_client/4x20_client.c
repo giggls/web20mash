@@ -60,7 +60,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 #define KEY_UP 1
 #define KEY_DOWN 2
 #define KEY_ENTER 3 
-#define DEBOUNCE 200000
+#define DEBOUNCE 100000
 
 // Menu states
 // display temperature and/or current mash state
@@ -729,6 +729,7 @@ int main(int argc, char **argv) {
 	    usleep(DEBOUNCE);
 	    lseek(keyfds[KEY_UP],0,SEEK_SET);
 	    read(keyfds[KEY_UP], &c, 1 );
+	    if (c=='1') break;
 	    debug("pressed key KEY_UP\n");
 	    if (ready) {
 	      if (menustate>0) {
@@ -740,6 +741,7 @@ int main(int argc, char **argv) {
 	      usleep(DEBOUNCE);
 	      lseek(keyfds[KEY_DOWN],0,SEEK_SET);
 	      read(keyfds[KEY_DOWN], &c, 1 );
+	      if (c=='1') break;
 	      debug("pressed key KEY_DOWN\n");
 	      if (ready) {
 	        if (menustate>0) {
@@ -752,6 +754,7 @@ int main(int argc, char **argv) {
               usleep(DEBOUNCE);
               lseek(keyfds[KEY_ENTER],0,SEEK_SET);
               read(keyfds[KEY_ENTER], &c, 1 );
+              if (c=='1') break;
               debug("pressed key KEY_ENTER\n");
               if (ready) {
                 if (menustate>0) {
@@ -782,6 +785,7 @@ int main(int argc, char **argv) {
               usleep(DEBOUNCE);
               lseek(keyfds[KEY_MENU],0,SEEK_SET);
               read(keyfds[KEY_MENU], &c, 1 );
+              if (c=='1') break;
               debug("pressed key KEY_MENU\n");
               if (ready) {
                 if (menustate==MSTATE_PSTATE) {
