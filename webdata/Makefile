@@ -7,13 +7,13 @@ JCANVASCRIPT=jCanvaScript.1.5.18.min.js
 JSTEPPER_BASE=http://jstepper.emkay.dk/scripts
 JSTEPPER=jquery.jstepper.min.js
 
-SPINNER_BASE=http://fgnass.github.com/spin.js/dist/
+SPINNER_BASE=http://fgnass.github.com/spin.js/
 SPINNER=spin.min.js
 
 HTML_IN_FILES := $(wildcard *.html.*.in)
 HTML_OUT_FILES := $(patsubst %.in, %, ${HTML_IN_FILES})
 
-all: images/thermometer.png images/sudpfanne.png images/propeller1.png js/$(JQUERY) js/$(JCANVASCRIPT) js/$(JSTEPPER) images/en.png ${HTML_OUT_FILES} js/$(SPINNER) 
+all: images/thermometer.png images/sudpfanne.png images/propeller1.png js/$(JQUERY) js/$(JCANVASCRIPT) js/$(JSTEPPER) js/$(SPINNER) images/en.png ${HTML_OUT_FILES} js/$(SPINNER) 
 
 index.html.%: index.html.%.in
 	./html_from_template.sh index $*
@@ -65,5 +65,7 @@ clean:
 	rm -f images/propeller?.png
 	rm -f js/$(JQUERY)
 	rm -f js/$(JCANVASCRIPT)
+	rm -f js/$(SPINNER)
+	rm -f js/$(JSTEPPER)
 	rm -f index.html.??
 	
