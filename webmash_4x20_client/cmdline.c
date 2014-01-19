@@ -54,6 +54,10 @@ static Cmdline cmd = {
   /* messagecatP = */ 0,
   /* messagecat = */ (char*)0,
   /* messagecatC = */ 0,
+  /***** -db: debounce delay for keys */
+  /* debounceP = */ 1,
+  /* debounce = */ 100000,
+  /* debounceC = */ 1,
   /***** uninterpreted rest of command line */
   /* argc = */ 0,
   /* argv = */ (char**)0
@@ -727,7 +731,7 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-bd] [-k keys] [-lcd lcd] [-u url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat]\n");
+  fprintf(stderr,"%s","   [-bd] [-k keys] [-lcd lcd] [-u url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-db debounce]\n");
   fprintf(stderr,"%s","      non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports\n");
   fprintf(stderr,"%s","     -bd: run Program as a daemon in background\n");
   fprintf(stderr,"%s","      -k: gpio ports connected to keys (Menu, up, down, Enter)\n");
@@ -747,6 +751,9 @@ usage(void)
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","     -mc: base path of message catalog\n");
   fprintf(stderr,"%s","          1 char* value\n");
+  fprintf(stderr,"%s","     -db: debounce delay for keys\n");
+  fprintf(stderr,"%s","          1 int value\n");
+  fprintf(stderr,"%s","          default: `100000'\n");
   exit(EXIT_FAILURE);
 }
 /**********************************************************************/
@@ -817,6 +824,14 @@ parseCmdline(int argc, char **argv)
       cmd.messagecatP = 1;
       i = getStringOpt(argc, argv, i, &cmd.messagecat, 1);
       cmd.messagecatC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-db", argv[i]) ) {
+      int keep = i;
+      cmd.debounceP = 1;
+      i = getIntOpt(argc, argv, i, &cmd.debounce, 1);
+      cmd.debounceC = i-keep;
       continue;
     }
 

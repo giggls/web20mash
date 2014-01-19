@@ -11,7 +11,7 @@
 .\" it edited by clig, remove the respective pair of cligPart-lines.
 .\"
 .\" cligPart TITLE
-.TH "webmash_4x20_client" 1 "2013-12-21" "Clig-manuals" "Programmer's Manual"
+.TH "webmash_4x20_client" 1 "2014-01-19" "Clig-manuals" "Programmer's Manual"
 .\" cligPart TITLE end
 
 .\" cligPart NAME
@@ -31,6 +31,7 @@ webmash_4x20_client \- non-browser client for mashctld using a HD44780U compatib
 [-l lang]
 [-b banner]
 [-mc messagecat]
+[-db debounce]
 
 .\" cligPart SYNOPSIS end
 
@@ -72,6 +73,12 @@ Banner to be displayed e.g. mybrewery,
 base path of message catalog,
 .br
 1 String value
+.IP -db
+debounce delay for keys,
+.br
+1 Int value.
+.br
+Default: `100000'
 .\" cligPart OPTIONS end
 
 .\" cligPart DESCRIPTION

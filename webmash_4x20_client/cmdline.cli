@@ -19,3 +19,5 @@ String -l lang {display language to use e.g. de_DE.UTF-8}
 String -b banner {Banner to be displayed e.g. mybrewery}
 
 String -mc messagecat {base path of message catalog}
+
+Int -db debounce {debounce delay for keys} -d 100000

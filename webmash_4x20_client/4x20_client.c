@@ -60,7 +60,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 #define KEY_UP 1
 #define KEY_DOWN 2
 #define KEY_ENTER 3 
-#define DEBOUNCE 100000
 
 // Menu states
 // display temperature and/or current mash state
@@ -584,6 +583,7 @@ int main(int argc, char **argv) {
   cmd = parseCmdline(argc, argv);
   int i,keyfds[4];
   int still_running; /* keep number of running handles */
+  int menu_keypress_count=0;
   
   // i10n stuff
   if (cmd->langP) {
@@ -726,24 +726,26 @@ int main(int argc, char **argv) {
       default: /* action */ 
 	  if (FD_ISSET(keyfds[KEY_UP], &fdexcep )) {
 	    // this delay is for debouncing of gpio
-	    usleep(DEBOUNCE);
+	    usleep(cmd->debounce);
 	    lseek(keyfds[KEY_UP],0,SEEK_SET);
 	    read(keyfds[KEY_UP], &c, 1 );
 	    if (c=='1') break;
 	    debug("pressed key KEY_UP\n");
 	    if (ready) {
+	      menu_keypress_count=0;
 	      if (menustate>0) {
 	        update_menu(-1,&menusettings[menustate]);
               }
 	    }
 	  } else if (FD_ISSET(keyfds[KEY_DOWN], &fdexcep )) {
 	      // this delay is for debouncing of gpio
-	      usleep(DEBOUNCE);
+	      usleep(cmd->debounce);
 	      lseek(keyfds[KEY_DOWN],0,SEEK_SET);
 	      read(keyfds[KEY_DOWN], &c, 1 );
 	      if (c=='1') break;
 	      debug("pressed key KEY_DOWN\n");
 	      if (ready) {
+	        menu_keypress_count=0;
 	        if (menustate>0) {
 	          update_menu(1,&menusettings[menustate]);
                 }
@@ -751,12 +753,13 @@ int main(int argc, char **argv) {
           } else if (FD_ISSET(keyfds[KEY_ENTER], &fdexcep )) {
               int item;
               // this delay is for debouncing of gpio
-              usleep(DEBOUNCE);
+              usleep(cmd->debounce);
               lseek(keyfds[KEY_ENTER],0,SEEK_SET);
               read(keyfds[KEY_ENTER], &c, 1 );
               if (c=='1') break;
               debug("pressed key KEY_ENTER\n");
               if (ready) {
+                menu_keypress_count=0;
                 if (menustate>0) {
                   item=menusettings[menustate].start_pos+menusettings[menustate].arrow_pos;
                   call_menu_action(&menusettings[menustate]);
@@ -782,12 +785,18 @@ int main(int argc, char **argv) {
               }
           } else if (FD_ISSET(keyfds[KEY_MENU], &fdexcep )) {
               // this delay is for debouncing of gpio
-              usleep(DEBOUNCE);
+              usleep(cmd->debounce);
               lseek(keyfds[KEY_MENU],0,SEEK_SET);
               read(keyfds[KEY_MENU], &c, 1 );
               if (c=='1') break;
               debug("pressed key KEY_MENU\n");
               if (ready) {
+                menu_keypress_count++;
+                if (menu_keypress_count==3) {
+                  debug("LCD: calling reset!!!\n");
+                  lcdReset(lcdHandle);
+                  menu_keypress_count=0;
+                }
                 if (menustate==MSTATE_PSTATE) {
                   previous_menu=menustate;
                   menustate=MSTATE_SELECT;

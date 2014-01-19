@@ -39,6 +39,10 @@ typedef struct s_Cmdline {
   char messagecatP;
   char* messagecat;
   int messagecatC;
+  /***** -db: debounce delay for keys */
+  char debounceP;
+  int debounce;
+  int debounceC;
   /***** uninterpreted command line parameters */
   int argc;
   /*@null*/char **argv;
