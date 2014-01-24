@@ -761,8 +761,9 @@ int main(int argc, char **argv) {
                 debug("pressed key KEY_MENU+KEY_ENTER\n");
                 debug("LCD: calling reset!!!\n");
                 lcdReset(lcdHandle);
-                lcdPosition(lcdHandle, 0,0);
-                lcdPuts(lcdHandle,WAITTEXT);
+                previous_menu=menustate;
+                menustate=MSTATE_PSTATE;
+                displayPstate();
                 break;
               }
               debug("pressed key KEY_ENTER\n");
@@ -803,8 +804,9 @@ int main(int argc, char **argv) {
                 debug("pressed key KEY_MENU+KEY_ENTER\n");
                 debug("LCD: calling reset!!!\n");
                 lcdReset(lcdHandle);
-                lcdPosition(lcdHandle, 0,0);
-                lcdPuts(lcdHandle,WAITTEXT);
+                previous_menu=menustate;
+                menustate=MSTATE_PSTATE;
+                displayPstate();
                 break;
               }
               debug("pressed key KEY_MENU\n");
