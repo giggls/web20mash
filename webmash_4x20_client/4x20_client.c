@@ -583,7 +583,6 @@ int main(int argc, char **argv) {
   cmd = parseCmdline(argc, argv);
   int i,keyfds[4];
   int still_running; /* keep number of running handles */
-  int menu_keypress_count=0;
   
   // i10n stuff
   if (cmd->langP) {
@@ -732,7 +731,6 @@ int main(int argc, char **argv) {
 	    if (c=='1') break;
 	    debug("pressed key KEY_UP\n");
 	    if (ready) {
-	      menu_keypress_count=0;
 	      if (menustate>0) {
 	        update_menu(-1,&menusettings[menustate]);
               }
@@ -745,7 +743,6 @@ int main(int argc, char **argv) {
 	      if (c=='1') break;
 	      debug("pressed key KEY_DOWN\n");
 	      if (ready) {
-	        menu_keypress_count=0;
 	        if (menustate>0) {
 	          update_menu(1,&menusettings[menustate]);
                 }
@@ -757,9 +754,19 @@ int main(int argc, char **argv) {
               lseek(keyfds[KEY_ENTER],0,SEEK_SET);
               read(keyfds[KEY_ENTER], &c, 1 );
               if (c=='1') break;
+              // check for double keypress (KEY_MENU+KEY_ENTER)
+              lseek(keyfds[KEY_MENU],0,SEEK_SET);
+              read(keyfds[KEY_MENU], &c, 1 );
+              if (c=='0') {
+                debug("pressed key KEY_MENU+KEY_ENTER\n");
+                debug("LCD: calling reset!!!\n");
+                lcdReset(lcdHandle);
+                lcdPosition(lcdHandle, 0,0);
+                lcdPuts(lcdHandle,WAITTEXT);
+                break;
+              }
               debug("pressed key KEY_ENTER\n");
               if (ready) {
-                menu_keypress_count=0;
                 if (menustate>0) {
                   item=menusettings[menustate].start_pos+menusettings[menustate].arrow_pos;
                   call_menu_action(&menusettings[menustate]);
@@ -789,14 +796,19 @@ int main(int argc, char **argv) {
               lseek(keyfds[KEY_MENU],0,SEEK_SET);
               read(keyfds[KEY_MENU], &c, 1 );
               if (c=='1') break;
+              // check for double keypress (KEY_MENU+KEY_ENTER)
+              lseek(keyfds[KEY_ENTER],0,SEEK_SET);
+              read(keyfds[KEY_ENTER], &c, 1 );
+              if (c=='0') {
+                debug("pressed key KEY_MENU+KEY_ENTER\n");
+                debug("LCD: calling reset!!!\n");
+                lcdReset(lcdHandle);
+                lcdPosition(lcdHandle, 0,0);
+                lcdPuts(lcdHandle,WAITTEXT);
+                break;
+              }
               debug("pressed key KEY_MENU\n");
               if (ready) {
-                menu_keypress_count++;
-                if (menu_keypress_count==3) {
-                  debug("LCD: calling reset!!!\n");
-                  lcdReset(lcdHandle);
-                  menu_keypress_count=0;
-                }
                 if (menustate==MSTATE_PSTATE) {
                   previous_menu=menustate;
                   menustate=MSTATE_SELECT;
