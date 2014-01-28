@@ -577,6 +577,13 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
   return realsize;
 }
 
+static char get_sysfs_value(int fd) {
+  char c;  
+  lseek(fd,0,SEEK_SET);  
+  read(fd, &c, 1 );
+  return c;
+}
+
 int main(int argc, char **argv) {
   CURL *http_handle;
   CURLM *multi_handle;
@@ -714,7 +721,6 @@ int main(int argc, char **argv) {
       rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
 
       switch(rc) {
-        char c;
       case -1:
         /* select error */
         still_running = 0;
@@ -726,38 +732,38 @@ int main(int argc, char **argv) {
 	  if (FD_ISSET(keyfds[KEY_UP], &fdexcep )) {
 	    // this delay is for debouncing of gpio
 	    usleep(cmd->debounce);
-	    lseek(keyfds[KEY_UP],0,SEEK_SET);
-	    read(keyfds[KEY_UP], &c, 1 );
-	    if (c=='1') break;
+	    if (get_sysfs_value(keyfds[KEY_UP])=='1') break;
 	    debug("pressed key KEY_UP\n");
 	    if (ready) {
 	      if (menustate>0) {
 	        update_menu(-1,&menusettings[menustate]);
               }
+              //now lets wait until KEY_UP has been released
+              while (get_sysfs_value(keyfds[KEY_UP])=='0') {
+                usleep(cmd->debounce);
+              }
 	    }
 	  } else if (FD_ISSET(keyfds[KEY_DOWN], &fdexcep )) {
 	      // this delay is for debouncing of gpio
 	      usleep(cmd->debounce);
-	      lseek(keyfds[KEY_DOWN],0,SEEK_SET);
-	      read(keyfds[KEY_DOWN], &c, 1 );
-	      if (c=='1') break;
+	      if (get_sysfs_value(keyfds[KEY_DOWN])=='1') break;
 	      debug("pressed key KEY_DOWN\n");
 	      if (ready) {
 	        if (menustate>0) {
 	          update_menu(1,&menusettings[menustate]);
+                }
+                //now lets wait until KEY_DOWN has been released
+                while (get_sysfs_value(keyfds[KEY_DOWN])=='0') {
+                  usleep(cmd->debounce);
                 }
 	      }
           } else if (FD_ISSET(keyfds[KEY_ENTER], &fdexcep )) {
               int item;
               // this delay is for debouncing of gpio
               usleep(cmd->debounce);
-              lseek(keyfds[KEY_ENTER],0,SEEK_SET);
-              read(keyfds[KEY_ENTER], &c, 1 );
-              if (c=='1') break;
+              if (get_sysfs_value(keyfds[KEY_ENTER])=='1') break;
               // check for double keypress (KEY_MENU+KEY_ENTER)
-              lseek(keyfds[KEY_MENU],0,SEEK_SET);
-              read(keyfds[KEY_MENU], &c, 1 );
-              if (c=='0') {
+              if (get_sysfs_value(keyfds[KEY_MENU])=='0') {
                 debug("pressed key KEY_MENU+KEY_ENTER\n");
                 debug("LCD: calling reset!!!\n");
                 lcdReset(lcdHandle);
@@ -789,18 +795,18 @@ int main(int argc, char **argv) {
                         }
                       }
                   }
+                  //now lets wait until KEY_ENTER has been released
+                  while (get_sysfs_value(keyfds[KEY_ENTER])=='0') {
+                    usleep(cmd->debounce);
+                  }
                 }
               }
           } else if (FD_ISSET(keyfds[KEY_MENU], &fdexcep )) {
               // this delay is for debouncing of gpio
               usleep(cmd->debounce);
-              lseek(keyfds[KEY_MENU],0,SEEK_SET);
-              read(keyfds[KEY_MENU], &c, 1 );
-              if (c=='1') break;
+              if (get_sysfs_value(keyfds[KEY_MENU])=='1') break;
               // check for double keypress (KEY_MENU+KEY_ENTER)
-              lseek(keyfds[KEY_ENTER],0,SEEK_SET);
-              read(keyfds[KEY_ENTER], &c, 1 );
-              if (c=='0') {
+              if (get_sysfs_value(keyfds[KEY_ENTER])=='0') {
                 debug("pressed key KEY_MENU+KEY_ENTER\n");
                 debug("LCD: calling reset!!!\n");
                 lcdReset(lcdHandle);
@@ -819,6 +825,10 @@ int main(int argc, char **argv) {
                   previous_menu=menustate;
                   menustate=MSTATE_PSTATE;
                   displayPstate();
+                }
+                //now lets wait until KEY_MENU has been released
+                while (get_sysfs_value(keyfds[KEY_MENU])=='0') {
+                  usleep(cmd->debounce);
                 }
               }
 	  } else {
