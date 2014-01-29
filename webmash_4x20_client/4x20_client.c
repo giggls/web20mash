@@ -735,13 +735,13 @@ int main(int argc, char **argv) {
 	    if (get_sysfs_value(keyfds[KEY_UP])=='1') break;
 	    debug("pressed key KEY_UP\n");
 	    if (ready) {
-	      if (menustate>0) {
-	        update_menu(-1,&menusettings[menustate]);
-              }
-              //now lets wait until KEY_UP has been released
-              while (get_sysfs_value(keyfds[KEY_UP])=='0') {
-                usleep(cmd->debounce);
-              }
+	      // repeat action until KEY_UP has been released
+	      while (get_sysfs_value(keyfds[KEY_UP])=='0') {
+	        if (menustate>0) {
+	          update_menu(-1,&menusettings[menustate]);
+                }
+	        usleep(cmd->debounce);
+              }  
 	    }
 	  } else if (FD_ISSET(keyfds[KEY_DOWN], &fdexcep )) {
 	      // this delay is for debouncing of gpio
@@ -749,11 +749,11 @@ int main(int argc, char **argv) {
 	      if (get_sysfs_value(keyfds[KEY_DOWN])=='1') break;
 	      debug("pressed key KEY_DOWN\n");
 	      if (ready) {
-	        if (menustate>0) {
-	          update_menu(1,&menusettings[menustate]);
-                }
-                //now lets wait until KEY_DOWN has been released
-                while (get_sysfs_value(keyfds[KEY_DOWN])=='0') {
+	        // repeat action until KEY_DOWN has been released
+	        while (get_sysfs_value(keyfds[KEY_DOWN])=='0') {
+	          if (menustate>0) {
+	            update_menu(1,&menusettings[menustate]);
+                  }
                   usleep(cmd->debounce);
                 }
 	      }
