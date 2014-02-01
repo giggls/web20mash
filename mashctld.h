@@ -78,12 +78,10 @@ main header file
 // increase temperature by this interval on every control interval
 #define SIM_INC 0.5
 
-void outSensorActuatorList();
 int doTempControl();
 void setRelay(int devno, int state);
 int loadtemplate(char *filename,char **data);
 float getTemp();
-int search4Sensor();
 void readconfig(char *configfile);
 void errorlog(char* fmt, ...);
 void die(char* fmt, ...);

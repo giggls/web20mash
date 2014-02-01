@@ -15,20 +15,23 @@ LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt -rdynamic -ldl -lmnl
 #LDLIBS = -lmicrohttpd -lmagic -lrt -lmnl
 
 
-OBJ = cmdline.o mashctld.o owfunc.o minIni.o readcfg.o myexec.o gen_json_4interfaces.o
+OBJ = cmdline.o mashctld.o ctrlfunc.o minIni.o readcfg.o myexec.o gen_json_4interfaces.o
 
 %.o: %.c
 	$(CC) $(EXTRAFLAGS) $(CFLAGS) -c $<
 	
 #-DCTLD_PLUGINDIR=\"$(DESTDIR)/lib/web20mash/plugins\" -DCTLD_WEBROOT=\"$(DESTDIR)/share/web20mash/\" $(CFLAGS)
 
-all:mashctld gpio_buzzer plugins
+all:mashctld gpio_buzzer plugins find_ow_devs
 
 mashctld:$(OBJ)
 	$(CC) -o $@ $(CFLAGS) $(OBJ) $(LDLIBS)
 
 gpio_buzzer:gpio_buzzer.o
-	$(CC) -o $@ $(CFLAGS) gpio_buzzer.o
+	$(CC) -o $@ $(CFLAGS) $<
+
+find_ow_devs:find_ow_devs.o
+	 $(CC) -o $@ $(CFLAGS) -lowcapi $<
 
 cmdline.c: cmdline.cli
 	clig $<
@@ -74,19 +77,16 @@ install: debian/copyright mashctld gpio_buzzer
 	cp webdata/images/favicon.ico $(DESTDIR)/share/web20mash/images/
 	sed -e 's;^webroot.*;webroot = $(PREFIX)/share/web20mash;' \
 		-e 's;^plugin_dir.*;plugin_dir= $(PREFIX)/lib/web20mash/plugins;' -e 's;^port.*;port = 80;' mashctld.conf.sample >$(CFDIR)/mashctld.conf
-	cp mashctld $(DESTDIR)/bin
-	chmod 755 $(DESTDIR)/bin/mashctld
-	cp gpio_buzzer $(DESTDIR)/bin
-	cp mps2iConnectLED $(DESTDIR)/bin
-	cp webmash_7segm_client/webmash_7segm_client $(DESTDIR)/bin
-	cp mashctld_readonly_root_script.sh $(DESTDIR)/bin
-	chmod 755 $(DESTDIR)/bin/mashctld_readonly_root_script.sh
-	cp web20mash.sudo $(CFDIR)/sudoers.d/web20mash
-	chmod 755 $(CFDIR)/sudoers.d/web20mash
-	cp webmash.init $(CFDIR)/init.d/webmash
+	install -m 755 mashctld $(DESTDIR)/bin
+	install -m 755 gpio_buzzer $(DESTDIR)/bin
+	install -m 755 find_ow_devs $(DESTDIR)/bin
+	install -m 755 mps2iConnectLED $(DESTDIR)/bin
+	install -m 755 webmash_7segm_client/webmash_7segm_client $(DESTDIR)/bin
+	install -m 755 mashctld_readonly_root_script.sh $(DESTDIR)/bin
+	install -m 755 web20mash.sudo $(CFDIR)/sudoers.d/web20mash
+	install -m 755 webmash.init $(CFDIR)/init.d/webmash
 	chmod 755 $(DESTDIR)/share/web20mash $(DESTDIR)/share/web20mash/images $(DESTDIR)/share/web20mash/js $(DESTDIR)/share/web20mash/css
 	chmod 644 $(DESTDIR)/share/web20mash/*/*
-	chmod 755 $(DESTDIR)/bin/mashctld_readonly_root_script.sh
 	cp plugins/*.so $(DESTDIR)/lib/web20mash/plugins
 	chmod 755 $(DESTDIR)/lib/web20mash/plugins/*.so
 	

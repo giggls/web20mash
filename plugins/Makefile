@@ -5,15 +5,18 @@ SRC = external.c gpio.c onewire.c searchXfile.c
 %.o: %.c
 	$(CC) -c -o $@ $< -I. -I.. -fPIC $(CFLAGS)
 	
-ALL: actuator_external.so actuator_onewire.so actuator_gpio.so
+ALL: actuator_external.so actuator_onewire.so actuator_gpio.so sensor_onewire.so
 
-actuator_external.so: external.o searchXfile.o
+actuator_external.so: actuator_external.o searchXfile.o
 	$(CC) -lm -shared -o $@ $?
 	
-actuator_onewire.so: onewire.o
+actuator_onewire.so: actuator_onewire.o
 	$(CC) -lm -shared -o $@ $?
 	
-actuator_gpio.so: gpio.o
+actuator_gpio.so: actuator_gpio.o
+	$(CC) -lm -shared -o $@ $?
+	
+sensor_onewire.so: sensor_onewire.o
 	$(CC) -lm -shared -o $@ $?
 
 clean:

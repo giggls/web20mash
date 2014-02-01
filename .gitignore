@@ -2,6 +2,7 @@ cmdline.o
 mashctld
 ifinfo
 gpio_buzzer
+find_ow_devs
 mashctld.1
 *.o
 mashctld.conf

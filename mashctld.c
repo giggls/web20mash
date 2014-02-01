@@ -3,9 +3,9 @@
 mashctld
 
 a web-controllable two-level temperature and mash process
-controler for 1-wire sensor (DS18S20/DS18B20) and various actuators
+controler for various sensors and actuators
 
-(c) 2011-2013 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2011-2014 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -43,7 +43,6 @@ state   function
 
 
 #include "mashctld.h"
-#include "sensors.h"
 #include "myexec.h"
 
 #define PAGE "<html><head><title>File not found</title></head><body>File not found</body></html>"
@@ -63,8 +62,13 @@ char cfgfp[PATH_MAX + 1];
   
 struct configopts cfopts;
 struct processstate pstate;
+// sensor and actuator functions are implemented in plugins to allow
+// easy addition of new hardware
 void (*plugin_setstate_call[2])(int devno, int state);
 void (*plugin_actinit_call[2])(char *cfgfile, int devno);
+void (*plugin_sensinit_call)(char *cfgfile);
+float (*plugin_getTemp_call)();
+bool ow_init_called=false;
 
 static void resetMashProcess() {
   pstate.mash=0;
@@ -907,7 +911,7 @@ void acq_and_ctrl() {
   /* acquire temperature */
 #ifndef NOSENSACT
   if (!cmd->simulationP) {
-    pstate.tempCurrent=getTemp();
+    pstate.tempCurrent=plugin_getTemp_call();
   } else {
 #endif
     if (pstate.relay[0])
@@ -1023,9 +1027,9 @@ int main(int argc, char **argv) {
   FILE *pidfile;
   char buf[2048];
   char *bp;
-  int stype;
+  //int stype;
 
-  void *acthandle0, *acthandle1;
+  void *acthandle0, *acthandle1, *senshandle;
   cmd = parseCmdline(argc, argv);
 
   /* parse the configfile if available and readable */
@@ -1046,21 +1050,24 @@ int main(int argc, char **argv) {
   pstate.ttrigger=0;
 #ifndef NOSENSACT
   if (!cmd->simulationP) {
-    if(OW_init(cfopts.owparms) !=0)
-      die("Error connecting owserver on %s\n",cfopts.owparms);
-      
-    if (cmd->listP) {
-      outSensorActuatorList();
-      OW_finish();
-      exit(EXIT_SUCCESS);
-    }
   
-    /* check if requested sensor is available on the bus and is one of the supported ones*/
-    stype=search4Sensor();
-    if (-1==stype)
-      die("%s is unavailable or an unsupported sensor\n",cfopts.sensor);
-    else
-      debug("OK, found sensor of type %s (id %s)...\n",sensors[stype],cfopts.sensor);
+    // enable sensor plugin as specified in configfile
+    bp=buf;
+    strcpy(bp,cfopts.plugindir);
+    bp+=strlen(cfopts.plugindir);
+    strcpy(bp,"/sensor_");
+    bp+=8;
+    strcpy(bp,cfopts.sensor);
+    bp+=strlen(cfopts.sensor);
+    strcpy(bp,".so");
+    debug("loading plugin %s\n",buf);
+    senshandle = dlopen (buf, RTLD_LAZY);
+    if (!senshandle) die("error opening plugin %s: %s\n",buf,dlerror());
+    *(void **) (&plugin_sensinit_call)=dlsym(senshandle, "sensor_initfunc");
+    if ((bp = dlerror()) != NULL) die(bp);
+    *(void **) (&plugin_getTemp_call)=dlsym(senshandle, "sensor_getTemp");
+    if ((bp = dlerror()) != NULL) die(bp);
+    plugin_sensinit_call(cfgfp);
     
     // enable actuator plugins as specified in configfile
     bp=buf;
@@ -1079,6 +1086,7 @@ int main(int argc, char **argv) {
     *(void **) (&plugin_setstate_call[0])=dlsym(acthandle0, "actuator_setstate");
     if ((bp = dlerror()) != NULL) die(bp);
     plugin_actinit_call[0](cfgfp,0);
+    
     if (cfopts.stirring) {
       if (0==strcmp(cfopts.actuator[0],cfopts.actuator[1])) {
         plugin_actinit_call[1]=plugin_actinit_call[0];

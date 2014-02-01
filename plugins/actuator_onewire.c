@@ -3,7 +3,7 @@
 mashctld
 
 a web-controllable two-level temperature and mash process
-controler for 1-wire sensor (DS18S20/DS18B20) and various actuators
+controler for various sensors and actuators
 
 (c) 2011-2013 Sven Geggus <sven-web20mash@geggus.net>
 This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,7 @@ actuator plugin for setting 1-wire actuators via owfs
 #include <string.h>
 #include "myexec.h"
 #include "minIni.h"
-#include "actuators.h"
+#include "owactuators.h"
 #include "cfgdflt.h"
 
 #define sizearray(a)    (sizeof(a) / sizeof((a)[0]))
@@ -45,12 +45,43 @@ static struct s_w1_act_cfg w1_act_cfg;
 
 extern void debug(char* fmt, ...);
 extern void die(char* fmt, ...);
-extern int search4Device(char *device, const char **devlist);
-extern int stringInArray(char * str, const char **arr);
 extern void errorlog(char* fmt, ...);
-extern size_t do_OW_init();
+extern bool ow_init_called;
 
-int search4Actuator(char *device,char *port) {
+static ssize_t do_OW_init() {
+ debug("[onewire actuator plugin] calling OW_init(\"%s\")\n",w1_act_cfg.owparms);
+ return OW_init(w1_act_cfg.owparms);
+}
+
+static int stringInArray(char * str, const char **arr) {
+  const char **i;
+  int c=0;
+  for (i=arr; *i; i++) {
+    if (0==strcmp(*i,str))
+      return c;
+    c++;
+  }
+  return -1;
+}
+
+static int search4Device(char *device, const char **devlist) {
+  
+  char curdev[22];
+  char *type_found_on_bus;
+  size_t slen;
+  
+  curdev[0]='/';
+  strncpy(curdev+1,device,15);
+  strcpy(curdev+16,"/type");
+  type_found_on_bus=NULL;
+  OW_get(curdev,&type_found_on_bus,&slen);
+  // return false if requested sensor is not available at all
+  if (NULL==type_found_on_bus)  return -1;
+  // return false if requested has wrong type
+  return stringInArray(type_found_on_bus,devlist);
+}
+
+static int search4Actuator(char *device,char *port) {
   int devno;
   devno=search4Device(device,actuators);
   // if a supported actuator has been found check if the given port ID
@@ -95,6 +126,13 @@ void actuator_initfunc(char *cfgfile, int devno) {
   int atype;
 
   debug("[onewire actuator plugin] actuator_initfunc device %d\n",devno);
+  
+  if (ow_init_called==false) {
+    ow_init_called=true;
+    ini_gets("control", "owparms", "localhost:4304", w1_act_cfg.owparms,
+              sizearray(w1_act_cfg.owparms), cfgfile);
+    do_OW_init();
+  }
 
   if (devno==0) {
     // read actuator specific configuration options

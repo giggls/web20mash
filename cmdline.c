@@ -22,8 +22,6 @@ char *Program;
 /*@-null*/
 
 static Cmdline cmd = {
-  /***** -l: List available sensors and actuators on bus and terminate */
-  /* listP = */ 0,
   /***** -d: print debug info */
   /* debugP = */ 0,
   /***** -bd: run Program as a daemon in background */
@@ -719,9 +717,8 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-l] [-d] [-bd] [-c configfile] [-u username] [-p pidfile] [-s] [-n [netif]]\n");
+  fprintf(stderr,"%s","   [-d] [-bd] [-c configfile] [-u username] [-p pidfile] [-s] [-n [netif]]\n");
   fprintf(stderr,"%s","      two-level temperature and mash process controler\n");
-  fprintf(stderr,"%s","     -l: List available sensors and actuators on bus and terminate\n");
   fprintf(stderr,"%s","     -d: print debug info\n");
   fprintf(stderr,"%s","    -bd: run Program as a daemon in background\n");
   fprintf(stderr,"%s","     -c: runtime configuration file\n");
@@ -747,11 +744,6 @@ parseCmdline(int argc, char **argv)
 
   Program = argv[0];
   for(i=1, cmd.argc=1; i<argc; i++) {
-    if( 0==strcmp("-l", argv[i]) ) {
-      cmd.listP = 1;
-      continue;
-    }
-
     if( 0==strcmp("-d", argv[i]) ) {
       cmd.debugP = 1;
       continue;

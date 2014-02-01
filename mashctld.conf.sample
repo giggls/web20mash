@@ -40,10 +40,12 @@ tempMust=0
 #
 #
 
-# 1-wire temperature sensor ID
-sensor=10.AAAAAAAAAAAA
+# actuator device type (currently "onewire" or "TEMPer1"):
+# additional parameters like device ID  must be specified
+# in the plugin section of the particular type
+sensor=onewire
 
-# actuator device type (onewire, gpio or external):
+# actuator device type (currently onewire, gpio or external):
 # device ID, external command etc. must be specified
 # in the plugin section of the particular type
 actuator=external
@@ -104,7 +106,12 @@ actuator=/sys/class/gpio/gpio25/value
 stirring_device=/sys/class/gpio/gpio26/value
 
 [actuator_plugin_onewire]
+# use find_ow_devs to list available devices
 actuator=12.AAAAAAAAAAAA
 actuator_port=PIO.A
 stirring_device=12.AAAAAAAAAAAA
 stirring_device_port=PIO.B
+
+[sensor_plugin_onewire]                   
+# use find_ow_devs to list available devices
+sensor=10.XXXXXXXXXXXX

@@ -9,8 +9,6 @@
 *****/
 
 typedef struct s_Cmdline {
-  /***** -l: List available sensors and actuators on bus and terminate */
-  char listP;
   /***** -d: print debug info */
   char debugP;
   /***** -bd: run Program as a daemon in background */
