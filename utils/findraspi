@@ -1,0 +1,71 @@
+#!/bin/bash
+#
+# try IPv6 link-local and IPv4 broadcast via arping
+# to figure out the IP-address(v4 and v6) of the raspi
+
+function die() {
+  echo $* 1>&2
+  exit 1
+}
+
+mac_to_ipv6 () {
+   IFS=':'; set $1; unset IFS
+   echo "fe80::$(printf %02x $((0x$1 ^ 2)))$2:${3}ff:fe$4:$5$6"
+}
+    
+# check if command ping6 available
+if ! command -v ping6 >/dev/null; then
+  die "ERROR: command >>ping6<< not found, please install!"
+fi
+
+if  [ $# -gt 2 ]; then
+  die "usage: $(basename $0) <mac-address> ?interface?"
+else
+  if  [ $# -eq 0 ]; then
+    die "usage: $(basename $0) <mac-address> ?interface?"
+  fi
+  if [ $# -eq 1 ]; then
+    IF='eth0'
+  else
+    IF=$2
+  fi
+fi
+
+MAC=$1
+
+if ! [[ $MAC =~ [0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F] ]]; then
+  die "invalid mac-address $MAC should be of form xx:xx:xx:xx:xx:xx"
+fi
+
+# try IPv6 link-local first
+IP6=$(mac_to_ipv6 $MAC)%$IF
+
+ping6 -c 1 $IP6 -q >/dev/null 2>/dev/null
+
+if [ $? -ne 0 ]; then
+# if true; then
+  echo "unable to find Pi at $IP6 via ping6 trying with arping.."
+  # link-local filed try arping
+  if ! command -v arping >/dev/null; then
+    die "ERROR: command >>arping<< not found, please install!"    
+  fi
+  if [ $(id -u) -ne 0 ]; then
+    die "ERROR: command >>arping<< needs to run as root!"
+  fi
+  IP4=$(arping -r -B -c 1 -i $IF $MAC)
+  if [ $? -ne 0 ]; then
+    die "unable to find Pi at $MAC via arping"
+  fi
+  FOUND=4
+else
+  FOUND=6
+fi
+  
+# at this place we have found a machine reachable via IPv4 or IPv6 link-local
+if [ "$FOUND" = "4" ]; then
+  echo "OK, found machine at $IP4"
+fi
+
+if [ "$FOUND" = "6" ]; then
+  echo "OK, found machine at link.local IP $IP6"
+fi
