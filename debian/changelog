@@ -1,3 +1,10 @@
+web20mash (4.0) unstable; urgency=low
+
+  * plugin system for sensor
+  * support for TEMPer1 sensor in addition to 1-wire sensors
+
+ -- Sven Geggus <sven-deb@geggus.net>  Sat, 01 Feb 2014 15:20:57 +0100
+
 web20mash (3.1) unstable; urgency=low
 
   * add a /getifinfo call for querying network interface settings

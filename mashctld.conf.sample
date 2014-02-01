@@ -115,3 +115,7 @@ stirring_device_port=PIO.B
 [sensor_plugin_onewire]                   
 # use find_ow_devs to list available devices
 sensor=10.XXXXXXXXXXXX
+
+[sensor_plugin_temper1]
+# sensor number as found on usb
+sensor=0

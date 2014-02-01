@@ -130,6 +130,6 @@ float sensor_getTemp() {
 
   sscanf(s,"%f",&temperature);
   free(s);
-  debug("[onewire sensor plugin] sensor_gettemp %f\n",temperature);
+  debug("[onewire sensor plugin] sensor_getTemp %f\n",temperature);
   return temperature;
 }

@@ -12,6 +12,10 @@ I do not know exactly where the tux virtual brew logo once originated.
 However it has been available on the Web for many years and at least since
 the Linux 2.0 days.
 
+The TEMPer1 sensor Plugin is based on code from
+https://github.com/padelt/pcsensor-temper
+This code is distributed under its original licence, a BSD-style licence
+
 The Libraries included in this package are distributed under their respective
 licenses which are compatible with GNU GPL 3.0.
 
