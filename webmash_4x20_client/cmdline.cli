@@ -21,3 +21,8 @@ String -b banner {Banner to be displayed e.g. mybrewery}
 String -mc messagecat {base path of message catalog}
 
 Int -db debounce {debounce delay for keys} -d 100000
+
+Flag -rs ems_stirrer {electromagnetic sensitivity workaroud:\n          force display reset on stirring device state change}
+Flag -rh ems_heater {electromagnetic sensitivity workaroud:\n          force display reset on heating device state change}
+
+

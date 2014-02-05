@@ -58,6 +58,10 @@ static Cmdline cmd = {
   /* debounceP = */ 1,
   /* debounce = */ 100000,
   /* debounceC = */ 1,
+  /***** -rs: electromagnetic sensitivity workaroud:\n          force display reset on stirring device state change */
+  /* ems_stirrerP = */ 0,
+  /***** -rh: electromagnetic sensitivity workaroud:\n          force display reset on heating device state change */
+  /* ems_heaterP = */ 0,
   /***** uninterpreted rest of command line */
   /* argc = */ 0,
   /* argv = */ (char**)0
@@ -731,7 +735,7 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-bd] [-k keys] [-lcd lcd] [-u url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-db debounce]\n");
+  fprintf(stderr,"%s","   [-bd] [-k keys] [-lcd lcd] [-u url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-db debounce] [-rs] [-rh]\n");
   fprintf(stderr,"%s","      non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports\n");
   fprintf(stderr,"%s","     -bd: run Program as a daemon in background\n");
   fprintf(stderr,"%s","      -k: gpio ports connected to keys (Menu, up, down, Enter)\n");
@@ -754,6 +758,8 @@ usage(void)
   fprintf(stderr,"%s","     -db: debounce delay for keys\n");
   fprintf(stderr,"%s","          1 int value\n");
   fprintf(stderr,"%s","          default: `100000'\n");
+  fprintf(stderr,"%s","     -rs: electromagnetic sensitivity workaroud:\n          force display reset on stirring device state change\n");
+  fprintf(stderr,"%s","     -rh: electromagnetic sensitivity workaroud:\n          force display reset on heating device state change\n");
   exit(EXIT_FAILURE);
 }
 /**********************************************************************/
@@ -832,6 +838,16 @@ parseCmdline(int argc, char **argv)
       cmd.debounceP = 1;
       i = getIntOpt(argc, argv, i, &cmd.debounce, 1);
       cmd.debounceC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-rs", argv[i]) ) {
+      cmd.ems_stirrerP = 1;
+      continue;
+    }
+
+    if( 0==strcmp("-rh", argv[i]) ) {
+      cmd.ems_heaterP = 1;
       continue;
     }
 

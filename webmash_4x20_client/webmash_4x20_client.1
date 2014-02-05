@@ -11,7 +11,7 @@
 .\" it edited by clig, remove the respective pair of cligPart-lines.
 .\"
 .\" cligPart TITLE
-.TH "webmash_4x20_client" 1 "2014-01-19" "Clig-manuals" "Programmer's Manual"
+.TH "webmash_4x20_client" 1 "2014-02-05" "Clig-manuals" "Programmer's Manual"
 .\" cligPart TITLE end
 
 .\" cligPart NAME
@@ -32,6 +32,8 @@ webmash_4x20_client \- non-browser client for mashctld using a HD44780U compatib
 [-b banner]
 [-mc messagecat]
 [-db debounce]
+[-rs]
+[-rh]
 
 .\" cligPart SYNOPSIS end
 
@@ -79,6 +81,10 @@ debounce delay for keys,
 1 Int value.
 .br
 Default: `100000'
+.IP -rs
+electromagnetic sensitivity workaroud:\n          force display reset on stirring device state change.
+.IP -rh
+electromagnetic sensitivity workaroud:\n          force display reset on heating device state change.
 .\" cligPart OPTIONS end
 
 .\" cligPart DESCRIPTION

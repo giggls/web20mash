@@ -43,6 +43,10 @@ typedef struct s_Cmdline {
   char debounceP;
   int debounce;
   int debounceC;
+  /***** -rs: electromagnetic sensitivity workaroud:\n          force display reset on stirring device state change */
+  char ems_stirrerP;
+  /***** -rh: electromagnetic sensitivity workaroud:\n          force display reset on heating device state change */
+  char ems_heaterP;
   /***** uninterpreted command line parameters */
   int argc;
   /*@null*/char **argv;

@@ -83,6 +83,10 @@ int mpstate=42;
 
 // this will be set to 1 after we got the first set of data from mashctld
 int ready=0;
+
+// due to ems problems we might want to force a display reset on relay state change
+// so lets memorize the previous relay states
+int old_rstate[2]={-1,-1};
     
 // The menu currently displayed
 static int menustate=MSTATE_PSTATE;
@@ -396,6 +400,7 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
   size_t realsize = size * nmemb;
   static size_t buflen=0;
   static char *buf;
+  int forced_reset;
 
   // jsmn stuff
   jsmn_parser parser;
@@ -541,7 +546,15 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
     }
     tok_start[length] = temp_null ; // restore char
   }
-  ready=1;
+  if (ready) {
+    if ((cmd->ems_heaterP && (1==old_rstate[0]+pstate.rstate[0])) || (cmd->ems_stirrerP && (1==old_rstate[1]+pstate.rstate[1]))) {
+      debug("electromagnetic sensitivity workaround:\ndetected relay state change forcing display reset!\n");
+      forced_reset=1;
+      lcdReset(lcdHandle);
+    } else {
+      forced_reset=0;
+    }    
+  }
   if (menustate==MSTATE_PSTATE) {
     // this is a little bit of a hack
     // if stirring support is disabled in the server also disable the menu here
@@ -567,13 +580,21 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
     } else {
       displayPstate();
     }
-  } else if (menustate==4) {
-    if ((pstate.mpstate >= 7) && (iodinealert == 1) && (pstate.ctrl==1)) {
-      previous_menu=menustate;
-      menustate=MSTATE_PSTATE;
-      displayPstate();
+  } else {
+    if (menustate==4) {
+      if ((pstate.mpstate >= 7) && (iodinealert == 1) && (pstate.ctrl==1)) {
+        previous_menu=menustate;
+        menustate=MSTATE_PSTATE;
+        displayPstate();
+      }
+    } else {
+      if (forced_reset)
+        draw_menu(&menusettings[menustate]);
     }
   }
+  ready=1;
+  old_rstate[0]=pstate.rstate[0];
+  old_rstate[1]=pstate.rstate[1];
   return realsize;
 }
 
@@ -767,9 +788,10 @@ int main(int argc, char **argv) {
                 debug("pressed key KEY_MENU+KEY_ENTER\n");
                 debug("LCD: calling reset!!!\n");
                 lcdReset(lcdHandle);
-                previous_menu=menustate;
-                menustate=MSTATE_PSTATE;
-                displayPstate();
+                if (menustate==MSTATE_PSTATE)
+                  displayPstate();
+                else
+                  draw_menu(&menusettings[menustate]);
                 break;
               }
               debug("pressed key KEY_ENTER\n");
@@ -810,9 +832,10 @@ int main(int argc, char **argv) {
                 debug("pressed key KEY_MENU+KEY_ENTER\n");
                 debug("LCD: calling reset!!!\n");
                 lcdReset(lcdHandle);
-                previous_menu=menustate;
-                menustate=MSTATE_PSTATE;
-                displayPstate();
+                if (menustate==MSTATE_PSTATE)
+                  displayPstate();
+                else
+                  draw_menu(&menusettings[menustate]);
                 break;
               }
               debug("pressed key KEY_MENU\n");
