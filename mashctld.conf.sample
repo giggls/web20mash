@@ -26,12 +26,12 @@ password=secret
 # or just something like "-u" for direct connection via usb.
 # However direct connection does only make sense if mashctld
 # is the only software accessing the 1-wire bus
-# For DS2483 e.g. RaspIO
+# For DS2483 e.g. RaspIO or fangopcb
 owparms=--i2c=/dev/i2c-1:18 --no_PPM
 # for DS2490 e.g. DS9490R
 #owparms=-u
 # for owserver running on localhost connected to any busmaster
-#owparms=localhost
+#owparms=localhost:4304
 
 # initial must temperature for control
 tempMust=0
@@ -68,8 +68,6 @@ actuatortype=heater
 # stirring device on/off parameters for each state
 # values are times in seconds always off is 0:0, always on is x:0 (x>0)
 #stirring_states=0:0,1:0,16:8,1:0,16:8,1:0,16:8,1:0,16:8
-#ext_stirring_device_on=sispm +2
-#ext_stirring_device_off=sispm -2
 
 [mash-process]
 resttemp1=52.5
@@ -96,10 +94,10 @@ lauteringtime=0
 
 # actuator plugin configuration
 [actuator_plugin_external]
-actuator_on=sispm +1
-actuator_off=sispm -1
-stirring_device_on=sispm +2
-stirring_device_off=sispm -2
+actuator_on=sispmctl -o 1 -d 0
+actuator_off=sispmctl -f 1 -d 0
+stirring_device_on=sispmctl -o 2 -d 0
+stirring_device_off=sispmctl -f 2 -d 0
 
 [actuator_plugin_gpio]
 actuator=/sys/class/gpio/gpio25/value
