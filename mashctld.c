@@ -1180,7 +1180,12 @@ pstate.tempCurrent=SIM_INIT_TEMP;
     seteuid(uid);
   }
   if (uid==0) {
+    #define MAXGROUPS 30
     struct passwd *pw;
+    int ngroups;
+    gid_t groups[MAXGROUPS];
+    ngroups=MAXGROUPS;
+    
     debug("running as root, switching to user >%s<\n",cmd->username);
     if ((pw = getpwnam(cmd->username)) == NULL) {
       fprintf(stderr,"WARNING: unknown username >%s<, running as root!\n",cmd->username);
@@ -1196,7 +1201,11 @@ pstate.tempCurrent=SIM_INIT_TEMP;
         die("unable to open pidfile: %s\n",cmd->pidfile);
       fclose(pidfile);
       chown(cmd->pidfile,pw->pw_uid,pw->pw_gid);
-      setgroups(0,NULL);
+      
+      if (getgrouplist(cmd->username, pw->pw_gid, groups, &ngroups) == -1)
+        die("getgrouplist() returned -1; ngroups = %d\n");
+      
+      setgroups(ngroups,groups);      
       setgid(pw->pw_gid);
       setuid(pw->pw_uid);
     }
