@@ -43,6 +43,7 @@ struct s_w1_act_cfg {
 
 static struct s_w1_act_cfg w1_act_cfg;
 
+extern bool simulation;
 extern void debug(char* fmt, ...);
 extern void die(char* fmt, ...);
 extern void errorlog(char* fmt, ...);
@@ -131,8 +132,11 @@ void actuator_initfunc(char *cfgfile, int devno) {
     ow_init_called=true;
     ini_gets("control", "owparms", "localhost:4304", w1_act_cfg.owparms,
               sizearray(w1_act_cfg.owparms), cfgfile);
-    if(do_OW_init() !=0)
-      die("[onewire actuator plugin] OW_init failed.\n");
+    if(do_OW_init() !=0) {
+      errorlog("[onewire actuator plugin] OW_init failed falling back to simulation mode!\n");
+      simulation=true;
+      return;  
+    }
   }
 
   if (devno==0) {
@@ -144,12 +148,15 @@ void actuator_initfunc(char *cfgfile, int devno) {
   
     // check if actuator is a valid one
     atype=search4Actuator(w1_act_cfg.device[0],w1_act_cfg.port[0]);
-    if (-1==atype)
-      die("[onewire actuator plugin] %s/%s is unavailable or not a supported actuator or actuator_port\n",
+    if (-1==atype) {
+      errorlog("[onewire actuator plugin] %s/%s is unavailable or not a supported actuator or actuator_port:\n",
         w1_act_cfg.device[0],w1_act_cfg.port[0]);
-    else
+      errorlog("[onewire actuator plugin] switching to simulation mode!\n");
+      simulation=true;
+    } else {
       debug("[onewire actuator plugin] OK, found actuator of type %s (id %s, port %s)...\n",
         actuators[atype],w1_act_cfg.device[0],w1_act_cfg.port[0]);
+    }
   }
   
   if (devno==1) {
@@ -160,12 +167,15 @@ void actuator_initfunc(char *cfgfile, int devno) {
               w1_act_cfg.port[1], sizearray(w1_act_cfg.port[1]), cfgfile);
               
     // check if stirring_device is a valid one
-    if (-1==search4Actuator(w1_act_cfg.device[1],w1_act_cfg.port[1]))
-      die("[onewire actuator plugin] %s/%s is unavailable or not a supported actuator or actuator_port\n",
+    if (-1==search4Actuator(w1_act_cfg.device[1],w1_act_cfg.port[1])) {
+      errorlog("[onewire actuator plugin] %s/%s is unavailable or not a supported actuator or actuator_port:\n",
       w1_act_cfg.device[1],w1_act_cfg.port[1]);
-    else
+      errorlog("[onewire actuator plugin] switching to simulation mode!\n");
+      simulation=true;
+    } else {
       debug("[onewire actuator plugin] OK, found stirring_device actuator of type %s (id %s, port %s)...\n",
-        actuators[atype],w1_act_cfg.device[1],w1_act_cfg.port[1]);    
+        actuators[atype],w1_act_cfg.device[1],w1_act_cfg.port[1]);
+    }
   }
 }
 

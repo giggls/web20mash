@@ -39,12 +39,15 @@
 #include <errno.h>
 #include <signal.h> 
 #include <syslog.h>
+#include <stdbool.h>
 
 #include "minIni.h"
 #include "cfgdflt.h"
 #define sizearray(a)    (sizeof(a) / sizeof((a)[0]))
+
+extern bool simulation;
 extern void debug(char* fmt, ...);
-extern void die(char* fmt, ...);
+extern void errorlog(char* fmt, ...);
  
 #define VERSION "1.0.0"
  
@@ -323,9 +326,12 @@ void sensor_initfunc(char *cfgfile) {
   // read actuator specific configuration options
   device=ini_getl("sensor_plugin_temper1","sensor",0, cfgfile); 
  
-  if ((lvr_winusb = setup_libusb_access(device)) == NULL)
-    die("[TEMPer1 sensor plugin] OK unable to access sensor %d...\n",device);
-
+  if ((lvr_winusb = setup_libusb_access(device)) == NULL) {
+    errorlog("[TEMPer1 sensor plugin] OK unable to access sensor %d:\n",device);
+    errorlog("[TEMPer1 sensor plugin] falling back to simulation mode\n");
+    simulation=true;
+    return;
+  }
   ini_control_transfer(lvr_winusb);
      
   control_transfer(lvr_winusb, uTemperatura );

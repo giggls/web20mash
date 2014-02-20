@@ -32,7 +32,7 @@ extern char cfgfp[PATH_MAX + 1];
 extern void (*plugin_setstate_call[2])(int devno, int state);
 
 /* clig command line Parameters*/  
-extern Cmdline *cmd;
+extern bool simulation;
 
 /* two level control function, assume control actuator to be always device number 0 */
 int doTempControl() {
@@ -72,7 +72,7 @@ int doTempControl() {
 
 
 void setRelay(int devno, int state) {
-  if (!cmd->simulationP)
+  if (!simulation)
     plugin_setstate_call[devno](devno,state);
   pstate.relay[devno]=state;
 }

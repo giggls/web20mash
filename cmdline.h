@@ -25,7 +25,7 @@ typedef struct s_Cmdline {
   char pidfileP;
   char* pidfile;
   int pidfileC;
-  /***** -s: simulate temperature measurements */
+  /***** -s: simulate temperature measurements and do not switch actuators */
   char simulationP;
   /***** -n: show only given network interfaces in getifinfo call */
   char netifP;

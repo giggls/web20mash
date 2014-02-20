@@ -59,6 +59,8 @@ Cmdline *cmd;
 
 /* name of runtime configuration file with full path */
 char cfgfp[PATH_MAX + 1];
+
+int simulation=false;
   
 struct configopts cfopts;
 struct processstate pstate;
@@ -76,7 +78,7 @@ static void resetMashProcess() {
   pstate.tempMust=cfopts.tempMust;
   setRelay(0,0);
   if (cfopts.stirring) setRelay(1,0);
-  if (cmd->simulationP)
+  if (simulation)
     pstate.tempCurrent=SIM_INIT_TEMP;
 }
 
@@ -910,7 +912,7 @@ void acq_and_ctrl() {
 
   /* acquire temperature */
 #ifndef NOSENSACT
-  if (!cmd->simulationP) {
+  if (!simulation) {
     pstate.tempCurrent=plugin_getTemp_call();
   } else {
 #endif
@@ -990,12 +992,13 @@ void acq_and_ctrl() {
 
   if (cmd->debugP) {
     if (pstate.mash) {
-      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d, mash:%d, timer: %.2f)\n",
+      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d, mash:%d, timer: %.2f, simulation: %s)\n",
 	    get_elapsed_time(), pstate.tempMust,pstate.tempCurrent,pstate.relay[0],pstate.relay[1],pstate.control,
-	    pstate.mash, pstate.resttime/60.0);
+	    pstate.mash, pstate.resttime/60.0,simulation ? "on" : "off");
     } else {
-      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d)\n",
-	    get_elapsed_time(),pstate.tempMust,pstate.tempCurrent,pstate.relay[0],pstate.relay[1],pstate.control);
+      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d, simulation: %s)\n",
+	    get_elapsed_time(),pstate.tempMust,pstate.tempCurrent,pstate.relay[0],pstate.relay[1],pstate.control,
+	    simulation ? "on" : "off");
     }
   }
 
@@ -1031,6 +1034,9 @@ int main(int argc, char **argv) {
 
   void *acthandle0, *acthandle1, *senshandle;
   cmd = parseCmdline(argc, argv);
+  
+  if (cmd->simulationP)
+    simulation=true;
 
   /* parse the configfile if available and readable */
   cfile=fopen(cmd->configfile,"r");
@@ -1049,8 +1055,7 @@ int main(int argc, char **argv) {
   pstate.resttime=0;
   pstate.ttrigger=0;
 #ifndef NOSENSACT
-  if (!cmd->simulationP) {
-  
+  if (!simulation) {  
     // enable sensor plugin as specified in configfile
     bp=buf;
     strcpy(bp,cfopts.plugindir);
@@ -1068,7 +1073,9 @@ int main(int argc, char **argv) {
     *(void **) (&plugin_getTemp_call)=dlsym(senshandle, "sensor_getTemp");
     if ((bp = dlerror()) != NULL) die(bp);
     plugin_sensinit_call(cfgfp);
-    
+  }
+  
+  if (!simulation) {
     // enable actuator plugins as specified in configfile
     bp=buf;
     strcpy(bp,cfopts.plugindir);
@@ -1112,7 +1119,7 @@ int main(int argc, char **argv) {
     }
   } else {
 #else
-cmd->simulationP=1;
+simulation=1;
 #endif
 // in simulation mode we start with SIM_INIT_TEMP°C and just increase by SIM_INC°C on each read
 pstate.tempCurrent=SIM_INIT_TEMP;

@@ -46,8 +46,9 @@ struct s_ext_act_cfg {
 
 static struct s_ext_act_cfg ext_act_cfg;
 
+extern bool simulation;
 extern void debug(char* fmt, ...);
-extern void die(char* fmt, ...);
+extern void errorlog(char* fmt, ...);
 
 void actuator_initfunc(char *cfgfile, int devno) {
   char cmd[255];
@@ -71,10 +72,13 @@ void actuator_initfunc(char *cfgfile, int devno) {
   // check if command is available in PATH
   strcpy(cmd,ext_act_cfg.extactuatoron[devno]);
   cmd_only=strtok(cmd," ");
-  if (0==searchXfile(cmd_only,&cmd_with_path))
+  if (0!=searchXfile(cmd_only,&cmd_with_path)) {
+    errorlog("[external actuator plugin] can not find command >%s<:\n",cmd_only);
+    errorlog("[external actuator plugin] falling back to simulation mode\n",cmd_only);
+    simulation=true;
     free(cmd_with_path);
-  else
-    die("[external actuator plugin] can not find command >%s<\n",cmd_only);
+  }
+  free(cmd_with_path);
 }
 
 void actuator_setstate(int devno, int state) {

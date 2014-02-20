@@ -5,7 +5,7 @@ mashctld
 a web-controllable two-level temperature and mash process
 controler for various sensors and actuators
 
-(c) 2011-2013 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2011-2014 Sven Geggus <sven-web20mash@geggus.net>
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -39,6 +39,7 @@ plugin for getting temperature values from 1-wire sensor
 static char device[16];
 static char owparms[100];
 
+extern bool simulation;
 extern void debug(char* fmt, ...);
 extern void die(char* fmt, ...);
 extern void errorlog(char* fmt, ...);
@@ -97,7 +98,6 @@ static int find_usable_device() {
   char *type_found_on_bus;
   size_t slen;
   bool findfirst=0;
-  int sno;
   
   if (device[0]=='\0') {
     findfirst=1;
@@ -109,15 +109,14 @@ static int find_usable_device() {
     type_found_on_bus=NULL;
     OW_get(curdev,&type_found_on_bus,&slen);
     if (NULL==type_found_on_bus) {
-      sno=stringInArray(type_found_on_bus,sensors);
-      if (sno==-1) {
-        debug("[onewire sensor plugin] sensor %s has wrong type %s using first to be found\n",device,type_found_on_bus);
+      debug("[onewire sensor plugin] invalid sensor %s using first to be found\n",device);
+      findfirst=1;
+    } else {
+      if (-1 == (stringInArray(type_found_on_bus,sensors))) {
+        debug("[onewire sensor plugin] invalid sensor type %s (ID: %s) using first to be found\n",type_found_on_bus,device);
         findfirst=1;
-      } else {
-        return(sno);
       }
     }
-      
   }  
     
   // use the first sensor found on the bus, if
@@ -137,9 +136,11 @@ void sensor_initfunc(char *cfgfile) {
     ow_init_called=true;
     ini_gets("control", "owparms", "localhost:4304", owparms,
               sizearray(owparms), cfgfile);
-    if (-1==do_OW_init())
-      die("[onewire sensor plugin] OW_init failed.\n");
-    
+    if (-1==do_OW_init()) {
+      errorlog("[onewire sensor plugin] OW_init failed falling back to simulation mode!\n");
+      simulation=true;
+      return;
+    }
   }
 
   // read actuator specific configuration options
@@ -148,10 +149,14 @@ void sensor_initfunc(char *cfgfile) {
   
   // check if sensor is a valid one
   stype=find_usable_device(device,sensors);
-  if (-1==stype)
-    die("[onewire sensor plugin] unable to find a supported sensor\n");
-  else
-    debug("[onewire sensor plugin] OK, found sensor of type %s (id %s)...\n", sensors[stype],device);
+  if (-1==stype) {
+    errorlog("[onewire sensor plugin] unable to find a supported sensor:\n");
+    errorlog("[onewire sensor plugin] falling back to simulation mode!\n");
+    simulation=true;
+  } else {
+    debug("[onewire sensor plugin] OK, found sensor of type %s at id %s.\n", sensors[stype],device);
+  }
+  return;
 }
 
 float sensor_getTemp() {

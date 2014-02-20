@@ -36,6 +36,6 @@ String -u username {username to switch to, when run as root} -d webmash
 
 String -p pidfile {pidfile location, when run as root and in background} -d /var/run/mashctld.pid
 
-Flag -s simulation {simulate temperature measurements}
+Flag -s simulation {simulate temperature measurements and do not switch actuators}
 
 String -n netif {show only given network interfaces in getifinfo call} -c 0 oo

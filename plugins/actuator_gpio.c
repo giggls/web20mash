@@ -43,8 +43,9 @@ struct s_gpio_act_cfg {
 
 static struct s_gpio_act_cfg gpio_act_cfg;
 
+extern bool simulation;
 extern void debug(char* fmt, ...);
-extern void die(char* fmt, ...);
+extern void errorlog(char* fmt, ...);
 
 void actuator_initfunc(char *cfgfile, int devno) {
 
@@ -55,8 +56,12 @@ void actuator_initfunc(char *cfgfile, int devno) {
               sizearray(gpio_act_cfg.name[0]), cfgfile);
   
     gpio_act_cfg.fd[0] = open(gpio_act_cfg.name[0], O_RDWR);
-    if (gpio_act_cfg.fd[0] < 0)
-      die("unable to open GPIO device >%s<\n",gpio_act_cfg.name[0]);
+    if (gpio_act_cfg.fd[0] < 0) {
+      errorlog("unable to open GPIO device >%s<:\n",gpio_act_cfg.name[0]);
+      errorlog("falling back to simluation mode\n");
+      simulation=true;
+      return;
+    }
   }
   
   if (devno==1) {
@@ -64,8 +69,12 @@ void actuator_initfunc(char *cfgfile, int devno) {
               sizearray(gpio_act_cfg.name[1]), cfgfile);
   
     gpio_act_cfg.fd[1] = open(gpio_act_cfg.name[1], O_RDWR);
-    if (gpio_act_cfg.fd[1] < 0)
-      die("unable to open GPIO device >%s<\n",gpio_act_cfg.name[1]);
+    if (gpio_act_cfg.fd[1] < 0) {
+      errorlog("unable to open GPIO device >%s<\n",gpio_act_cfg.name[1]);
+      errorlog("falling back to simluation mode\n");
+      simulation=true;
+      return;
+    }
   }
     
 }
