@@ -34,10 +34,10 @@ actuator plugin for calling external commands
 #define sizearray(a)    (sizeof(a) / sizeof((a)[0]))
 
 // defaults
-#define EXTACTON "sispm +1"
-#define EXTACTOFF "sispm -1"
-#define EXTSTIRON "sispm +2"
-#define EXTSTIROFF "sispm -2"
+#define EXTACTON "sispmctl -o 1 -d 0"
+#define EXTACTOFF "sispmctl -f 1 -d 0"
+#define EXTSTIRON "sispmctl -o 2 -d 0"
+#define EXTSTIROFF "sispmctl -f 2 -d 0"
 
 struct s_ext_act_cfg {
   char extactuatoron[2][255];

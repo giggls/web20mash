@@ -60,21 +60,72 @@ static int stringInArray(char * str, const char **arr) {
   return -1;
 }
 
-static int search4Device(char *device, const char **devlist) {
+static int find_first_sensor() {
+  char buf[255];
+  char *s1,*s2,*tok;
+  size_t slen1,slen2;
+  int pos;
+
+  OW_get("/",&s1,&slen1);
+    
+  tok=strtok(s1,",");
+  while (tok != NULL) {
+    /* if a sensor id is found scan for a supported sensor */
+    if (tok[2] == '.') {
+      sprintf(buf,"/%stype",tok);
+      OW_get(buf,&s2,&slen2);
+      pos=stringInArray(s2,sensors);
+      if (-1 != pos) {
+	tok[strlen(tok)-1]=0;
+	//strcpy(*sensorid,tok);
+	strcpy(device,tok);
+	free(s1);
+	free(s2);
+	return 0;
+      }
+    }
+    tok=strtok(NULL,",");
+  }
+  free(s1);
+  free(s2);
+  return -1;  
+}
+
+static int find_usable_device() {
   
   char curdev[22];
   char *type_found_on_bus;
   size_t slen;
+  bool findfirst=0;
+  int sno;
   
-  curdev[0]='/';
-  strncpy(curdev+1,device,15);
-  strcpy(curdev+16,"/type");
-  type_found_on_bus=NULL;
-  OW_get(curdev,&type_found_on_bus,&slen);
-  // return false if requested sensor is not available at all
-  if (NULL==type_found_on_bus)  return -1;
-  // return false if requested has wrong type
-  return stringInArray(type_found_on_bus,devlist);
+  if (device[0]=='\0') {
+    findfirst=1;
+    errorlog("[onewire sensor plugin] Warnung: No valid Sensor found in configfile using first to be found\n");
+  } else {
+    curdev[0]='/';
+    strncpy(curdev+1,device,15);
+    strcpy(curdev+16,"/type");
+    type_found_on_bus=NULL;
+    OW_get(curdev,&type_found_on_bus,&slen);
+    if (NULL==type_found_on_bus) {
+      sno=stringInArray(type_found_on_bus,sensors);
+      if (sno==-1) {
+        debug("[onewire sensor plugin] sensor %s has wrong type %s using first to be found\n",device,type_found_on_bus);
+        findfirst=1;
+      } else {
+        return(sno);
+      }
+    }
+      
+  }  
+    
+  // use the first sensor found on the bus, if
+  // the requested sensor is unavailable
+  if (findfirst)
+    return(find_first_sensor());
+  else
+    return 0;
 }
 
 void sensor_initfunc(char *cfgfile) {
@@ -86,7 +137,9 @@ void sensor_initfunc(char *cfgfile) {
     ow_init_called=true;
     ini_gets("control", "owparms", "localhost:4304", owparms,
               sizearray(owparms), cfgfile);
-    do_OW_init();
+    if (-1==do_OW_init())
+      die("[onewire sensor plugin] OW_init failed.\n");
+    
   }
 
   // read actuator specific configuration options
@@ -94,11 +147,11 @@ void sensor_initfunc(char *cfgfile) {
             sizearray(device), cfgfile);
   
   // check if sensor is a valid one
-  stype=search4Device(device,sensors);
+  stype=find_usable_device(device,sensors);
   if (-1==stype)
-    die("[onewire sensor plugin] %s is unavailable or not a supported sensor\n", device);
+    die("[onewire sensor plugin] unable to find a supported sensor\n");
   else
-    debug("[onewire sensor plugin] OK, found sensor of type %s (id %s)...\n", sensors[stype],device);  
+    debug("[onewire sensor plugin] OK, found sensor of type %s (id %s)...\n", sensors[stype],device);
 }
 
 float sensor_getTemp() {

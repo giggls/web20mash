@@ -112,7 +112,7 @@ static void setOWRelay(int devno,int state) {
       OW_finish();
       sleep(2);
       if(do_OW_init() !=0)
-	die("Error connecting owserver on %s\n",w1_act_cfg.owparms);
+        die("[onewire actuator plugin] OW_init failed.\n"); 
     } else {
       break;
     }
@@ -131,7 +131,8 @@ void actuator_initfunc(char *cfgfile, int devno) {
     ow_init_called=true;
     ini_gets("control", "owparms", "localhost:4304", w1_act_cfg.owparms,
               sizearray(w1_act_cfg.owparms), cfgfile);
-    do_OW_init();
+    if(do_OW_init() !=0)
+      die("[onewire actuator plugin] OW_init failed.\n");
   }
 
   if (devno==0) {

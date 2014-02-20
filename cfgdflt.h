@@ -14,10 +14,9 @@ Sll these values can be changed using the runtime configuration file
 
 */
 #define CTLD_PORT 8888
-#define CTLD_OWPARMS "-u"
-#define CTLD_SENSORID ""
+#define CTLD_STYPE "onewire"
 
-#define CTLD_ACTUATORID ""
+#define CTLD_ATYPE "external"
 
 #define CTLD_STIRRINGID ""
 #define CTLD_STIRSTATES "0:0,1:0,180:60,1:0,180:60,1:0,180:60,1:0,180:60"

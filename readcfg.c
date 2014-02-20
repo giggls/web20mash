@@ -19,13 +19,12 @@ void readconfig(char *cfgfile) {
   ini_gets("auth", "username", CTLD_USERNAME, cfopts.username, sizearray(cfopts.username), cfgfile);
   ini_gets("auth", "password", CTLD_PASSWORD, cfopts.password, sizearray(cfopts.password), cfgfile);
   cfopts.authactive=ini_getbool("auth", "active",CTLD_AUTHACTIVE, cfgfile);
-  ini_gets("control", "owparms", CTLD_OWPARMS, cfopts.owparms, sizearray(cfopts.owparms), cfgfile);
-  ini_gets("control", "sensor", CTLD_SENSORID, cfopts.sensor, sizearray(cfopts.sensor), cfgfile);
+  ini_gets("control", "sensor", CTLD_STYPE, cfopts.sensor, sizearray(cfopts.sensor), cfgfile);
   
   /* get actuator options heating/cooling and stirring devices */
   for (i=0;i<2;i++) {
     if (0==i) {
-      ini_gets("control", "actuator", CTLD_ACTUATORID, buf, sizearray(buf), cfgfile);
+      ini_gets("control", "actuator", CTLD_ATYPE, buf, sizearray(buf), cfgfile);
     } else {
       ini_gets("control", "stirring_device", CTLD_STIRRINGID, buf, sizearray(buf), cfgfile);
       if (strlen(buf)==0) cfopts.stirring=0; else cfopts.stirring=1;
