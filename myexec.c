@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-pid_t myexec (const char *command,bool wait) {
+pid_t myexec (const char *command, bool killstdout, bool killstderr, bool wait) {
   pid_t pid;
   char *dummy;
   char **com_p;
@@ -20,7 +20,15 @@ pid_t myexec (const char *command,bool wait) {
   pid = fork ();
   if (pid == 0) {
     /* This is the child process*/
-    
+    if (killstdout) {
+      close(STDOUT_FILENO);
+      open("/dev/null",O_WRONLY);
+    }
+    if (killstderr) {
+      close(STDERR_FILENO);
+      open("/dev/null",O_WRONLY);
+    }     
+
     /* do some string operations to match syntax of execvp 
        we do not care about freeing allocated memory,
        because we do execvp anyway
