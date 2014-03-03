@@ -93,16 +93,30 @@ lauteringtime=0
 #state_change_cmd=gpio_buzzer 1
 
 # actuator plugin configuration
-[actuator_plugin_external]
-actuator_on=sispmctl -o 1 -d 0
-actuator_off=sispmctl -f 1 -d 0
-stirring_device_on=sispmctl -o 2 -d 0
-stirring_device_off=sispmctl -f 2 -d 0
 
+# This actuator plugin will call the respective external command
+# at least two commands (*_on and *_off) have to be given for
+# each actuator in use.
+# The *_check command is optional but recommended!
+# In case of sispmctl we are able to check if the device is accessable
+# if this option has been given
+[actuator_plugin_external]
+actuator_on           = sispmctl -o 1 -d 0
+actuator_off          = sispmctl -f 1 -d 0
+actuator_check        = sispmctl -s
+stirring_device_on    = sispmctl -o 2 -d 0
+stirring_device_off   = sispmctl -f 2 -d 0
+stirring_device_check = sispmctl -s
+
+# This actuator plugin uses actuators connected to linux gpio lines
+# set to output mode (useful e.g. on Raspberry Pi)
 [actuator_plugin_gpio]
 actuator=/sys/class/gpio/gpio25/value
 stirring_device=/sys/class/gpio/gpio26/value
 
+# This actuator plugin uses actuators connected to a owfs supported
+# 1-wire bus
+# use find_ow_devs to list available devices
 [actuator_plugin_onewire]
 # use find_ow_devs to list available devices
 actuator=12.AAAAAAAAAAAA
@@ -110,10 +124,15 @@ actuator_port=PIO.A
 stirring_device=12.AAAAAAAAAAAA
 stirring_device_port=PIO.B
 
-[sensor_plugin_onewire]                   
+# This actuator plugin uses owfs supported 1-wire temperature sesnsors
 # use find_ow_devs to list available devices
+[sensor_plugin_onewire]                   
 sensor=10.XXXXXXXXXXXX
 
+# This actuator plugin uses the so called TEMPer1 USB temeprature sensor
+# from http://pcsensor.com/index.php?_a=product&product_id=7
+# Available via Ebay, Amazon etc.
+# Sensors are enumerated in the order they appear on USB
 [sensor_plugin_temper1]
 # sensor number as found on usb
 sensor=0
