@@ -14,7 +14,7 @@ active=0
 [control]
 owparms=-u
 tempMust=0
-sensor=10.B963D4000800
+sensor=onewire
 
 actuator=onewire
 hysteresis=0.2
@@ -39,9 +39,15 @@ resttime3=20
 lauteringtime=0
 
 [actuator_plugin_external]
-stirring_device_on=sispm +2
-stirring_device_off=sispm -2
+stirring_device_on    = sispmctl -o 2 -d 0
+stirring_device_off   = sispmctl -f 2 -d 0
+stirring_device_check = sispmctl -s
 
 [actuator_plugin_onewire]
 actuator=12.9B6E45000000/PIO.A
 actuator_port=PIO.A
+
+[sensor_plugin_onewire]
+# code falls back to first sensor found
+# on bus if this is not a valid sensor id
+sensor=28.AAAAAAAAAAAA

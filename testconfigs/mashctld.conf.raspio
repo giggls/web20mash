@@ -13,8 +13,7 @@ active=0
 [control]
 owparms=--i2c=/dev/i2c-1:18 --no_PPM
 tempMust=0
-# put real sensor ID here
-sensor=10.B963D4000800
+sensor=onewire
 actuator=gpio
 hysteresis=0.2
 actuatortype=heater
@@ -34,3 +33,8 @@ lauteringtime=0
 [actuator_plugin_gpio]
 actuator=/sys/class/gpio/gpio22/value
 stirring_device=/sys/class/gpio/gpio23/value
+
+[sensor_plugin_onewire]
+# code falls back to first sensor found
+# on bus if this is not a valid sensor id
+sensor=28.AAAAAAAAAAAA

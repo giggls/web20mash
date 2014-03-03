@@ -2,7 +2,7 @@
 # Testconfiguration for fake owserver on localhost
 #
 # run owserver as follows
-# owserver --fake=28.AAAAAAAAAAAA,12.AAAAAAAAAAAA --foreground --nozero
+# owserver --fake=28.AAAAAAAAAAAA,12.AAAAAAAAAAAA,12.BBBBBBBBBBBB --foreground --nozero
 [global]
 port=8888
 webroot=../webdata
@@ -18,7 +18,7 @@ active=0
 [control]
 owparms=localhost:4304
 tempMust=0
-sensor=28.AAAAAAAAAAAA
+sensor=onewire
 actuator=onewire
 hysteresis=0.2
 actuatortype=heater
@@ -35,8 +35,13 @@ resttime2=20
 resttime3=20
 lauteringtime=0
 
+[sensor_plugin_onewire]
+# code falls back to first sensor found
+# on bus if this is not a valid sensor id
+sensor=28.AAAAAAAAAAAA
+
 [actuator_plugin_onewire]
 actuator=12.AAAAAAAAAAAA
 actuator_port=PIO.A
-stirring_device=12.AAAAAAAAAAAA
+stirring_device=12.BBBBBBBBBBBB
 stirring_device_port=PIO.B

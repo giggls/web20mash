@@ -1,0 +1,41 @@
+This directory contains various configuration files for the following tests
+with hardware/simulation attached or not attached:
+
+1. sispm and temper1 devices via usb
+
+Plattform: PC or Raspberry Pi
+Command:   ./mashctld -d -c testconfigs/mashctld.conf.sispm 
+
+  a. both devices connected to usb
+  b. only sispm connected to usb
+  c. only temper1 connected usb
+  d. no devices connected to usb
+
+2. RaspIO/fangopcb
+   (1-wire I2C temperature sensore and relay @ gpio)
+
+Plattform: Raspberry Pi
+Command:   ./mashctld -d -c testconfigs/mashctld.conf.raspio
+
+3. owserver running in fake mode with various devices
+
+Plattform: PC or Raspberry Pi
+Command:   ./mashctld -d -c testconfigs/mashctld.conf.owsimul
+
+  a. owserver not running at all
+  b. No suitable device "connected": 
+     command: owserver --fake=01.AAAAAAAAAAAA --foreground --nozero
+  b. sensor and actuator devices "connected":
+     command:owserver --fake=28.AAAAAAAAAAAA,12.AAAAAAAAAAAA,12.BBBBBBBBBBBB --foreground --nozero
+  c. only sensor device "connected":
+     command: owserver --fake=28.AAAAAAAAAAAA --foreground --nozero
+  d. only actuator devices "connected":
+     command: owserver --fake=12.AAAAAAAAAAAA,12.BBBBBBBBBBBB --foreground --nozero
+
+4. Old 1-wire Multiboard
+   (1-wire IO-chip with relay and 1-wire sensor via DS2490)
+
+Command:   ./mashctld -d -c testconfigs/mashctld.conf.usbmb
+
+  a. 1-wire sensor connected to bus
+  b. 1-wire sensor not connected to bus

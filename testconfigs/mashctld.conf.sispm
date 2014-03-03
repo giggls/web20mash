@@ -1,9 +1,7 @@
 #
-# Testconfiguration for fake owserver on localhost for temperature
+# Testconfiguration for temper1 USB sensor
 # and sispm as an external actuator device
 #
-# run owserver as follows
-# owserver --fake=28.AAAAAAAAAAAA --foreground --nozero
 
 [global]
 port=8888
@@ -20,7 +18,7 @@ active=0
 [control]
 owparms=localhost:4304
 tempMust=0
-sensor=28.AAAAAAAAAAAA
+sensor=temper1
 actuator=external
 hysteresis=0.2
 actuatortype=heater
@@ -38,7 +36,12 @@ resttime3=20
 lauteringtime=0
 
 [actuator_plugin_external]
-actuator_on=sispm +1
-actuator_off=sispm -1
-stirring_device_on=sispm +2
-stirring_device_off=sispm -2
+actuator_on           = sispmctl -o 1 -d 0
+actuator_off          = sispmctl -f 1 -d 0
+stirring_device_on    = sispmctl -o 2 -d 0
+stirring_device_off   = sispmctl -f 2 -d 0
+actuator_check        = sispmctl -s
+stirring_device_check = sispmctl -s
+
+[sensor_plugin_temper1]
+sensor=0
