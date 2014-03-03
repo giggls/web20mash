@@ -60,7 +60,9 @@ Cmdline *cmd;
 /* name of runtime configuration file with full path */
 char cfgfp[PATH_MAX + 1];
 
-int simulation=false;
+// simulation of sensor and or actuators
+bool sensor_simul=false;
+bool actuator_simul[2]={false,false};
   
 struct configopts cfopts;
 struct processstate pstate;
@@ -70,6 +72,9 @@ void (*plugin_setstate_call[2])(int devno, int state);
 void (*plugin_actinit_call[2])(char *cfgfile, int devno);
 void (*plugin_sensinit_call)(char *cfgfile);
 float (*plugin_getTemp_call)();
+size_t (*plugin_sensor_getInfo_call)(size_t max, char *buf);
+size_t (*plugin_actuator_getInfo_call[2])(int devno, size_t max, char *buf);
+
 bool ow_init_called=false;
 
 static void resetMashProcess() {
@@ -78,7 +83,7 @@ static void resetMashProcess() {
   pstate.tempMust=cfopts.tempMust;
   setRelay(0,0);
   if (cfopts.stirring) setRelay(1,0);
-  if (simulation)
+  if (sensor_simul)
     pstate.tempCurrent=SIM_INIT_TEMP;
 }
 
@@ -159,7 +164,7 @@ static void strtolower(char* str, unsigned len) {
 void cfg_change_script() {
   if (cfopts.conf_change_script[0]!='\0') {
     debug("running config change script: %s\n",cfopts.conf_change_script,0);
-    myexec(cfopts.conf_change_script,0);
+    myexec(cfopts.conf_change_script,false,false,0);
   }
 }
 
@@ -274,7 +279,8 @@ static int answer_to_connection (void *cls,
   int fail=0;
 
   // available request types
-  bool setctl,setmust,getstate,setmpstate,setrest,setactuator,setallmash,setacttype,getifinfo;
+  bool getstate,getifinfo,getdevinfo;
+  bool setctl,setmust,setmpstate,setrest,setactuator,setallmash,setacttype;
 
   // ignore explicitely unused parameters
   // eliminate compiler warnings
@@ -292,6 +298,7 @@ static int answer_to_connection (void *cls,
   setallmash=0;
   setacttype=0;
   getifinfo=0;
+  getdevinfo=0;
 
   if (0 != strcmp (method, MHD_HTTP_METHOD_GET))
     return MHD_NO;              /* unexpected method */
@@ -338,6 +345,8 @@ static int answer_to_connection (void *cls,
 	setacttype=1;
       } else if (0 == strncmp(url, "/getifinfo",10)) {
         getifinfo=1;
+      } else if (0 == strncmp(url, "/getdevinfo",10)) {
+        getdevinfo=1;
       }
     }
     debug("requested URL: %s\n",url);
@@ -732,6 +741,33 @@ static int answer_to_connection (void *cls,
 	return ret;
       }
 
+      if (getdevinfo) {
+        int len;
+        debug("querying device information from plugins\n");
+
+        len=sprintf(mdata,"[\n");
+        len+=plugin_sensor_getInfo_call(4096-len,mdata+len);
+        sprintf(mdata+len-1,",\n");
+        len++;
+        len+=plugin_actuator_getInfo_call[0](0,4096-len,mdata+len);
+        if (cfopts.stirring) {
+          sprintf(mdata+len-1,",\n");
+          len++;
+          len+=plugin_actuator_getInfo_call[1](1,4096-len,mdata+len);
+        }
+        len+=sprintf(mdata+len,"]\n");
+        
+	response = MHD_create_response_from_data(len,
+						 (void*) mdata,
+						 MHD_NO,
+						 MHD_NO);
+	MHD_add_response_header(response,
+				"Content-Type", "application/json; charset=UTF-8");
+      
+	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+	return ret;
+      }
+
       if (strlen(url)==1 && url[0]=='/') {
 	relative_url=indexfile;  
       } else {
@@ -912,7 +948,7 @@ void acq_and_ctrl() {
 
   /* acquire temperature */
 #ifndef NOSENSACT
-  if (!simulation) {
+  if (!sensor_simul) {
     pstate.tempCurrent=plugin_getTemp_call();
   } else {
 #endif
@@ -992,13 +1028,18 @@ void acq_and_ctrl() {
 
   if (cmd->debugP) {
     if (pstate.mash) {
-      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d, mash:%d, timer: %.2f, simulation: %s)\n",
+      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d, mash:%d, timer: %.2f, simulation: %s/%s/%s)\n",
 	    get_elapsed_time(), pstate.tempMust,pstate.tempCurrent,pstate.relay[0],pstate.relay[1],pstate.control,
-	    pstate.mash, pstate.resttime/60.0,simulation ? "on" : "off");
+	    pstate.mash, pstate.resttime/60.0,
+	    sensor_simul ? "on" : "off",
+	    actuator_simul[0] ? "on" : "off",
+	    actuator_simul[1] ? "on" : "off");
     } else {
-      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d, simulation: %s)\n",
+      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d, simulation: %s/%s/%s)\n",
 	    get_elapsed_time(),pstate.tempMust,pstate.tempCurrent,pstate.relay[0],pstate.relay[1],pstate.control,
-	    simulation ? "on" : "off");
+	    sensor_simul ? "on" : "off",
+	    actuator_simul[0] ? "on" : "off",
+	    actuator_simul[1] ? "on" : "off");
     }
   }
 
@@ -1012,7 +1053,7 @@ void acq_and_ctrl() {
       char command[255];
       sprintf(command,cfopts.state_change_cmd,old_mash_state);
       debug("running state changed command: %s\n",command);
-      myexec(command,0);
+      myexec(command,false,false,0);
     }
   }
 }
@@ -1035,8 +1076,11 @@ int main(int argc, char **argv) {
   void *acthandle0, *acthandle1, *senshandle;
   cmd = parseCmdline(argc, argv);
   
-  if (cmd->simulationP)
-    simulation=true;
+  if (cmd->simulationP) {
+    sensor_simul=true;
+    actuator_simul[0]=true;
+    actuator_simul[1]=true;
+  }
 
   /* parse the configfile if available and readable */
   cfile=fopen(cmd->configfile,"r");
@@ -1055,74 +1099,87 @@ int main(int argc, char **argv) {
   pstate.resttime=0;
   pstate.ttrigger=0;
 #ifndef NOSENSACT
-  if (!simulation) {  
-    // enable sensor plugin as specified in configfile
-    bp=buf;
-    strcpy(bp,cfopts.plugindir);
-    bp+=strlen(cfopts.plugindir);
-    strcpy(bp,"/sensor_");
-    bp+=8;
-    strcpy(bp,cfopts.sensor);
-    bp+=strlen(cfopts.sensor);
-    strcpy(bp,".so");
-    debug("loading plugin %s\n",buf);
-    senshandle = dlopen (buf, RTLD_LAZY);
-    if (!senshandle) die("error opening plugin %s: %s\n",buf,dlerror());
-    *(void **) (&plugin_sensinit_call)=dlsym(senshandle, "sensor_initfunc");
-    if ((bp = dlerror()) != NULL) die(bp);
+  // enable sensor plugin as specified in configfile
+  bp=buf;
+  strcpy(bp,cfopts.plugindir);
+  bp+=strlen(cfopts.plugindir);
+  strcpy(bp,"/sensor_");
+  bp+=8;
+  strcpy(bp,cfopts.sensor);
+  bp+=strlen(cfopts.sensor);
+  strcpy(bp,".so");
+  debug("loading plugin %s\n",buf);
+  senshandle = dlopen (buf, RTLD_LAZY);
+  if (!senshandle) die("error opening plugin %s: %s\n",buf,dlerror());
+  *(void **) (&plugin_sensor_getInfo_call)=dlsym(senshandle, "sensor_getInfo");
+  if ((bp = dlerror()) != NULL) die(bp);
+  *(void **) (&plugin_sensinit_call)=dlsym(senshandle, "sensor_initfunc");
+  if ((bp = dlerror()) != NULL) die(bp);
+  if (!sensor_simul) {
     *(void **) (&plugin_getTemp_call)=dlsym(senshandle, "sensor_getTemp");
     if ((bp = dlerror()) != NULL) die(bp);
-    plugin_sensinit_call(cfgfp);
   }
-  
-  if (!simulation) {
-    // enable actuator plugins as specified in configfile
-    bp=buf;
-    strcpy(bp,cfopts.plugindir);
-    bp+=strlen(cfopts.plugindir);
-    strcpy(bp,"/actuator_");
-    bp+=10;
-    strcpy(bp,cfopts.actuator[0]);
-    bp+=strlen(cfopts.actuator[0]);
-    strcpy(bp,".so");
-    debug("loading plugin %s\n",buf);
-    acthandle0 = dlopen (buf, RTLD_LAZY);
-    if (!acthandle0) die("error opening plugin %s: %s\n",buf,dlerror());
-    *(void **) (&plugin_actinit_call[0])=dlsym(acthandle0, "actuator_initfunc");
-    if ((bp = dlerror()) != NULL) die(bp);
+  plugin_sensinit_call(cfgfp);
+
+  // enable actuator plugins as specified in configfile
+  bp=buf;
+  strcpy(bp,cfopts.plugindir);
+  bp+=strlen(cfopts.plugindir);
+  strcpy(bp,"/actuator_");
+  bp+=10;
+  strcpy(bp,cfopts.actuator[0]);
+  bp+=strlen(cfopts.actuator[0]);
+  strcpy(bp,".so");
+  debug("loading plugin %s\n",buf);
+  acthandle0 = dlopen (buf, RTLD_LAZY);
+  if (!acthandle0) die("error opening plugin %s: %s\n",buf,dlerror());
+
+  *(void **) (&plugin_actuator_getInfo_call[0])=dlsym(acthandle0, "actuator_getInfo");
+  if ((bp = dlerror()) != NULL) die(bp);
+  *(void **) (&plugin_actinit_call[0])=dlsym(acthandle0, "actuator_initfunc");
+  if ((bp = dlerror()) != NULL) die(bp);
+  if (!actuator_simul[0]) {
     *(void **) (&plugin_setstate_call[0])=dlsym(acthandle0, "actuator_setstate");
     if ((bp = dlerror()) != NULL) die(bp);
-    plugin_actinit_call[0](cfgfp,0);
-    
-    if (cfopts.stirring) {
-      if (0==strcmp(cfopts.actuator[0],cfopts.actuator[1])) {
-        plugin_actinit_call[1]=plugin_actinit_call[0];
-        plugin_setstate_call[1]=plugin_setstate_call[0];
-      } else {
-        bp=buf;
-        strcpy(bp,cfopts.plugindir);
-        bp+=strlen(cfopts.plugindir);
-        strcpy(bp,"/actuator_");
-        bp+=10;
-        strcpy(bp,cfopts.actuator[1]);
-        bp+=strlen(cfopts.actuator[1]);
-        strcpy(bp,".so");
-        debug("loading plugin %s\n",buf);
-        acthandle1 = dlopen (buf, RTLD_LAZY);
-        if (!acthandle1) die("error opening plugin %s: %s\n",buf,dlerror());
-        *(void **) (&plugin_actinit_call[1])=dlsym(acthandle1, "actuator_initfunc");
-        if ((bp = dlerror()) != NULL) die(bp);
+  }
+  plugin_actinit_call[0](cfgfp,0);
+  
+  if (cfopts.stirring) {
+    if (0==strcmp(cfopts.actuator[0],cfopts.actuator[1])) {
+      plugin_actinit_call[1]=plugin_actinit_call[0];
+      plugin_setstate_call[1]=plugin_setstate_call[0];
+      plugin_actuator_getInfo_call[1]=plugin_actuator_getInfo_call[0];
+    } else {
+      bp=buf;
+      strcpy(bp,cfopts.plugindir);
+      bp+=strlen(cfopts.plugindir);
+      strcpy(bp,"/actuator_");
+      bp+=10;
+      strcpy(bp,cfopts.actuator[1]);
+      bp+=strlen(cfopts.actuator[1]);
+      strcpy(bp,".so");
+      debug("loading plugin %s\n",buf);
+      acthandle1 = dlopen (buf, RTLD_LAZY);
+      if (!acthandle1) die("error opening plugin %s: %s\n",buf,dlerror());
+      *(void **) (&plugin_actuator_getInfo_call[1])=dlsym(acthandle1, "actuator_getInfo");
+      if ((bp = dlerror()) != NULL) die(bp);
+      *(void **) (&plugin_actinit_call[1])=dlsym(acthandle1, "actuator_initfunc");
+      if ((bp = dlerror()) != NULL) die(bp);
+      if (!actuator_simul[1]) {
         *(void **) (&plugin_setstate_call[1])=dlsym(acthandle1, "actuator_setstate");
         if ((bp = dlerror()) != NULL) die(bp);
       }
-      plugin_actinit_call[1](cfgfp,1);
     }
-  } else {
+    plugin_actinit_call[1](cfgfp,1);
+  }
 #else
-simulation=1;
+sensor_simul=true;
+actuator_simul[0]=true;
+actuator_simul[1]=true;
 #endif
-// in simulation mode we start with SIM_INIT_TEMP°C and just increase by SIM_INC°C on each read
-pstate.tempCurrent=SIM_INIT_TEMP;
+  // in simulation mode we start with SIM_INIT_TEMP°C and just increase by SIM_INC°C on each read
+  if (sensor_simul) {
+    pstate.tempCurrent=SIM_INIT_TEMP;
 #ifndef NOSENSACT
   }
 #endif

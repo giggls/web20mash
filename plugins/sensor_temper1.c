@@ -43,11 +43,23 @@
 
 #include "minIni.h"
 #include "cfgdflt.h"
+#include "errorcodes.h"
+
 #define sizearray(a)    (sizeof(a) / sizeof((a)[0]))
 
-extern bool simulation;
+static char plugin_name[]="sensor_temper1";
+
+// default is no error  
+static int plugin_error=0;
+
+static int device;
+
+extern bool sensor_simul;
 extern void debug(char* fmt, ...);
 extern void errorlog(char* fmt, ...);
+extern void die(char* fmt, ...);
+
+#define PREFIX "[TEMPer1 sensor plugin] "
  
 #define VERSION "1.0.0"
  
@@ -74,38 +86,32 @@ static int calibration=0;
 
 static usb_dev_handle *lvr_winusb = NULL;
 
-void bad(const char *why) {
-        fprintf(stderr,"Fatal error> %s\n",why);
-        exit(17);
-}
+static usb_dev_handle *find_lvr_winusb();
  
- 
-usb_dev_handle *find_lvr_winusb();
- 
-void usb_detach(usb_dev_handle *lvr_winusb, int iInterface) {
+static void usb_detach(usb_dev_handle *lvr_winusb, int iInterface) {
         int ret;
  
 	ret = usb_detach_kernel_driver_np(lvr_winusb, iInterface);
 	if(ret) {
 		if(errno == ENODATA) {
 			if(udebug) {
-				printf("Device already detached\n");
+				debug(PREFIX"Device already detached\n");
 			}
 		} else {
 			if(udebug) {
-				printf("Detach failed: %s[%d]\n",
+				debug(PREFIX"Detach failed: %s[%d]\n",
 				       strerror(errno), errno);
-				printf("Continuing anyway\n");
+				debug(PREFIX"Continuing anyway\n");
 			}
 		}
 	} else {
 		if(udebug) {
-			printf("detach successful\n");
+			debug(PREFIX"detach successful\n");
 		}
 	}
 } 
 
-usb_dev_handle* setup_libusb_access(int devicenum) {
+static usb_dev_handle* setup_libusb_access(int devicenum) {
      usb_dev_handle *lvr_winusb;
 
      if(udebug) {
@@ -119,7 +125,7 @@ usb_dev_handle* setup_libusb_access(int devicenum) {
              
  
      if(!(lvr_winusb = find_lvr_winusb(devicenum))) {
-                printf("Couldn't find the USB device, Exiting\n");
+                debug(PREFIX"Couldn't find the USB device, Exiting\n");
                 return NULL;
         }
         
@@ -131,19 +137,19 @@ usb_dev_handle* setup_libusb_access(int devicenum) {
         
  
         if (usb_set_configuration(lvr_winusb, 0x01) < 0) {
-                printf("Could not set configuration 1\n");
+                debug(PREFIX"Could not set configuration 1\n");
                 return NULL;
         }
  
 
         // Microdia tiene 2 interfaces
         if (usb_claim_interface(lvr_winusb, INTERFACE1) < 0) {
-                printf("Could not claim interface\n");
+                debug(PREFIX"Could not claim interface\n");
                 return NULL;
         }
  
         if (usb_claim_interface(lvr_winusb, INTERFACE2) < 0) {
-                printf("Could not claim interface\n");
+                debug(PREFIX"Could not claim interface\n");
                 return NULL;
         }
  
@@ -152,11 +158,11 @@ usb_dev_handle* setup_libusb_access(int devicenum) {
  
  
  
-usb_dev_handle *find_lvr_winusb(int devicenum) {
+static usb_dev_handle *find_lvr_winusb(int devicenum) {
         // iterates to the devicenum'th device for installations with multiple sensors
         struct usb_bus *bus;
         struct usb_device *dev;
- 
+
         for (bus = usb_busses; bus; bus = bus->next) {
         for (dev = bus->devices; dev; dev = dev->next) {
                         if (dev->descriptor.idVendor == VENDOR_ID && 
@@ -167,11 +173,12 @@ usb_dev_handle *find_lvr_winusb(int devicenum) {
                                 }
                                 usb_dev_handle *handle;
                                 if(udebug) {
-                                  printf("lvr_winusb with Vendor Id: %x and Product Id: %x found.\n", VENDOR_ID, PRODUCT_ID);
+                                  debug(PREFIX"Bus %s Device %s: found device with ID %04x:%04x\n",bus->dirname, dev->filename,
+                                         dev->descriptor.idVendor, dev->descriptor.idProduct);
                                 }
  
                                 if (!(handle = usb_open(dev))) {
-                                        printf("Could not open USB device\n");
+                                        debug(PREFIX"Could not open USB device\n");
                                         return NULL;
                                 }
                                 return handle;
@@ -182,7 +189,7 @@ usb_dev_handle *find_lvr_winusb(int devicenum) {
 }
  
  
-void ini_control_transfer(usb_dev_handle *dev) {
+static void ini_control_transfer(usb_dev_handle *dev) {
     int r,i;
 
     char question[] = { 0x01,0x01 };
@@ -190,17 +197,17 @@ void ini_control_transfer(usb_dev_handle *dev) {
     r = usb_control_msg(dev, 0x21, 0x09, 0x0201, 0x00, (char *) question, 2, timeout);
     if( r < 0 )
     {
-          perror("USB control write"); bad("USB write failed"); 
+          errorlog(PREFIX"USB control write"); die(PREFIX"USB write failed"); 
     }
 
 
     if(udebug) {
-      for (i=0;i<reqIntLen; i++) printf("%02x ",question[i] & 0xFF);
-      printf("\n");
+      for (i=0;i<reqIntLen; i++) debug(PREFIX"%02x ",question[i] & 0xFF);
+      debug(PREFIX"\n");
     }
 }
  
-void control_transfer(usb_dev_handle *dev, const char *pquestion) {
+static void control_transfer(usb_dev_handle *dev, const char *pquestion) {
     int r,i;
 
     char question[reqIntLen];
@@ -210,40 +217,17 @@ void control_transfer(usb_dev_handle *dev, const char *pquestion) {
     r = usb_control_msg(dev, 0x21, 0x09, 0x0200, 0x01, (char *) question, reqIntLen, timeout);
     if( r < 0 )
     {
-          perror("USB control write"); bad("USB write failed"); 
+          errorlog(PREFIX"USB control write"); die(PREFIX"USB write failed"); 
     }
 
     if(udebug) {
-        for (i=0;i<reqIntLen; i++) printf("%02x ",question[i]  & 0xFF);
-        printf("\n");
+        
+        for (i=0;i<reqIntLen; i++) fprintf(stderr,"%02x ",question[i]  & 0xFF);
+        fprintf(stderr,"\n");
     }
 }
 
-void interrupt_transfer(usb_dev_handle *dev) {
- 
-    int r,i;
-    char answer[reqIntLen];
-    char question[reqIntLen];
-    for (i=0;i<reqIntLen; i++) question[i]=i;
-    r = usb_interrupt_write(dev, endpoint_Int_out, question, reqIntLen, timeout);
-    if( r < 0 )
-    {
-          perror("USB interrupt write"); bad("USB write failed"); 
-    }
-    r = usb_interrupt_read(dev, endpoint_Int_in, answer, reqIntLen, timeout);
-    if( r != reqIntLen )
-    {
-          perror("USB interrupt read"); bad("USB read failed"); 
-    }
-
-    if(udebug) {
-       for (i=0;i<reqIntLen; i++) printf("%i, %i, \n",question[i],answer[i]);
-    }
- 
-    usb_release_interface(dev, 0);
-}
-
-void interrupt_read(usb_dev_handle *dev) {
+static void interrupt_read(usb_dev_handle *dev) {
  
     int r,i;
     char answer[reqIntLen];
@@ -252,17 +236,17 @@ void interrupt_read(usb_dev_handle *dev) {
     r = usb_interrupt_read(dev, 0x82, answer, reqIntLen, timeout);
     if( r != reqIntLen )
     {
-          perror("USB interrupt read"); bad("USB read failed"); 
+          errorlog(PREFIX"USB interrupt read"); die(PREFIX"USB read failed"); 
     }
 
     if(udebug) {
-       for (i=0;i<reqIntLen; i++) printf("%02x ",answer[i]  & 0xFF);
+       for (i=0;i<reqIntLen; i++) fprintf(stderr,"%02x ",answer[i]  & 0xFF);
     
-       printf("\n");
+       fprintf(stderr,"\n");
     }
 }
 
-void interrupt_read_temperatura(usb_dev_handle *dev, float *tempC) {
+static void interrupt_read_temperatura(usb_dev_handle *dev, float *tempC) {
  
     int r,i, temperature;
     char answer[reqIntLen];
@@ -271,14 +255,14 @@ void interrupt_read_temperatura(usb_dev_handle *dev, float *tempC) {
     r = usb_interrupt_read(dev, 0x82, answer, reqIntLen, timeout);
     if( r != reqIntLen )
     {
-          perror("USB interrupt read"); bad("USB read failed"); 
+          errorlog(PREFIX"USB interrupt read"); die(PREFIX"USB read failed"); 
     }
 
 
     if(udebug) {
-      for (i=0;i<reqIntLen; i++) printf("%02x ",answer[i]  & 0xFF);
+      for (i=0;i<reqIntLen; i++) fprintf(stderr,"%02x ",answer[i]  & 0xFF);
     
-      printf("\n");
+      fprintf(stderr,"\n");
     }
     
     temperature = (answer[3] & 0xFF) + (answer[2] << 8);
@@ -287,49 +271,66 @@ void interrupt_read_temperatura(usb_dev_handle *dev, float *tempC) {
 
 }
 
-void bulk_transfer(usb_dev_handle *dev) {
- 
-    int r,i;
-    char answer[reqBulkLen];
-
-    r = usb_bulk_write(dev, endpoint_Bulk_out, NULL, 0, timeout);
-    if( r < 0 )
-    {
-          perror("USB bulk write"); bad("USB write failed"); 
-    }
-    r = usb_bulk_read(dev, endpoint_Bulk_in, answer, reqBulkLen, timeout);
-    if( r != reqBulkLen )
-    {
-          perror("USB bulk read"); bad("USB read failed"); 
-    }
-
-
-    if(udebug) {
-      for (i=0;i<reqBulkLen; i++) printf("%02x ",answer[i]  & 0xFF);
-    }
- 
-    usb_release_interface(dev, 0);
+static void querySensorList(int max, char *list) {
+  struct usb_bus *busses;
+  struct usb_bus *bus;
+  int devnum;
+  size_t olen1,olen2,opos;
+  bool overflow;
+  
+  busses = usb_get_busses();
+  devnum=0;
+  overflow=false;
+  list[0]='\0';
+  olen2=max;
+  opos=0;
+  for (bus = busses; bus; bus = bus->next) {
+    struct usb_device *dev;
+    for (dev = bus->devices; dev; dev = dev->next) {
+      if (dev->descriptor.idVendor == VENDOR_ID &&
+          dev->descriptor.idProduct == PRODUCT_ID ) {
+        debug(PREFIX"Bus %s Device %s ID %04x:%04x: %d\n",
+           bus->dirname,dev->filename,
+           dev->descriptor.idVendor, dev->descriptor.idProduct,devnum);
+        if (!overflow) {
+          olen1=snprintf(list+opos,olen2,"\"Bus %s Device %s ID %04x:%04x: %d\",",
+                         bus->dirname, dev->filename,
+                         dev->descriptor.idVendor, dev->descriptor.idProduct,devnum);
+          if (olen1>=olen2) {
+            overflow=true;
+          }
+          opos+=olen1;
+          olen2-=olen1;
+        }
+        devnum++;
+        }
+      }
+  }
+  if (!overflow) {
+    list[opos-1]='\0';
+  }
 }
 
 float sensor_getTemp() {
   float temperature;
   control_transfer(lvr_winusb, uTemperatura );
   interrupt_read_temperatura(lvr_winusb, &temperature);
-  debug("[TEMPer1 sensor plugin] sensor_getTemp %f\n",temperature);
+  debug(PREFIX"sensor_getTemp %f\n",temperature);
   
   return temperature;
 } 
 
 void sensor_initfunc(char *cfgfile) {
-  int device = 0;
   
+  debug(PREFIX"sensor_initfunc called\n");
   // read actuator specific configuration options
   device=ini_getl("sensor_plugin_temper1","sensor",0, cfgfile); 
  
   if ((lvr_winusb = setup_libusb_access(device)) == NULL) {
-    errorlog("[TEMPer1 sensor plugin] OK unable to access sensor %d:\n",device);
-    errorlog("[TEMPer1 sensor plugin] falling back to simulation mode\n");
-    simulation=true;
+    errorlog(PREFIX"OK unable to access sensor %d:\n",device);
+    errorlog(PREFIX"falling back to simulation mode\n");
+    sensor_simul=true;
+    plugin_error=ERROR_DEV_NOTFOUND;
     return;
   }
   ini_control_transfer(lvr_winusb);
@@ -343,5 +344,40 @@ void sensor_initfunc(char *cfgfile) {
   control_transfer(lvr_winusb, uIni2 );
   interrupt_read(lvr_winusb);
   interrupt_read(lvr_winusb); 
-  debug("[TEMPer1 sensor plugin] OK using sensor %d...\n",device);
+  debug(PREFIX"OK using sensor %d...\n",device);
+}
+
+size_t sensor_getInfo(size_t max, char *buf) {
+  size_t pos, rest;
+  char devlist[1024];
+  
+  debug(PREFIX"sensor_getInfo called\n");
+  
+  querySensorList(1024,devlist);
+  
+  pos=snprintf(buf,max,
+  "  {\n"\
+  "    \"type\": \"sensor\",\n"\
+  "    \"name\": \"%s\",\n"\
+  "    \"device\": \"%d\",\n"
+  "    \"error\": \"%d\",\n",
+  plugin_name, device, plugin_error);
+  if (pos >=max) {
+    buf[0]='\0';
+    return(0);
+  }
+  rest=max-pos;
+  pos+=snprintf(buf+pos,rest,
+  "    \"devlist\": [%s]\n",devlist);
+  if (pos >=max) {
+    buf[0]='\0';
+    return(0);
+  }
+  rest=max-pos;
+  pos+=snprintf(buf+pos,rest,
+  "  }\n");
+  if (pos >=max) {
+    buf[0]='\0';
+  }
+  return(strlen(buf));
 }

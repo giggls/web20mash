@@ -36,6 +36,8 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <errno.h>
 #include <unistd.h>
 
+extern void errorlog(char* fmt, ...); 
+
 int tryXaccess(char *file) {
   int res;
   res=access(file,X_OK);
@@ -45,9 +47,7 @@ int tryXaccess(char *file) {
   // check if file is readable
   res=access(file,R_OK);
   if(res < 0)
-    fprintf(stderr,
-            "WARNING: file %s is unreadable you may not be able to execute it\n",
-            file);
+    errorlog("WARNING: file %s is unreadable you may not be able to execute it\n", file);
   return 0;
 }
 
