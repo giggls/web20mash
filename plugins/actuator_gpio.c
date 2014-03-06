@@ -166,7 +166,7 @@ size_t actuator_getInfo(int devno, size_t max, char *buf) {
   }
   rest=max-pos;
   pos+=snprintf(buf+pos,rest,
-                "    \"devlist\": [%s]\n"
+                "    \"devlist\": [%s],\n"
                 "    \"options\": []\n"
                 ,dirlist);
   if (pos >=max) {
