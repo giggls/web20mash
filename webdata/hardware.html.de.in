@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web 2.0 Mash</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/mash.css" type="text/css" />
+    <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
+     <script type="text/javascript" src="js/en.js"></script>
+    <script type="text/javascript" src="js/hardware.js"></script>
+</head>
+<body style="overflow:auto;">
+<div id="info">
+<p style="text-align: right;">
+<!--LANG-->
+</p>
+<h2>Web 2.0 Mash Hardware Information</h2>
+<p>
+<hr>
+<h3>Sensor</h3>
+<table border="0" style="table-layout:fixed">
+<tr><td style="width:150px">Pluginname:<td id='sensor_name'>
+<tr><td>Aktiver Sensor:<td id='sensor_device'>
+<tr><td>Status:<td id='sensor_status'>
+<tr><td>Verfügbare Sensoren:<td id='sensor_devlist'>
+<tr><td>Eingestellte Optionen:<td id='sensor_options'>
+</table>
+</p>
+<p>
+<hr>
+<h3>Aktor (Heizung)</h3>
+<table border="0" style="table-layout:fixed">
+<tr><td style="width:150px">Pluginname:<td id='act0_name'>
+<tr><td>Aktiver Aktor:<td id='act0_device'>
+<tr><td>Status:<td id='act0_status'>
+<tr><td>Verfügbare Aktoren:<td id='act0_devlist'>
+<tr><td>Eingestellte Optionen:<td id='act0_options'>
+</table>
+</p>
+<hr>
+<div id="stirrer" style="display:none;">
+<p>
+<h3>Aktor (Rührwerk)</h3>
+<table border="0" style="table-layout:fixed">
+<tr><td style="width:150px">Pluginname:<td id='act1_name'>
+<tr><td>Aktiver Aktor:<td id='act1_device'>
+<tr><td>Status:<td id='act1_status'>
+<tr><td>Verfügbare Aktoren:<td id='act1_devlist'>
+<tr><td>Eingestellte Optionen:<td id='act1_options'>
+</table>
+</p>
+<hr>
+</div>
+</div>
+</body>
+</html>

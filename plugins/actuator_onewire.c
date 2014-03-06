@@ -260,7 +260,7 @@ size_t actuator_getInfo(int devno, size_t max, char *buf) {
     devlist[0]='\0';
   }
 
-  if (devlist[0]!='\0') {
+  if (plugin_error[devno]==0) {
     pos=snprintf(buf,max,
     "  {\n"
     "    \"type\": \"actuator\",\n"
@@ -284,8 +284,8 @@ size_t actuator_getInfo(int devno, size_t max, char *buf) {
   }
   rest=max-pos;
   pos+=snprintf(buf+pos,rest,
-                "    \"devlist\": [%s]\n"
-                "    \"options\": [\"%s\"],\n",
+                "    \"devlist\": [%s],\n"
+                "    \"options\": [\"owparms = %s\"]\n",
                 devlist,w1_act_cfg.owparms);
   if (pos >=max) {
     buf[0]='\0';

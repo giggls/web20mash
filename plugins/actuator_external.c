@@ -154,7 +154,7 @@ size_t actuator_getInfo(int devno, size_t max, char *buf) {
   rest=max-pos;
   pos+=snprintf(buf+pos,rest,
                 "    \"devlist\": [],\n"
-                "    \"options\": [\"%s\",\"%s\",\"%s\"]\n",
+                "    \"options\": [\"stirring_device_on = %s\",\"stirring_device_off = %s\",\"stirring_device_check = %s\"]\n",
                 ext_act_cfg.extactuatorcheck[devno],ext_act_cfg.extactuatoron[devno],
                 ext_act_cfg.extactuatoroff[devno]);
   if (pos >=max) {

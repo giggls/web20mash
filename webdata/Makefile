@@ -24,6 +24,12 @@ mash.html.%: mash.html.%.in
 tempctrl.html.%: tempctrl.html.%.in
 	./html_from_template.sh tempctrl $*
 
+hardware.html.%: hardware.html.%.in
+	./html_from_template.sh hardware $*
+	
+about.html.%: about.html.%.in
+	./update-version.sh about.html.$*
+
 images/thermometer.png: images/thermometer.xcf
 	xcf2png -o images/thermometer.png images/thermometer.xcf thermometer legend
 

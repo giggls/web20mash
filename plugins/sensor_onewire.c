@@ -267,8 +267,9 @@ size_t sensor_getInfo(size_t max, char *buf) {
     "  {\n"\
     "    \"type\": \"sensor\",\n"\
     "    \"name\": \"%s\",\n"\
-    "    \"device\": \"%s: %s\",\n",
-    plugin_name, devicetype, device);
+    "    \"device\": \"%s: %s\",\n"
+    "    \"error\": \"%d\",\n",
+    plugin_name, devicetype, device, plugin_error);
   } else {
     pos=snprintf(buf,max,
     "  {\n"
@@ -284,8 +285,8 @@ size_t sensor_getInfo(size_t max, char *buf) {
   }
   rest=max-pos;
   pos+=snprintf(buf+pos,rest,
-  "    \"devlist\": [%s]\n"
-  "    \"options\": [\"%s\"]\n"
+  "    \"devlist\": [%s],\n"
+  "    \"options\": [\"owparms = %s\"]\n"
   ,devlist,owparms);
   if (pos >=max) {
     buf[0]='\0';
