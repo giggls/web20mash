@@ -66,6 +66,13 @@ images/en.png:
 	rm -rf /tmp/kbflags-1.0
 			
 clean:
+	rm -f index.html.??
+	rm -f mash.html.??
+	rm -f tempctrl.html.??
+	rm -f hardware.html.??
+	rm -f about.html.??
+
+mrproper: clean
 	rm -f images/thermometer.png
 	rm -f images/sudpfanne.png
 	rm -f images/propeller?.png
@@ -73,5 +80,3 @@ clean:
 	rm -f js/$(JCANVASCRIPT)
 	rm -f js/$(SPINNER)
 	rm -f js/$(JSTEPPER)
-	rm -f index.html.??
-	

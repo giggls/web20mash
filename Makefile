@@ -22,7 +22,7 @@ OBJ = cmdline.o mashctld.o ctrlfunc.o minIni.o readcfg.o myexec.o gen_json_4inte
 	
 #-DCTLD_PLUGINDIR=\"$(DESTDIR)/lib/web20mash/plugins\" -DCTLD_WEBROOT=\"$(DESTDIR)/share/web20mash/\" $(CFLAGS)
 
-all:mashctld gpio_buzzer plugins find_ow_devs
+all:mashctld gpio_buzzer plugins find_ow_devs webdata
 
 mashctld:$(OBJ)
 	$(CC) -o $@ $(CFLAGS) $(OBJ) $(LDLIBS)
@@ -46,11 +46,16 @@ mudflap: mashctld
 .PHONY: plugins
 plugins:
 	make -C plugins
+	
+.PHONY: webdata
+webdata:
+	make -C webdata
 
 clean:
 	rm -f *.o *~ mashctld ifinfo
 	make -C plugins clean
 	make -C webmash_7segm_client clean
+	make -C webdata clean
 
 mrproper: clean
 	rm -f cmdline.c cmdline.h mashctld.1
