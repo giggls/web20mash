@@ -1,3 +1,10 @@
+web20mash (4.1) unstable; urgency=low
+
+  * Add Hardware Info Page and daemon command handy for debugging
+    setup problems
+
+ -- Sven Geggus <sven-deb@geggus.net>  Fri, 07 Mar 2014 19:34:49 +0100
+
 web20mash (4.0) unstable; urgency=low
 
   * plugin system for sensor
