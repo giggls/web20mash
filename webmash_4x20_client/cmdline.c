@@ -34,7 +34,7 @@ static Cmdline cmd = {
   /* lcdP = */ 1,
   /* lcd = */ lcdDefault,
   /* lcdC = */ 6,
-  /***** -u: base url for mashctld state */
+  /***** -url: base url for mashctld state */
   /* urlP = */ 1,
   /* url = */ "http://localhost",
   /* urlC = */ 1,
@@ -58,6 +58,14 @@ static Cmdline cmd = {
   /* debounceP = */ 1,
   /* debounce = */ 100000,
   /* debounceC = */ 1,
+  /***** -p: pidfile location, when run as root and in background */
+  /* pidfileP = */ 1,
+  /* pidfile = */ "/var/run/wm4x20c.pid",
+  /* pidfileC = */ 1,
+  /***** -u: username to switch to, when run as root */
+  /* usernameP = */ 1,
+  /* username = */ "webmash",
+  /* usernameC = */ 1,
   /***** -rs: electromagnetic sensitivity workaroud:\n          force display reset on stirring device state change */
   /* ems_stirrerP = */ 0,
   /***** -rh: electromagnetic sensitivity workaroud:\n          force display reset on heating device state change */
@@ -735,7 +743,7 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-bd] [-k keys] [-lcd lcd] [-u url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-db debounce] [-rs] [-rh]\n");
+  fprintf(stderr,"%s","   [-bd] [-k keys] [-lcd lcd] [-url url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-db debounce] [-p pidfile] [-u username] [-rs] [-rh]\n");
   fprintf(stderr,"%s","      non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports\n");
   fprintf(stderr,"%s","     -bd: run Program as a daemon in background\n");
   fprintf(stderr,"%s","      -k: gpio ports connected to keys (Menu, up, down, Enter)\n");
@@ -744,7 +752,7 @@ usage(void)
   fprintf(stderr,"%s","    -lcd: gpio ports for LCD\n");
   fprintf(stderr,"%s","          6 int values\n");
   fprintf(stderr,"%s","          default: `4' `7' `8' `23' `24' `25'\n");
-  fprintf(stderr,"%s","      -u: base url for mashctld state\n");
+  fprintf(stderr,"%s","    -url: base url for mashctld state\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","          default: `http://localhost'\n");
   fprintf(stderr,"%s","    -dbg: enable debug output\n");
@@ -758,6 +766,12 @@ usage(void)
   fprintf(stderr,"%s","     -db: debounce delay for keys\n");
   fprintf(stderr,"%s","          1 int value\n");
   fprintf(stderr,"%s","          default: `100000'\n");
+  fprintf(stderr,"%s","      -p: pidfile location, when run as root and in background\n");
+  fprintf(stderr,"%s","          1 char* value\n");
+  fprintf(stderr,"%s","          default: `/var/run/wm4x20c.pid'\n");
+  fprintf(stderr,"%s","      -u: username to switch to, when run as root\n");
+  fprintf(stderr,"%s","          1 char* value\n");
+  fprintf(stderr,"%s","          default: `webmash'\n");
   fprintf(stderr,"%s","     -rs: electromagnetic sensitivity workaroud:\n          force display reset on stirring device state change\n");
   fprintf(stderr,"%s","     -rh: electromagnetic sensitivity workaroud:\n          force display reset on heating device state change\n");
   exit(EXIT_FAILURE);
@@ -791,7 +805,7 @@ parseCmdline(int argc, char **argv)
       continue;
     }
 
-    if( 0==strcmp("-u", argv[i]) ) {
+    if( 0==strcmp("-url", argv[i]) ) {
       int keep = i;
       cmd.urlP = 1;
       i = getStringOpt(argc, argv, i, &cmd.url, 1);
@@ -838,6 +852,22 @@ parseCmdline(int argc, char **argv)
       cmd.debounceP = 1;
       i = getIntOpt(argc, argv, i, &cmd.debounce, 1);
       cmd.debounceC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-p", argv[i]) ) {
+      int keep = i;
+      cmd.pidfileP = 1;
+      i = getStringOpt(argc, argv, i, &cmd.pidfile, 1);
+      cmd.pidfileC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-u", argv[i]) ) {
+      int keep = i;
+      cmd.usernameP = 1;
+      i = getStringOpt(argc, argv, i, &cmd.username, 1);
+      cmd.usernameC = i-keep;
       continue;
     }
 

@@ -11,7 +11,7 @@
 .\" it edited by clig, remove the respective pair of cligPart-lines.
 .\"
 .\" cligPart TITLE
-.TH "webmash_4x20_client" 1 "2014-02-05" "Clig-manuals" "Programmer's Manual"
+.TH "webmash_4x20_client" 1 "2014-03-07" "Clig-manuals" "Programmer's Manual"
 .\" cligPart TITLE end
 
 .\" cligPart NAME
@@ -25,13 +25,15 @@ webmash_4x20_client \- non-browser client for mashctld using a HD44780U compatib
 [-bd]
 [-k keys]
 [-lcd lcd]
-[-u url]
+[-url url]
 [-dbg]
 [-n]
 [-l lang]
 [-b banner]
 [-mc messagecat]
 [-db debounce]
+[-p pidfile]
+[-u username]
 [-rs]
 [-rh]
 
@@ -53,7 +55,7 @@ gpio ports for LCD,
 6 Int values.
 .br
 Default: `4' `7' `8' `23' `24' `25'
-.IP -u
+.IP -url
 base url for mashctld state,
 .br
 1 String value
@@ -81,6 +83,18 @@ debounce delay for keys,
 1 Int value.
 .br
 Default: `100000'
+.IP -p
+pidfile location, when run as root and in background,
+.br
+1 String value
+.br
+Default: `/var/run/wm4x20c.pid'
+.IP -u
+username to switch to, when run as root,
+.br
+1 String value
+.br
+Default: `webmash'
 .IP -rs
 electromagnetic sensitivity workaroud:\n          force display reset on stirring device state change.
 .IP -rh

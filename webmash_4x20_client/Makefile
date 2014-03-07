@@ -1,5 +1,6 @@
 PROG=webmash_4x20_client
 DESTDIR = /usr/local
+CFDIR = /etc
 PREFIX = $(DESTDIR)
 
 CFLAGS = -g -Wall -W -std=gnu99 -pedantic
@@ -40,3 +41,4 @@ install: all
 	mkdir -p $(DESTDIR)/share/man/man1
 	cp $(PROG).1 $(DESTDIR)/share/man/man1
 	chmod 644 $(DESTDIR)/share/man/man1/$(PROG).1
+	install -m 755 wm4x20c.init $(CFDIR)/init.d/wm4x20c

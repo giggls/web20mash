@@ -33,6 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 #include <locale.h>
 #include <stdbool.h>
 #include <sys/types.h>
+#include <pwd.h>
+#include <grp.h>
 #include <sys/stat.h>
 #include <syslog.h>
 
@@ -606,6 +608,8 @@ static char get_sysfs_value(int fd) {
 }
 
 int main(int argc, char **argv) {
+  FILE *pidfile;
+  uid_t uid,euid;
   CURL *http_handle;
   CURLM *multi_handle;
   cmd = parseCmdline(argc, argv);
@@ -626,7 +630,43 @@ int main(int argc, char **argv) {
   // 8-bit characters in .po files
   bind_textdomain_codeset( basename(argv[0]), "ISO-8859-1");
   textdomain( basename(argv[0]) );
-  
+
+  /* this is a security feature, we do not want to run as root
+     at least on a non-embedded system, so we change our userid
+     to nobody or the userid given on the commandline
+  */  
+  euid=geteuid();
+  uid=getuid();
+  if (euid!=uid) {
+    fprintf(stderr,"suid program detected, falling back to uid %u\n",uid);
+    seteuid(uid);
+  }
+  if (uid==0) {
+    #define MAXGROUPS 30
+    struct passwd *pw;
+    int ngroups;
+    gid_t groups[MAXGROUPS];
+    ngroups=MAXGROUPS;
+    
+    debug("running as root, switching to user >%s<\n",cmd->username);
+    if ((pw = getpwnam(cmd->username)) == NULL) {
+      fprintf(stderr,"WARNING: unknown username >%s<, running as root!\n",cmd->username);
+    } else {
+      /* create pid file */
+      if (NULL==(pidfile=fopen(cmd->pidfile,"w+")))
+        die("unable to open pidfile: %s\n",cmd->pidfile);
+      fclose(pidfile);
+      chown(cmd->pidfile,pw->pw_uid,pw->pw_gid);
+      
+      if (getgrouplist(cmd->username, pw->pw_gid, groups, &ngroups) == -1)
+        die("getgrouplist() returned -1; ngroups = %d\n");
+      
+      setgroups(ngroups,groups);      
+      setgid(pw->pw_gid);
+      setuid(pw->pw_uid);
+    }
+  }
+    
   // initialize menus
   for (i=1;i<NUMMENUS;i++) {
     init_menu(i,&menusettings[i]);
@@ -683,6 +723,10 @@ int main(int argc, char **argv) {
     isdaemon=true;
     openlog(Program,LOG_PID,LOG_DAEMON);
     daemonize();
+    if (NULL==(pidfile=fopen(cmd->pidfile,"w+")))
+      die("unable to open pidfile: %s\n",cmd->pidfile);
+    fprintf(pidfile,"%d\n",getpid());
+    fclose(pidfile);
   }
 
   http_handle = curl_easy_init();

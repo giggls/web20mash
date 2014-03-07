@@ -1,8 +1,14 @@
+webmash4x20client (1.2) unstable; urgency=low
+
+  * Add initscript
+
+ -- Sven Geggus <sven-deb@geggus.net>  Fri, 07 Mar 2014 19:29:40 +0100
+
 webmash4x20client (1.1) unstable; urgency=low
 
   * Various fixes and workarounds for various electromagnetic sensitivity problems I encountered
 
- -- root <root@framboise>  Wed, 05 Feb 2014 23:12:04 +0100
+ -- Sven Geggus  <sven-deb@geggus.net>  Wed, 05 Feb 2014 23:12:04 +0100
 
 webmash4x20client (1.0) unstable; urgency=low
 

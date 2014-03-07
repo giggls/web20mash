@@ -19,7 +19,7 @@ typedef struct s_Cmdline {
   char lcdP;
   int *lcd;
   int lcdC;
-  /***** -u: base url for mashctld state */
+  /***** -url: base url for mashctld state */
   char urlP;
   char* url;
   int urlC;
@@ -43,6 +43,14 @@ typedef struct s_Cmdline {
   char debounceP;
   int debounce;
   int debounceC;
+  /***** -p: pidfile location, when run as root and in background */
+  char pidfileP;
+  char* pidfile;
+  int pidfileC;
+  /***** -u: username to switch to, when run as root */
+  char usernameP;
+  char* username;
+  int usernameC;
   /***** -rs: electromagnetic sensitivity workaroud:\n          force display reset on stirring device state change */
   char ems_stirrerP;
   /***** -rh: electromagnetic sensitivity workaroud:\n          force display reset on heating device state change */

@@ -25,7 +25,8 @@ major=1
 #	$(MAKE)
 #	touch build-stamp
 #
-#clean:
+clean:
+	rm -f debian/files
 #	dh_testdir
 #	dh_testroot
 #	rm -f build-stamp configure-stamp
@@ -35,11 +36,11 @@ major=1
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 
 	# Add here commands to install the package into debian/webmash4x20client
-	make install DESTDIR=$(CURDIR)/debian/webmash4x20client/usr
+	make install DESTDIR=$(CURDIR)/debian/webmash4x20client/usr CFDIR=$(CURDIR)/debian/webmash4x20client/etc
 
 # Build architecture-independent files here.
 binary-indep: build install
