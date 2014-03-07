@@ -1,3 +1,11 @@
+web20mash (4.1.1) unstable; urgency=low
+
+  * add our daemon user to group gpio in postinst script if available
+    this seems to be a requirement on newer versions of raspbian for
+    gpio access
+
+ -- Sven Geggus <sven-deb@geggus.net>  Sat, 08 Mar 2014 00:17:44 +0100
+
 web20mash (4.1) unstable; urgency=low
 
   * Add Hardware Info Page and daemon command handy for debugging

@@ -21,6 +21,9 @@
 case "$1" in
     configure)
     	adduser --system --group --no-create-home webmash --disabled-password --home /usr/share/web20mash/ >/dev/null
+    	# on newer versions of raspbian it seems that we need
+    	# to be a member of the gpio group
+    	useradd -G gpio webmash 2>/dev/null
     	insserv webmash
     	/etc/init.d/webmash start
     ;;
