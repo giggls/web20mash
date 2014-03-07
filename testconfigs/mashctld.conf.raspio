@@ -11,7 +11,7 @@ plugin_dir=plugins/
 active=0
 
 [control]
-owparms=--i2c=/dev/i2c-1:18 --no_PPM
+owparms=--i2c=/dev/i2c-0:18 --no_PPM
 tempMust=0
 sensor=onewire
 actuator=gpio

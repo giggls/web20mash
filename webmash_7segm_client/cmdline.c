@@ -730,7 +730,6 @@ usage(void)
   fprintf(stderr,"%s","      -a: i2c address of LED device\n");
   fprintf(stderr,"%s","          1 int value\n");
   fprintf(stderr,"%s","          default: `0x70'\n");
-  fprintf(stderr,"%s","  ");
   exit(EXIT_FAILURE);
 }
 /**********************************************************************/
