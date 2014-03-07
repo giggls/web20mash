@@ -40,7 +40,7 @@ SCRIPTNAME=/etc/init.d/$NAME
 
 case "$1" in
   start)
-  	log_daemon_msg "Starting Web 2.0 Mash 4x20 client" "mashctld"
+  	log_daemon_msg "Starting Web 2.0 Mash 4x20 client" "webmash_4x20_client"
   	# if we are supposed to run on a readonly root fs
   	# copy runtime configuration file to writable location
   	# and start daemon using this file
@@ -48,7 +48,7 @@ case "$1" in
      	log_end_msg 0
      	;;
   stop)
-  	log_daemon_msg "Stopping Web 2.0 Mash" "mashctld"
+  	log_daemon_msg "Stopping Web 2.0 Mash" "webmash_4x20_client"
   	if [ -f $PIDFILE ]; then
   	  kill $(cat $PIDFILE) 2>/dev/null
   	fi
