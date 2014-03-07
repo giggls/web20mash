@@ -1,0 +1,65 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          wm4x20c
+# Required-Start:    $remote_fs $network webmash
+# Required-Stop:     $remote_fs $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start Web 2.0 Mash 4x20 client
+# Description:       Initscript for Web 2.0 Mash 4x20 client
+### END INIT INFO
+
+# Author: Sven Geggus <sven-web20mash@geggus.net>
+
+# Do NOT "set -e"
+
+# PATH should only include /usr/* if it runs after the mountnfs.sh script
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="Web 2.0 Mash 4x20 client"
+NAME=webmash_4x20_client
+DAEMON=/usr/bin/$NAME
+#
+# for german add "-l de_DE.UTF-8"
+#
+DAEMON_ARGS="-bd -n"
+#
+#
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
+# and status_of_proc is working.
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+  	log_daemon_msg "Starting Web 2.0 Mash 4x20 client" "mashctld"
+  	# if we are supposed to run on a readonly root fs
+  	# copy runtime configuration file to writable location
+  	# and start daemon using this file
+     	$DAEMON $DAEMON_ARGS -p $PIDFILE
+     	log_end_msg 0
+     	;;
+  stop)
+  	log_daemon_msg "Stopping Web 2.0 Mash" "mashctld"
+  	if [ -f $PIDFILE ]; then
+  	  kill $(cat $PIDFILE) 2>/dev/null
+  	fi
+  	rm -f $PIDFILE
+  	log_end_msg 0
+	;;
+  *)
+	#echo "Usage: $SCRIPTNAME {start|stop}" >&2
+	echo "Usage: $SCRIPTNAME {start|stop}" >&2
+	exit 3
+	;;
+esac
+
+:
