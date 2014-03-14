@@ -33,6 +33,8 @@ static void outSensorActuatorList() {
   size_t slen1,slen2;
   int pos;
 
+  s1=NULL;
+  s2=NULL;
   OW_get("/",&s1,&slen1);
     
   tok=strtok(s1,",");
@@ -50,8 +52,11 @@ static void outSensorActuatorList() {
     }
     tok=strtok(NULL,",");
   }
-  free(s1);
-  free(s2);
+  if (s1!=NULL) free(s1);
+  if (s2!=NULL) free(s2);
+  
+  s1=NULL;
+  s2=NULL;
   
   OW_get("/",&s1,&slen1);
   
@@ -73,8 +78,8 @@ static void outSensorActuatorList() {
     }
     tok=strtok(NULL,",");
   }
-  free(s1);
-  free(s2);
+  if (s1!=NULL) free(s1);
+  if (s2!=NULL) free(s2);
 }
 
 int main(int argc, char **argv) {

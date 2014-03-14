@@ -144,6 +144,8 @@ static void queryActuatorList(int max, char *list) {
   const char **i;
   bool overflow;
   
+  s1=NULL;
+  s2=NULL;
   OW_get("/",&s1,&slen1);
   
   opos=0;
@@ -176,8 +178,8 @@ static void queryActuatorList(int max, char *list) {
   if (!overflow) {
     list[opos-1]='\0';
   }
-  free(s1);
-  free(s2);                                                                      
+  if (s1!=NULL) free(s1);
+  if (s2!=NULL) free(s2);                                                         
   
   list[max-1]='\0';
 }

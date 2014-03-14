@@ -76,6 +76,8 @@ static int find_first_sensor() {
   size_t slen1,slen2;
   int pos;
 
+  s1=NULL;
+  s2=NULL;
   OW_get("/",&s1,&slen1);
     
   tok=strtok(s1,",");
@@ -89,15 +91,15 @@ static int find_first_sensor() {
 	tok[strlen(tok)-1]=0;
 	strcpy(device,tok);
 	strcpy(devicetype,s2);
-	free(s1);
-	free(s2);
+	if (s1!=NULL) free(s1);
+	if (s2!=NULL) free(s2);
 	return 0;
       }
     }
     tok=strtok(NULL,",");
   }
-  free(s1);
-  free(s2);
+  if (s1!=NULL) free(s1);
+  if (s2!=NULL) free(s2);
   return -1;  
 }
 
@@ -145,6 +147,8 @@ static void querySensorList(size_t max, char *list) {
   int pos,opos,olen1,olen2;
   bool overflow;
   
+  s1=NULL;
+  s2=NULL;
   OW_get("/",&s1,&slen1);
   
   opos=0;
@@ -175,8 +179,8 @@ static void querySensorList(size_t max, char *list) {
   if (!overflow) {
     list[opos-1]='\0';
   }
-  free(s1);
-  free(s2);                                                                      
+  if (s1!=NULL) free(s1);
+  if (s2!=NULL) free(s2);                                                         
   
   list[max-1]='\0';
 }
