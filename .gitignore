@@ -11,3 +11,4 @@ TODO
 *.tar.gz
 *.changes
 *.deb
+*.cdbs-config_list

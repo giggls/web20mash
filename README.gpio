@@ -1,29 +1,80 @@
 For using Linux GPIO on Raspberry Pi they need to be set up correctly
 
-Using sysfsutils you can add something like this to /etc/sysfs.conf
-(Example for RaspIO Hardware)
+In addition to this mashctld (and webmash_4x20_client if desired) need
+to be a member of the gpio Group.
 
+This can be done by the following command:
+(already included in the debian package)
+usermod -G gpio webmash
+
+Using sysfsutils you can add something like this to /etc/sysfs.conf:
+
+---------- Example for RaspIO Hardware ---------------------------
 # buzzer
 class/gpio/export = 18
 class/gpio/gpio18/direction = out
-mode class/gpio/gpio18/value = 666
 
 # mains socket 1
 class/gpio/export = 22
 class/gpio/gpio22/direction = out 
-mode class/gpio/gpio22/value = 666
 
 # mains socket 2
 class/gpio/export = 23
 class/gpio/gpio23/direction = out 
-mode class/gpio/gpio23/value = 666
 
 # mains socket 3
 class/gpio/export = 24
 class/gpio/gpio24/direction = out 
-mode class/gpio/gpio24/value = 666
 
 # mains socket 4
 class/gpio/export = 25
 class/gpio/gpio25/direction = out 
-mode class/gpio/gpio25/value = 666
+
+---------- Example for Fango PCB with webmash_4x20_client --------
+# buzzer
+class/gpio/export = 18
+class/gpio/gpio18/direction = out
+
+# mains socket 1
+class/gpio/export = 17
+class/gpio/gpio17/direction = out 
+
+# mains socket 2
+class/gpio/export = 27
+class/gpio/gpio27/direction = out 
+
+# For 20x4 LCD we need 6 gpio lines
+class/gpio/export = 4
+class/gpio/gpio4/direction = out
+
+class/gpio/export = 7
+class/gpio/gpio7/direction = out
+
+class/gpio/export = 8
+class/gpio/gpio8/direction = out
+
+class/gpio/export = 23
+class/gpio/gpio23/direction = out
+
+class/gpio/export = 24
+class/gpio/gpio24/direction = out
+
+class/gpio/export = 25
+class/gpio/gpio25/direction = out
+
+# 4 Buttons
+class/gpio/export = 22
+class/gpio/gpio22/direction = in
+class/gpio/gpio22/edge = falling
+
+class/gpio/export = 10
+class/gpio/gpio10/direction = in
+class/gpio/gpio10/edge = falling
+
+class/gpio/export = 9
+class/gpio/gpio9/direction = in
+class/gpio/gpio9/edge = falling
+
+class/gpio/export = 11
+class/gpio/gpio11/direction = in
+class/gpio/gpio11/edge = falling
