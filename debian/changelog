@@ -1,3 +1,9 @@
+web20mash (4.1.2) unstable; urgency=low
+
+  * same as 4.1.1 but working
+
+ -- Sven Geggus <sven-deb@geggus.net>  Fri, 14 Mar 2014 21:10:06 +0100
+
 web20mash (4.1.1) unstable; urgency=low
 
   * add our daemon user to group gpio in postinst script if available
