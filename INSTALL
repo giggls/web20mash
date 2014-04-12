@@ -1,14 +1,17 @@
-the following libraries are required:
+To compile from git the following libraries are required:
 
 libmagic-dev
 libmicrohttpd-dev (>=0.9.17)
 libow-dev (>=2.8p13)
+libi2c-dev
+libmnl-dev
+libcurl4-gnutls-dev or libcurl4-openssl-dev
+libusb-dev
 
 To "compile" the images to png one will also need to install
 inkscape and xcftools.
 
-As of Debian squeeze the following backports need to be
-installed:
+As of Debian 6.x the following backports need to be installed:
 
 libow-dev_2.8p13+dfsg1-5-5_<arch>.deb
 libow-2.8-13_2.8p13+dfsg1-5_<arch>.deb
@@ -16,7 +19,9 @@ libowcapi-2.8-13_2.8p13+dfsg1-5_<arch>.deb
 libmicrohttpd10_0.9.17-1_<arch>.deb
 libmicrohttpd-dev_0.9.17-1_<arch>.deb
 
-libmagic-dev can be installed via aptitude/apt-get.
+On Debian 7.x they  can be installed via aptitude/apt-get.
+
+libmagic-dev can be installed via aptitude/apt-get in either case.
 
 To cross compile for ARM use "dpkg-cross -i" and "xapt" instead of the
 generic dpkg and apt-get commands.
