@@ -23,6 +23,8 @@ Sll these values can be changed using the runtime configuration file
 
 #define CTLD_TEMPMUST 0
 #define CTLD_HYSTERESIS 0.2
+#define CTLD_K 1.0
+#define CTLD_DELAY 4
 #define CTLD_ACTTYPE "heater"
 #ifndef CTLD_WEBROOT
 #define CTLD_WEBROOT "/usr/local/share/web20mash/webdata/"

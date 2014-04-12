@@ -62,6 +62,9 @@ void readconfig(char *cfgfile) {
   
   cfopts.tempMust=ini_getf("control", "tempMust", CTLD_TEMPMUST, cfgfile);
   cfopts.hysteresis=ini_getf("control", "hysteresis", CTLD_HYSTERESIS, cfgfile);
+  cfopts.k=ini_getf("control", "k", CTLD_K, cfgfile);
+  cfopts.sampledelay=ini_getl("control", "sample_delay", CTLD_DELAY, cfgfile);
+
   ini_gets("global", "webroot", CTLD_WEBROOT, cfopts.webroot, sizearray(cfopts.webroot), cfgfile);
   ini_gets("global", "plugin_dir", CTLD_PLUGINDIR, cfopts.plugindir, sizearray(cfopts.plugindir), cfgfile);
 

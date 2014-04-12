@@ -31,6 +31,10 @@ typedef struct s_Cmdline {
   char netifP;
   char* *netif;
   int netifC;
+  /***** -l: write logfile of mash process to directory */
+  char logdirP;
+  char* logdir;
+  int logdirC;
   /***** uninterpreted command line parameters */
   int argc;
   /*@null*/char **argv;

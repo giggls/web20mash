@@ -63,7 +63,11 @@ char cfgfp[PATH_MAX + 1];
 // simulation of sensor and or actuators
 bool sensor_simul=false;
 bool actuator_simul[2]={false,false};
-  
+
+bool logging=false;
+FILE *logfile;
+char *logfilename;
+
 struct configopts cfopts;
 struct processstate pstate;
 // sensor and actuator functions are implemented in plugins to allow
@@ -944,7 +948,15 @@ void doStirControl() {
 void acq_and_ctrl() {
   uint64_t endtime;
   static bool expired=false;
-  static int old_mash_state=42;
+  static int old_mash_state=-1;
+
+  // called when mash process is finished or has been stopped by external command
+  if (((old_mash_state>0) && (pstate.mash==0)) || (pstate.mash==9)) {
+    debug("closing logfile\n");
+    if (logfile !=NULL) {
+      fclose(logfile);
+    }
+  }
 
   /* acquire temperature */
 #ifndef NOSENSACT
@@ -961,6 +973,28 @@ void acq_and_ctrl() {
   /* if mash process is running adjust process parameters */
   if ((pstate.mash>0) && (pstate.mash<9)) {
     unsigned index;
+  
+    // called when mash process has been started
+    if (old_mash_state<1) {
+      if (logging) {
+        char timestr[30];
+        time_t curtime;
+        curtime=time(NULL);
+        strftime(timestr, 30, "%Y%m%d-%H%M%S.log", localtime(&curtime));
+        sprintf(logfilename,"%s/%s",cmd->logdir,timestr);
+        debug("opening logfile: %s\n",logfilename);
+        logfile=fopen(logfilename,"w+");
+        if (logfile==NULL) {
+          logging=false;
+        } else {
+          setlinebuf(logfile);
+        }
+      }           
+    }
+
+    if (logging) {
+      fprintf(logfile,"%.4f\n",pstate.tempCurrent);
+    }
     
     index=(pstate.mash-1)/2;
     if (index <4) pstate.tempMust=cfopts.resttemp[index];  
@@ -1028,21 +1062,21 @@ void acq_and_ctrl() {
 
   if (cmd->debugP) {
     if (pstate.mash) {
-      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d, mash:%d, timer: %.2f, simulation: %s/%s/%s)\n",
+      debug("clock: %.02f temp: must:%5.1f cur:%f (relays:%d %d, control:%d, mash:%d, timer: %.2f, simulation: %s/%s/%s)\n",
 	    get_elapsed_time(), pstate.tempMust,pstate.tempCurrent,pstate.relay[0],pstate.relay[1],pstate.control,
 	    pstate.mash, pstate.resttime/60.0,
 	    sensor_simul ? "on" : "off",
 	    actuator_simul[0] ? "on" : "off",
 	    actuator_simul[1] ? "on" : "off");
     } else {
-      debug("clock: %.02f temp: must:%5.1f cur:%5.1f (relays:%d %d, control:%d, simulation: %s/%s/%s)\n",
+      debug("clock: %.02f temp: must:%5.1f cur:%f (relays:%d %d, control:%d, simulation: %s/%s/%s)\n",
 	    get_elapsed_time(),pstate.tempMust,pstate.tempCurrent,pstate.relay[0],pstate.relay[1],pstate.control,
 	    sensor_simul ? "on" : "off",
 	    actuator_simul[0] ? "on" : "off",
 	    actuator_simul[1] ? "on" : "off");
     }
   }
-
+  
   // run external command on mash state change if state_change_cmd
   // is speciefied in runtime configuration file
   if (old_mash_state != pstate.mash) {
@@ -1275,7 +1309,18 @@ actuator_simul[1]=true;
     }
   }
   
-  timfd=init_timerfd(DELAY);
+  /* check if logdir is writeable */
+  if (cmd->logdirP) {
+    if (0 != access(cmd->logdir,W_OK)) {
+      errorlog("requested log-directory >%s< is not writable, logging disabled\n",cmd->logdir);
+      logging=false;
+    } else {
+      logging=true;
+      logfilename=malloc((strlen(cmd->logdir)+30)*sizeof(char));
+    }
+  }
+  
+  timfd=init_timerfd(cfopts.sampledelay);
   if (cmd->debugP)
     get_elapsed_time();
 

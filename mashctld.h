@@ -60,8 +60,6 @@ main header file
 #include "cmdline.h"
 #include "gen_json_4interfaces.h"
 
-#define DELAY 4
-
 #define MINTEMP -55
 #define MAXTEMP 125
 #define MAXTIME 180
@@ -102,6 +100,8 @@ struct configopts {
   int stirring_states[10][2];  
   float tempMust;
   float hysteresis;
+  float k;
+  int sampledelay;
   int acttype;
   char webroot[1024];
   char plugindir[1024];

@@ -39,3 +39,6 @@ String -p pidfile {pidfile location, when run as root and in background} -d /var
 Flag -s simulation {simulate temperature measurements and do not switch actuators}
 
 String -n netif {show only given network interfaces in getifinfo call} -c 0 oo
+
+String -l logdir {write logfile of mash process to directory}
+

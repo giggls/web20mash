@@ -44,6 +44,10 @@ static Cmdline cmd = {
   /* netifP = */ 0,
   /* netif = */ (char**)0,
   /* netifC = */ 0,
+  /***** -l: write logfile of mash process to directory */
+  /* logdirP = */ 0,
+  /* logdir = */ (char*)0,
+  /* logdirC = */ 0,
   /***** uninterpreted rest of command line */
   /* argc = */ 0,
   /* argv = */ (char**)0
@@ -717,7 +721,7 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-d] [-bd] [-c configfile] [-u username] [-p pidfile] [-s] [-n [netif]]\n");
+  fprintf(stderr,"%s","   [-d] [-bd] [-c configfile] [-u username] [-p pidfile] [-s] [-n [netif]] [-l logdir]\n");
   fprintf(stderr,"%s","      two-level temperature and mash process controler\n");
   fprintf(stderr,"%s","     -d: print debug info\n");
   fprintf(stderr,"%s","    -bd: run Program as a daemon in background\n");
@@ -733,6 +737,8 @@ usage(void)
   fprintf(stderr,"%s","     -s: simulate temperature measurements and do not switch actuators\n");
   fprintf(stderr,"%s","     -n: show only given network interfaces in getifinfo call\n");
   fprintf(stderr,"%s","         0 or more char* values\n");
+  fprintf(stderr,"%s","     -l: write logfile of mash process to directory\n");
+  fprintf(stderr,"%s","         1 char* value\n");
   exit(EXIT_FAILURE);
 }
 /**********************************************************************/
@@ -787,6 +793,14 @@ parseCmdline(int argc, char **argv)
       cmd.netifP = 1;
       i = getStringOpts(argc, argv, i, &cmd.netif, 0, -1);
       cmd.netifC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-l", argv[i]) ) {
+      int keep = i;
+      cmd.logdirP = 1;
+      i = getStringOpt(argc, argv, i, &cmd.logdir, 1);
+      cmd.logdirC = i-keep;
       continue;
     }
 
