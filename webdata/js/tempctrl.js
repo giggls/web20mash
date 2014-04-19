@@ -113,11 +113,7 @@ function RunApp() {
 
   $("input[name='acttype']").click(function() {
     var state = $("input[name='acttype']:checked").val();
-    if (state == 1) {
-      url=setacttype+"heater";
-    } else {
-      url=setacttype+"cooler";
-    }
+    url=setacttype+state;
     $.get(url, cbsetacttype);
   });
 
