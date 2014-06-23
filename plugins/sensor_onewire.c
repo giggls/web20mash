@@ -229,12 +229,12 @@ float sensor_getTemp() {
   unsigned i;
 
   /* acquire current temperature value 
-       we try again up to 30 times if we get a read-error
+     we try again up to 10 times if we get a read-error
   */
   sprintf(buf,"/uncached/%s/temperature",device);
-  for (i=0;i<60;i++) {
+  for (i=0;i<10;i++) {
     if (-1==OW_get(buf,&s,&slen)) {
-      errorlog("owfs READ error, retrying in 1 second\n");
+      errorlog("owfs READ error, retrying in 3 seconds\n");
       free(s);
       OW_finish();
       sleep(3);
@@ -245,8 +245,8 @@ float sensor_getTemp() {
       break;
     }
   }
-  if (i==60)
-    die("still got a read error after retrying 30 times\n");
+  if (i==10)
+    die("still got a read error after retrying 10 times\n");
 
   sscanf(s,"%f",&temperature);
   free(s);
