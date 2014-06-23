@@ -993,7 +993,7 @@ void acq_and_ctrl() {
     }
 
     if (logging) {
-      fprintf(logfile,"%.4f\n",pstate.tempCurrent);
+      fprintf(logfile,"%.4f\t%.4f\t%d\n",pstate.tempCurrent,pstate.tempMust,pstate.relay[0]);
     }
     
     index=(pstate.mash-1)/2;
