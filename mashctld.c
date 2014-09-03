@@ -1109,12 +1109,15 @@ int main(int argc, char **argv) {
 
   void *acthandle0, *acthandle1, *senshandle;
   cmd = parseCmdline(argc, argv);
-  
+#ifndef NOSENSACT  
   if (cmd->simulationP) {
+#endif
     sensor_simul=true;
     actuator_simul[0]=true;
     actuator_simul[1]=true;
+#ifndef NOSENSACT
   }
+#endif
 
   /* parse the configfile if available and readable */
   cfile=fopen(cmd->configfile,"r");
@@ -1132,7 +1135,7 @@ int main(int argc, char **argv) {
   pstate.tempMust=cfopts.tempMust;
   pstate.resttime=0;
   pstate.ttrigger=0;
-#ifndef NOSENSACT
+
   // enable sensor plugin as specified in configfile
   bp=buf;
   strcpy(bp,cfopts.plugindir);
@@ -1206,17 +1209,11 @@ int main(int argc, char **argv) {
     }
     plugin_actinit_call[1](cfgfp,1);
   }
-#else
-sensor_simul=true;
-actuator_simul[0]=true;
-actuator_simul[1]=true;
-#endif
+
   // in simulation mode we start with SIM_INIT_TEMP°C and just increase by SIM_INC°C on each read
   if (sensor_simul) {
     pstate.tempCurrent=SIM_INIT_TEMP;
-#ifndef NOSENSACT
   }
-#endif
 
   if (-1==chdir(cfopts.webroot)) {
     // try ./webdata as webroot bevore giving up

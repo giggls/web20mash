@@ -1,3 +1,9 @@
+web20mash (4.1.4) unstable; urgency=low
+
+  * add fake hardware info for simulation mode
+
+ -- Sven Geggus <sven-deb@geggus.net>  Wed, 03 Sep 2014 16:08:54 +0200
+
 web20mash (4.1.3) unstable; urgency=low
 
   * css correction for version 2.0 of spin.js
