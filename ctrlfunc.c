@@ -36,6 +36,23 @@ extern bool actuator_simul[2];
 
 /* two level control function, assume control actuator to be always device number 0 */
 int doTempControl() {
+#if 1
+  // http://hobbybrauer.de/modules.php?name=eBoard&file=viewthread&tid=8185
+  
+  // Wenn Istwert >= (Sollwert – (Gradient * k)) dann ausschalten!
+  if (pstate.tempCurrent >= (pstate.tempMust - (pstate.gradient*cfopts.k))) {
+    if (pstate.relay[0]==1) {
+      setRelay(0,0);
+    }
+  }
+  // Wenn Istwert <= (Sollwert – Hysterese – (Gradient * k)) dann einschalten!
+  if (pstate.tempCurrent <= (pstate.tempMust - cfopts.hysteresis - (pstate.gradient*cfopts.k))) {
+    if (pstate.relay[0]==0) {
+      setRelay(0,1);
+    }
+  }
+#endif
+#if 0
   float ubarrier;
   float lbarrier;
 
@@ -66,7 +83,7 @@ int doTempControl() {
       }
     }
   }
-
+#endif
   return(0);
 }
 

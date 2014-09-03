@@ -946,6 +946,7 @@ void doStirControl() {
 void acq_and_ctrl() {
   uint64_t endtime;
   static bool expired=false;
+  static bool first=true;
   static int old_mash_state=-1;
 
   // called when mash process is finished or has been stopped by external command
@@ -959,7 +960,15 @@ void acq_and_ctrl() {
   /* acquire temperature */
 #ifndef NOSENSACT
   if (!sensor_simul) {
-    pstate.tempCurrent=plugin_getTemp_call();
+    float temp;
+    temp=plugin_getTemp_call();
+    if (first) {
+      pstate.gradient=0;
+    } else {
+      // gradient (Steigung) = delta_y/delta_x
+      pstate.gradient=(temp-pstate.tempCurrent)/cfopts.sampledelay;
+    }
+    pstate.tempCurrent=temp;
   } else {
 #endif
     if (cfopts.acttype == ACT_HEATER) {
@@ -1010,12 +1019,12 @@ void acq_and_ctrl() {
       }           
     }
 
+    index=(pstate.mash-1)/2;
+    if (index <4) pstate.tempMust=cfopts.resttemp[index];
+    
     if (logging) {
       fprintf(logfile,"%.4f\t%.4f\t%d\n",pstate.tempCurrent,pstate.tempMust,pstate.relay[0]);
     }
-    
-    index=(pstate.mash-1)/2;
-    if (index <4) pstate.tempMust=cfopts.resttemp[index];  
 
     if (pstate.mash % 2) /* power heating until rest is reached */ {
       pstate.resttime=0;
@@ -1082,15 +1091,15 @@ void acq_and_ctrl() {
 
   if (cmd->debugP) {
     if (pstate.mash) {
-      debug("clock: %.02f temp: must:%5.1f cur:%f (relays:%d %d, control:%d, mash:%d, timer: %.2f, simulation: %s/%s/%s)\n",
-	    get_elapsed_time(), pstate.tempMust,pstate.tempCurrent,pstate.relay[0],pstate.relay[1],pstate.control,
+      debug("clock: %.02f temp: must:%5.1f cur:%.4f grad:%f (relays:%d %d, control:%d, mash:%d, timer: %.2f, simulation: %s/%s/%s)\n",
+	    get_elapsed_time(), pstate.tempMust,pstate.tempCurrent,pstate.gradient,pstate.relay[0],pstate.relay[1],pstate.control,
 	    pstate.mash, pstate.resttime/60.0,
 	    sensor_simul ? "on" : "off",
 	    actuator_simul[0] ? "on" : "off",
 	    actuator_simul[1] ? "on" : "off");
     } else {
-      debug("clock: %.02f temp: must:%5.1f cur:%f (relays:%d %d, control:%d, simulation: %s/%s/%s)\n",
-	    get_elapsed_time(),pstate.tempMust,pstate.tempCurrent,pstate.relay[0],pstate.relay[1],pstate.control,
+      debug("clock: %.02f temp: must:%5.1f cur:%.4f grad:%f (relays:%d %d, control:%d, simulation: %s/%s/%s)\n",
+	    get_elapsed_time(),pstate.tempMust,pstate.tempCurrent,pstate.gradient,pstate.relay[0],pstate.relay[1],pstate.control,
 	    sensor_simul ? "on" : "off",
 	    actuator_simul[0] ? "on" : "off",
 	    actuator_simul[1] ? "on" : "off");
@@ -1110,7 +1119,10 @@ void acq_and_ctrl() {
       myexec(command,false,false,0);
     }
   }
-}
+  if (first) {
+    first=false;
+  }
+} /* acq_and_ctrl */
 
 int main(int argc, char **argv) {
   // these are 4 sockets: HTTP/IPv4, HTTP/IPv6, HTTPS/IPv4, HTTPS/IPv6

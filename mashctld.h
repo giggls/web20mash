@@ -126,6 +126,7 @@ struct configopts {
 struct processstate {
   float tempCurrent;
   float tempMust;
+  float gradient;
   time_t resttime;
   uint64_t starttime;
   bool relay[2];
