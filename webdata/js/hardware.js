@@ -23,7 +23,7 @@ function gen_status_html(code) {
 $(document).ready(function () {
   $.ajax({ 
     type: 'GET', 
-    url: '/getdevinfo', 
+    url: 'getdevinfo', 
     dataType: 'json',
     success: function (data) {
 	
