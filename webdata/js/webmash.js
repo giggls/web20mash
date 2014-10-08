@@ -238,8 +238,10 @@ function parse_getstate_Response(data) {
       if (stirring_state != data.rstate[1]) {
         stirring_state = data.rstate[1];
         if (stirring_state==1) {
+          $("input[name='stirrer']").attr('checked', true);
           propeller.start();
         } else {
+          $("input[name='stirrer']").attr('checked', false);
           propeller.stop();
         }
       }
@@ -247,19 +249,18 @@ function parse_getstate_Response(data) {
   }
 
   thermo.setvalue(data.curtemp,data.musttemp);
+
   if (data.rstate[0]) {
+    $("input[name='actuator']").attr('checked', true);
     jc_heat_img.attr('img', cimageObjs[2]);
   } else {
+    $("input[name='actuator']").attr('checked', false);
     jc_heat_img.attr('img', cimageObjs[3]);
   }
 
   // edge detection for change of control state on/off
   if (control != data.ctrl) {
     control=data.ctrl;
-    if (data.rstate[0])
-      $("input[name='actuator']").attr('checked', true);
-    else
-      $("input[name='actuator']").attr('checked', false);
     if (data.rstate[1])
        $("input[name='stirrer']").attr('checked', true);
     else
