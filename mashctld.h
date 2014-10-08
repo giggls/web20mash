@@ -60,8 +60,8 @@ main header file
 #include "cmdline.h"
 #include "gen_json_4interfaces.h"
 
-#define MINTEMP -55
-#define MAXTEMP 125
+#define MINTEMP -10
+#define MAXTEMP 110
 #define MAXTIME 180
 #define UNUSED(expr) do { (void)(expr); } while (0)
 
@@ -75,6 +75,9 @@ main header file
 #define SIM_INIT_TEMP 42
 // increase temperature by this interval on every control interval
 #define SIM_INC 0.5
+
+#define SIM_MIN_TEMP 20
+#define SIM_MAX_TEMP 100
 
 int doTempControl();
 void setRelay(int devno, int state);

@@ -87,8 +87,6 @@ static void resetMashProcess() {
   pstate.tempMust=cfopts.tempMust;
   setRelay(0,0);
   if (cfopts.stirring) setRelay(1,0);
-  if (sensor_simul)
-    pstate.tempCurrent=SIM_INIT_TEMP;
 }
 
 const char* actuatorname[2] = {"cooler", "heater"};
@@ -964,8 +962,13 @@ void acq_and_ctrl() {
     pstate.tempCurrent=plugin_getTemp_call();
   } else {
 #endif
-    if (pstate.relay[0])
-      pstate.tempCurrent+=SIM_INC;
+    if (pstate.relay[0]) {
+      if (pstate.tempCurrent < SIM_MAX_TEMP)
+        pstate.tempCurrent+=SIM_INC;
+    } else {
+      if (pstate.tempCurrent > SIM_MIN_TEMP)
+        pstate.tempCurrent-=SIM_INC;
+    }
 #ifndef NOSENSACT
   }
 #endif
@@ -1046,6 +1049,8 @@ void acq_and_ctrl() {
 
   if (expired) {
     resetMashProcess();
+    if (sensor_simul)
+      pstate.tempCurrent=SIM_INIT_TEMP;     
     expired=false;
   }
 
