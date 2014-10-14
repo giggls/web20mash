@@ -962,13 +962,28 @@ void acq_and_ctrl() {
     pstate.tempCurrent=plugin_getTemp_call();
   } else {
 #endif
-    if (pstate.relay[0]) {
-      if (pstate.tempCurrent < SIM_MAX_TEMP)
-        pstate.tempCurrent+=SIM_INC;
+    if (cfopts.acttype == ACT_HEATER) {
+      // actuator on
+      if (pstate.relay[0]) {
+        if (pstate.tempCurrent < SIM_MAX_TEMP)
+          pstate.tempCurrent+=SIM_INC;
+       // actuator off
+      } else {
+        if (pstate.tempCurrent > SIM_MIN_TEMP)
+          pstate.tempCurrent-=SIM_INC;
+      }
     } else {
-      if (pstate.tempCurrent > SIM_MIN_TEMP)
-        pstate.tempCurrent-=SIM_INC;
+      // actuator on
+      if (pstate.relay[0]) {
+        if (pstate.tempCurrent > 0)
+          pstate.tempCurrent-=SIM_INC;
+       // actuator off
+      } else {
+        if (pstate.tempCurrent < 30)
+          pstate.tempCurrent+=SIM_INC;
+      }
     }
+    
 #ifndef NOSENSACT
   }
 #endif
