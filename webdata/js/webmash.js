@@ -40,7 +40,6 @@ var setallmash="./setallmash/";
 var setactuator="./setactuator/";
 var iodinealert=0;
 var stirring_active=0;
-var stirring_state=0;
 var propeller;
 var pi;
 var control=0;
@@ -228,20 +227,27 @@ function parse_getstate_Response(data) {
   
 
   if (data.stirring) {
+    // create propeller on first time
     if (!stirring_active) {
       $('#stirrer').show();
-      propeller=new Propeller("ControlCanvas",350,290,"images/");
+      propeller=new Propeller("ControlCanvas",350,290,"images/",data.rstate[1]);
+      if (data.rstate[1]) {
+        $("input[name='stirrer']").attr('checked', true);
+      } else {
+        $("input[name='stirrer']").attr('checked', false);
+      }
       stirring_active=1;
+    // update propeller if desired otherwise
     } else {
-      // edge detector for stirring state
-      // turn propeller animation on or off
-      if (stirring_state != data.rstate[1]) {
-        stirring_state = data.rstate[1];
-        if (stirring_state==1) {
-          $("input[name='stirrer']").attr('checked', true);
+      if (data.rstate[1]) {
+        $("input[name='stirrer']").attr('checked', true);
+      } else {
+        $("input[name='stirrer']").attr('checked', false);
+      };
+      if (data.rstate[1] != propeller.getstate()) {
+        if(data.rstate[1]) {
           propeller.start();
         } else {
-          $("input[name='stirrer']").attr('checked', false);
           propeller.stop();
         }
       }
@@ -386,13 +392,12 @@ function cbsetactuator(data,state,name) {
    } else {
      jc_heat_img.attr('img', cimageObjs[3]);
    }
-  } else {
-    stirring_state=state;
-    if (state) {
-      propeller.start();
-    } else {
-      propeller.stop();
-    }
-  }
-  jc.start(mashCanvas);
+ } else {
+   if (state) {
+     propeller.start();
+   } else {
+     propeller.stop();
+   }
+ }
+ jc.start(mashCanvas);
 }

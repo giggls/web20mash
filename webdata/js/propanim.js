@@ -3,13 +3,32 @@
 // call like this
 // propanim=new Propeller("mycanvas",0,0,imagedir);
 //
-function Propeller(canvas,x,y,imgdir) {
+function Propeller(canvas,x,y,imgdir,state) {
   var propImgfiles = new Array();
   var propImgObjs = new Array();
   var numload=0;
   var curImage=0;
   var animate=0;
   var animimgObj;
+  var self = this;
+  
+  this.drawnext = function() {
+    if (curImage==7) curImage=0; else curImage++;
+    animimgObj.attr('img', propImgObjs[curImage]);
+    jc.start(canvas);
+    if (animate) setTimeout( this.drawnext.bind(this) , 100);
+  }
+  this.start = function() {
+    animate=1;
+    this.drawnext();
+  }
+  this.stop = function() {
+    animate=0;
+  }
+
+  this.getstate = function() {
+    return(animate);
+  }
 
   for (var i=1;i<9;i++) {
     propImgfiles.push("propeller"+i+".png")
@@ -21,23 +40,10 @@ function Propeller(canvas,x,y,imgdir) {
       if (numload==propImgfiles.length) {
         animimgObj=jc.image(propImgObjs[curImage],x,y);
         jc.start(canvas);
+        if (state) self.start();
       }
     }
     propImgObjs[i].src=imgdir+propImgfiles[i];
   };
- 
-  this.drawnext = function() {
-    if (curImage==7) curImage=0; else curImage++;
-    animimgObj.attr('img', propImgObjs[curImage]);
-    jc.start(canvas);
-    if (animate) setTimeout( this.drawnext.bind(this) , 100)
-  }
-  this.start = function() {
-    animate=1;
-    this.drawnext();
-  }
-  this.stop = function() {
-    animate=0;
-  }
 };
 
