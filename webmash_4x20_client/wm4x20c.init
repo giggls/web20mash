@@ -19,9 +19,10 @@ DESC="Web 2.0 Mash 4x20 client"
 NAME=webmash_4x20_client
 DAEMON=/usr/bin/$NAME
 #
-# for german add "-l de_DE.UTF-8"
-#
+# for german language add "-l de_DE.UTF-8"
 DAEMON_ARGS="-bd -n"
+#change like this for custom  brewery name
+#DAEMON_ARGS=(-bd -n -p 'my brewery name')
 #
 #
 PIDFILE=/var/run/$NAME.pid
@@ -44,7 +45,7 @@ case "$1" in
   	# if we are supposed to run on a readonly root fs
   	# copy runtime configuration file to writable location
   	# and start daemon using this file
-     	$DAEMON $DAEMON_ARGS -p $PIDFILE
+        $DAEMON "${DAEMON_ARGS[@]}" -p $PIDFILE
      	log_end_msg 0
      	;;
   stop)
