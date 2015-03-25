@@ -1,0 +1,6 @@
+SUBSYSTEM!="usb_device", ACTION!="add", GOTO="temper1_rules_end"
+
+# TEMPer1 temperature sensor
+ATTR{idVendor}=="0c45", ATTR{idProduct}=="7401", MODE="666", GROUP="webmash"
+
+LABEL="temper1_rules_end"

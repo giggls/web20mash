@@ -1,0 +1,29 @@
+If using USB connected sensors or actuators mashctld will need access
+to the respective usb device nodes (/dev/bus/usb/...)
+
+However, this will not work by default if mashctld is not running as root
+(the default and recommend setup)
+
+So we need to make shure, that this is changed at plug-in or boot time by
+means of udev.
+
+/usr/share/doc/web20mash/udev-rules/ provides configuration-files for the
+following devices:
+
+* TEMPer1 sensors (temper1.rules)
+* DS2490/DS9490R 1-wire adaptors (owfs.rules)
+* sispm plugs (sispm.rules)
+
+Just copy them to /etc/udev/rules.d/ as required:
+
+cp /usr/share/doc/web20mash/udev-rules/temper1.rules /etc/udev/rules.d/95-temper1.rules
+cp /usr/share/doc/web20mash/udev-rules/owfs.rules /etc/udev/rules.d/96-owfs.rules
+cp /usr/share/doc/web20mash/udev-rules/sispm.rules /etc/udev/rules.d/97-sispm.rules
+
+Afterwards restart udev or reboot your machine:
+
+service udev restart
+
+To check if the new rules work as expected connect your device and have a look at the
+permissions of the device inode in the /dev/bus/usb directory.
+

@@ -1,9 +1,0 @@
-For TEMPer1 sensors we need to change device permissions to allow the mashctld process to
-access the USB node.
-
-For this reason create a file /etc/udev/rules.d/99-temper1.rules with the following contnent:
-
---cut--
-SUBSYSTEMS=="usb", ACTION=="add", ATTRS{idVendor}=="0c45", ATTRS{idProduct}=="7401", MODE="666"
---cut--
-

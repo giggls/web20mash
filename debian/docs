@@ -1,3 +1,5 @@
 README.browser
 README.simulation
 README.gpio
+README.usb
+udev-rules
