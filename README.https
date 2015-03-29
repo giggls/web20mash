@@ -1,0 +1,25 @@
+Version 4.1.7 of Web 2.0 mash adds support for https
+
+The following snippet from the configfile will enable https. If you want 
+to have a https-only server use disable_plain=1
+
+--cut--
+[tls]
+# optional encrypted port to listen to for integrated webserver
+# this is disabled by default enable using active=1
+port=443
+active=1
+disable_plain=0
+tls_key_file=/etc/mashctld_key.pem
+tls_cert_file=/etc/mashctld_cert.pem
+--cut--
+
+For https a key and certificate file are needed. The following commands will generate them:
+
+openssl genrsa -out /etc/mashctld_key.pem 1024
+openssl req -days 3650 -out /etc/mashctld_cert.pem -new -x509 -key /etc/mashctld_key.pem
+
+However you might be better of using a more official certificate.
+
+Free certificates can be obtained from https://www.startssl.com/
+

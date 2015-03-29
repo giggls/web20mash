@@ -1,3 +1,9 @@
+web20mash (4.1.7) unstable; urgency=low
+
+  * Add optional HTTPS support for mashctld
+
+ -- Sven Geggus <sven-deb@geggus.net>  Sun, 29 Mar 2015 13:06:41 +0200
+
 web20mash (4.1.6) unstable; urgency=low
 
   * documentation updates in /usr/share/doc/web20mash/

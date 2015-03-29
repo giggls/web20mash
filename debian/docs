@@ -1,5 +1,2 @@
-README.browser
-README.simulation
-README.gpio
-README.usb
+README.*
 udev-rules

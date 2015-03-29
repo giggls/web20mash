@@ -12,3 +12,4 @@ TODO
 *.changes
 *.deb
 *.cdbs-config_list
+*.pem

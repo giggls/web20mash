@@ -1113,8 +1113,10 @@ void acq_and_ctrl() {
 }
 
 int main(int argc, char **argv) {
-  struct MHD_Daemon *dv4;
-  struct MHD_Daemon *dv6;
+  // these are 4 sockets: HTTP/IPv4, HTTP/IPv6, HTTPS/IPv4, HTTPS/IPv6
+  struct MHD_Daemon *dv[4];
+  enum http_type {V4, V6, V4TLS, V6TLS};
+  
   fd_set rs;
   fd_set ws;
   fd_set es;
@@ -1125,7 +1127,9 @@ int main(int argc, char **argv) {
   FILE *pidfile;
   char buf[2048];
   char *bp;
-  //int stype;
+  char *key_pem;
+  char *cert_pem;
+  int i;
 
   void *acthandle0, *acthandle1, *senshandle;
   cmd = parseCmdline(argc, argv);
@@ -1250,37 +1254,93 @@ int main(int argc, char **argv) {
     magic_close(magic_cookie);
     die("cannot load magic database - %s\n", magic_error(magic_cookie));
   }
+  if (cfopts.tlsport != 0) {
+    key_pem = load_pem_into_buf(cfopts.tls_key_file);
+    cert_pem = load_pem_into_buf(cfopts.tls_cert_file);
+  
+    if ((key_pem == NULL) || (cert_pem == NULL))
+      die("The key/certificate files could not be read.\n");
+  }
+  
 #ifndef BINDLOCALHOST
-  dv6 = MHD_start_daemon(MHD_USE_IPv6,
-		         cfopts.port,
-		         NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
-  if (dv6 == NULL)
-    debug("Error running IPv6 HTTP-server\n");
+  // start up to 4 server instances (HTTP/IPv4, HTTP/IPv6, HTTPS/IPv4, HTTPS/IPv6)
+  for (i=0; i<4;i++) dv[i]=NULL;
+  if ((cfopts.tlsport == 0) || !cfopts.tlsonly) {
+    dv[V6] = MHD_start_daemon(MHD_USE_IPv6,
+		           cfopts.port,
+		           NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
+    if (dv[V6] == NULL)
+      debug("Error running IPv6 HTTP-server\n");
   
-  dv4 = MHD_start_daemon(MHD_NO,
-                         cfopts.port,
-                         NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
+    dv[V4] = MHD_start_daemon(MHD_NO,
+                            cfopts.port,
+                            NULL, NULL, &answer_to_connection, PAGE, MHD_OPTION_END);
+      
+    if (dv[V4] == NULL)
+      debug("Error running IPv4 HTTP-server\n");
+      
+    if ((dv[V4] == NULL) && (dv[V6] == NULL))
+      die("error starting HTTP-server\n");
   
-  if (dv4 == NULL)
-    debug("Error running IPv4 HTTP-server\n");
+  }
+
+  if (cfopts.tlsport != 0) {
   
-  if ((dv4 == NULL) && (dv6 == NULL))
-    die("error starting http server\n");
+    // In TLS only mode we keep running an unencrypted HTTP server on 127.0.0.1
+    if (cfopts.tlsonly) {
+      debug("TLS only server: also listening on 127.0.0.1:%d\n",cfopts.port);
+      struct sockaddr_in daemon_ip_addr;
+      memset (&daemon_ip_addr, 0, sizeof (struct sockaddr_in));
+      daemon_ip_addr.sin_family = AF_INET;
+      daemon_ip_addr.sin_port = htons(cfopts.port);
+      inet_pton(AF_INET, "127.0.0.1", &daemon_ip_addr.sin_addr);
+      dv[V4] = MHD_start_daemon(MHD_USE_DEBUG,
+                                cfopts.port,
+                                NULL, NULL, &answer_to_connection, PAGE,
+                                MHD_OPTION_SOCK_ADDR, &daemon_ip_addr, MHD_OPTION_END);
+      if (dv[V4] == NULL)
+        die("error starting http server on 127.0.0.1:%d\n",cfopts.port);
+    }
+  
+    dv[V6TLS] = MHD_start_daemon(MHD_USE_IPv6 | MHD_USE_SSL,
+                                 cfopts.tlsport,
+                                 NULL, NULL, &answer_to_connection, PAGE, 
+                                 MHD_OPTION_HTTPS_MEM_KEY, key_pem,
+                                 MHD_OPTION_HTTPS_MEM_CERT, cert_pem,
+                                 MHD_OPTION_END);
+    if (dv[V6TLS] == NULL)
+      debug("Error running IPv6 HTTPS-server on port %d\n",cfopts.tlsport);
+
+    dv[V4TLS] = MHD_start_daemon(MHD_USE_SSL,
+                                 cfopts.tlsport,
+                                 NULL, NULL, &answer_to_connection, PAGE, 
+                                 MHD_OPTION_HTTPS_MEM_KEY, key_pem,
+                                 MHD_OPTION_HTTPS_MEM_CERT, cert_pem,
+                                 MHD_OPTION_END);
+    if (dv[V4TLS] == NULL)
+      debug("Error running IPv4 HTTPS-server on port %d\n",cfopts.tlsport);
+      
+    if ((dv[V4TLS] == NULL) && (dv[V6TLS] == NULL))
+      die("error starting HTTPS-server\n");
+  
+  }
 #else
   {
-  dv6=NULL;
+  dv[V6]=NULL;
+  dv[V4TLS]=NULL;
+  dv[V6TLS]=NULL;
   struct sockaddr_in daemon_ip_addr;
   memset (&daemon_ip_addr, 0, sizeof (struct sockaddr_in));
   daemon_ip_addr.sin_family = AF_INET;
   daemon_ip_addr.sin_port = htons(cfopts.port);
   
   inet_pton(AF_INET, "127.0.0.1", &daemon_ip_addr.sin_addr);
-  dv4 = MHD_start_daemon(MHD_NO,
+  dv[V4] = MHD_start_daemon(MHD_NO,
                          cfopts.port,
                          NULL, NULL, &answer_to_connection, PAGE,
                          MHD_OPTION_SOCK_ADDR, &daemon_ip_addr, MHD_OPTION_END);
-  if (dv4 == NULL)
-    die("error starting http server\n");
+  if (dv[V4] == NULL)
+    die("error starting http server on 127.0.0.1:%d\n",cfopts.port);
   }
 #endif
 
@@ -1370,13 +1430,11 @@ int main(int argc, char **argv) {
     FD_ZERO (&ws);
     FD_ZERO (&es);
 
-    if (dv4!=NULL)
-      if (MHD_YES != MHD_get_fdset (dv4, &rs, &ws, &es, &max))
-        break; /* fatal internal error */
-      
-    if (dv6!=NULL)
-      if (MHD_YES != MHD_get_fdset (dv6, &rs, &ws, &es, &max))
-        break;
+    for (i=0;i<4;i++) {
+      if (dv[i]!=NULL)
+        if (MHD_YES != MHD_get_fdset (dv[i], &rs, &ws, &es, &max))
+          break; /* fatal internal error */
+    }
 
     FD_SET(timfd,&rs);
     if (timfd >max) max=timfd;
@@ -1388,11 +1446,11 @@ int main(int argc, char **argv) {
       acq_and_ctrl();
     }
     /* NOTE: *always* run MHD_run() in external select loop! */
-    if (dv4!=NULL) MHD_run(dv4);
-    if (dv6!=NULL) MHD_run(dv6);
+    for (i=0;i<4;i++)
+      if (dv[i]!=NULL) MHD_run(dv[i]);
     
   }
-  if (dv4!=NULL) MHD_stop_daemon(dv4);
-  if (dv6!=NULL) MHD_stop_daemon(dv6);
+  for (i=0;i<4;i++)
+    if (dv[i]!=NULL) MHD_stop_daemon(dv[i]);
   return 0;
 }

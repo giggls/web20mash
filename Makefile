@@ -13,7 +13,7 @@ LDLIBS = -lowcapi -lmicrohttpd -lmagic -lrt -rdynamic -ldl -lmnl
 #LDLIBS = -lmicrohttpd -lmagic -lrt -rdynamic -ldl -lmnl
 
 
-OBJ = cmdline.o mashctld.o ctrlfunc.o minIni.o readcfg.o myexec.o gen_json_4interfaces.o
+OBJ = cmdline.o mashctld.o ctrlfunc.o minIni.o readcfg.o myexec.o gen_json_4interfaces.o certio.o
 
 %.o: %.c
 	$(CC) $(EXTRAFLAGS) $(CFLAGS) -c $<

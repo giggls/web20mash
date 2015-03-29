@@ -87,9 +87,12 @@ void readconfig(char *configfile);
 void errorlog(char* fmt, ...);
 void die(char* fmt, ...);
 void debug(char* fmt, ...);
+// this function is needed for loading the tls key and certificate
+char * load_pem_into_buf(const char *filename);
 
 struct configopts {
   uint16_t port;
+  uint16_t tlsport;
   char owparms[100];
   char sensor[16];
   /* depending on the configuration there are one or two actuators
@@ -115,6 +118,9 @@ struct configopts {
   bool authactive;
   char state_change_cmd[255];
   char conf_change_script[255];
+  char tls_key_file[255];
+  char tls_cert_file[255];
+  bool tlsonly;
 };
 
 struct processstate {

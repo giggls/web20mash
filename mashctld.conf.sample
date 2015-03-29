@@ -12,7 +12,19 @@ plugin_dir=/usr/lib/web20mash/plugins
 # been changed.
 #conf_change_script=/usr/bin/mashctld_readonly_root_script.sh
 
+[tls]
+# optional encrypted port to listen to for integrated webserver
+# this is disabled by default enable using active=1
+port=44300
+active=0
+disable_plain=1
+tls_key_file=/etc/mashctld_key.pem
+tls_cert_file=/etc/mashctld_cert.pem
+
 [auth]
+# use basic auth (username/password) for web interface, this is most useful
+# in conjunction with tls enabled
+# disabled by default enable using active=1
 active=0
 username=login
 password=secret
@@ -36,11 +48,7 @@ owparms=--i2c=/dev/i2c-1:18 --no_PPM
 # initial must temperature for control
 tempMust=0
 
-# Avalable 1-wire devices can be listed by calling "mashctld -l"
-#
-#
-
-# actuator device type (currently "onewire" or "TEMPer1"):
+# sensor device type (currently "onewire" or "TEMPer1"):
 # additional parameters like device ID  must be specified
 # in the plugin section of the particular type
 sensor=onewire
@@ -70,6 +78,8 @@ actuatortype=heater
 #stirring_states=0:0,1:0,16:8,1:0,16:8,1:0,16:8,1:0,16:8
 
 [mash-process]
+# These defaults are not all that important, as they can be changed
+# during runtime using the webinterface
 resttemp1=52.5
 resttemp2=62.5
 resttemp3=72.5

@@ -14,13 +14,27 @@ void readconfig(char *cfgfile) {
   char acttype[7];
   char buf[100];
 
+  // setting the TLS port number to 0 indicates to not listen on tls
   cfopts.port=ini_getl("global","port",CTLD_PORT, cfgfile);  
+  cfopts.tlsport=ini_getl("tls","port",CTLD_TLSPORT, cfgfile);
+  // setting the TLS port number to 0 indicates to not listen on tls
+  i=ini_getl("tls","active",0, cfgfile);
+  if (i==0) cfopts.tlsport=0;
+  i=ini_getl("tls","disable_plain",0, cfgfile);
+  if ((i==1) && (cfopts.tlsport!=0)) {
+    cfopts.tlsonly=true;
+  } else {
+    cfopts.tlsonly=false;
+  }
+  
+  ini_gets("tls", "tls_key_file", CTLD_TLS_KEY, cfopts.tls_key_file, sizearray(cfopts.tls_key_file), cfgfile);
+  ini_gets("tls", "tls_cert_file", CTLD_TLS_CERT, cfopts.tls_cert_file, sizearray(cfopts.tls_cert_file), cfgfile);
 
   ini_gets("auth", "username", CTLD_USERNAME, cfopts.username, sizearray(cfopts.username), cfgfile);
   ini_gets("auth", "password", CTLD_PASSWORD, cfopts.password, sizearray(cfopts.password), cfgfile);
   cfopts.authactive=ini_getbool("auth", "active",CTLD_AUTHACTIVE, cfgfile);
-  ini_gets("control", "sensor", CTLD_STYPE, cfopts.sensor, sizearray(cfopts.sensor), cfgfile);
-  
+
+  ini_gets("control", "sensor", CTLD_STYPE, cfopts.sensor, sizearray(cfopts.sensor), cfgfile);  
   /* get actuator options heating/cooling and stirring devices */
   for (i=0;i<2;i++) {
     if (0==i) {
