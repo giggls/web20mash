@@ -13,3 +13,4 @@ TODO
 *.deb
 *.cdbs-config_list
 *.pem
+!kbflags-1.0.tar.gz 

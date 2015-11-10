@@ -60,7 +60,7 @@ js/$(SPINNER):
 	wget -P js $(SPINNER_BASE)/$(SPINNER)
 
 images/en.png:
-	wget -O - -q http://qt.osdn.org.ua/kbflags-1.0.tar.gz |tar xvz -C /tmp
+	tar xvzf upstream/kbflags-1.0.tar.gz -C /tmp
 	cp /tmp/kbflags-1.0/21x14.new/* images
 	cp images/gb.png images/en.png
 	rm -rf /tmp/kbflags-1.0
