@@ -749,7 +749,9 @@ int main(int argc, char **argv) {
     curl_multi_add_handle(multi_handle, http_handle);
 
     /* we start some action by calling perform right away */
-    curl_multi_perform(multi_handle, &still_running);
+    if (CURLM_OK != curl_multi_perform(multi_handle, &still_running)) {
+      exit(1);
+    }
     do {
       struct timeval timeout;
       int rc; /* select() return code */
@@ -783,7 +785,12 @@ int main(int argc, char **argv) {
       /* get file descriptors from the transfers */
       curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
 
-      rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
+      if(maxfd == -1) {
+        struct timeval wait = { 0, 100 * 1000 }; /* 500ms */
+        rc = select(0, NULL, NULL, NULL, &wait);
+      } else {
+        rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
+      }
 
       switch(rc) {
       case -1:
@@ -791,9 +798,11 @@ int main(int argc, char **argv) {
         still_running = 0;
         err_print("select() returns error, this is badness\n");
         break;
-      case 0: /* timeout */ 
+      case 0: /* timeout (maxfd == -1=*/
+        /* we seem to need curl_multi_perform here to make the async dns resolver work */
+        curl_multi_perform(multi_handle, &still_running);
         break;
-      default: /* action */ 
+      default: /* action */
 	  if (FD_ISSET(keyfds[KEY_UP], &fdexcep )) {
 	    // this delay is for debouncing of gpio
 	    usleep(cmd->debounce);

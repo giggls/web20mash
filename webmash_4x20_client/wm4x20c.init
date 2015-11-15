@@ -1,4 +1,5 @@
-#! /bin/sh
+#!/bin/bash
+
 ### BEGIN INIT INFO
 # Provides:          wm4x20c
 # Required-Start:    $remote_fs $network webmash
@@ -20,9 +21,13 @@ NAME=webmash_4x20_client
 DAEMON=/usr/bin/$NAME
 #
 # for german language add "-l de_DE.UTF-8"
-DAEMON_ARGS="-bd -n"
+DAEMON_ARGS=(-bd -n -l de_DE.UTF-8)
+#
 #change like this for custom  brewery name
-#DAEMON_ARGS=(-bd -n -p 'my brewery name')
+#DAEMON_ARGS=(-bd -n -b '   my brewery name' -l de_DE.UTF-8)
+#
+#
+#
 #
 #
 PIDFILE=/var/run/$NAME.pid
