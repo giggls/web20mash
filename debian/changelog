@@ -1,3 +1,9 @@
+web20mash (4.1.8) unstable; urgency=medium
+
+  * Build for debian 8 (jessie)
+
+ -- Sven Geggus <sven-debian@geggus.net>  Sun, 15 Nov 2015 21:22:35 +0100
+
 web20mash (4.1.7) unstable; urgency=low
 
   * Add optional HTTPS support for mashctld
