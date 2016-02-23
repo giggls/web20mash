@@ -622,6 +622,8 @@ int main(int argc, char **argv) {
   } else {
     setlocale(LC_ALL, "");
   }
+  // always use . as decimal separator
+  setlocale(LC_NUMERIC,"C");
   
   // only support UTF8 character encoding
   if (strcmp(nl_langinfo(CODESET),"UTF-8")!=0) {
