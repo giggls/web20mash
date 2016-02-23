@@ -47,9 +47,9 @@ static Cmdline cmd = {
   /* lang = */ (char*)0,
   /* langC = */ 0,
   /***** -b: Banner to be displayed e.g. mybrewery */
-  /* bannerP = */ 0,
-  /* banner = */ (char*)0,
-  /* bannerC = */ 0,
+  /* bannerP = */ 1,
+  /* banner = */ "fangobräu.de",
+  /* bannerC = */ 1,
   /***** -mc: base path of message catalog */
   /* messagecatP = */ 0,
   /* messagecat = */ (char*)0,
@@ -761,6 +761,7 @@ usage(void)
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","      -b: Banner to be displayed e.g. mybrewery\n");
   fprintf(stderr,"%s","          1 char* value\n");
+  fprintf(stderr,"%s","          default: `fangobräu.de'\n");
   fprintf(stderr,"%s","     -mc: base path of message catalog\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","     -db: debounce delay for keys\n");

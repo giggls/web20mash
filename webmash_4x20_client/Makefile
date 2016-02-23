@@ -3,7 +3,7 @@ DESTDIR = /usr/local
 CFDIR = /etc
 PREFIX = $(DESTDIR)
 
-CFLAGS = -g -Wall -W -std=gnu99 -pedantic
+CFLAGS = -g -Wall -W -std=gnu99 -pedantic -Ilibutf8tolcd/
 LDLIBS = -lcurl -lwiringPi -lwiringPiDev
 
 OBJ = 4x20_client.o jsmn.o cmdline.o action_functions.o getifinfo.o
@@ -17,19 +17,25 @@ cmdline.c: cmdline.cli
 	clig $<
 
 $(PROG):$(OBJ)
-	$(CC) -o $@ $(CFLAGS) $(OBJ) $(LDLIBS)
+	$(CC) -o $@ $(CFLAGS) $(OBJ) libutf8tolcd/libutf8tolcd.a $(LDLIBS)
 
 mudflap: CFLAGS += -fmudflap
 mudflap: LDLIBS += -lmudflap
 mudflap: $(PROG)
 
 # l10n
+l10n/de.po: l10n/de.po.in libutf8tolcd/toHD44780
+	libutf8tolcd/toHD44780 $< ^msgstr >$@
+	
 l10n/de/LC_MESSAGES/$(PROG).mo: l10n/de.po
 	mkdir -p l10n/de/LC_MESSAGES/
 	msgfmt -c -v -o l10n/de/LC_MESSAGES/$(PROG).mo $<
 
+libutf8tolcd/toHD44780:
+	cd libutf8tolcd; make
+
 clean:
-	rm -f *.o $(PROG) l10n/de/LC_MESSAGES/*.mo
+	rm -f *.o l10n/de/LC_MESSAGES/*.mo l10n/*.po $(PROG)
 
 install: all
 	mkdir -p $(DESTDIR)/share/locale/de/LC_MESSAGES/

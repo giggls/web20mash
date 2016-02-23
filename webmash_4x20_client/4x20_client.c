@@ -5,7 +5,7 @@ display_client
 Non-webbrowser client for mashctld using a HD44780U compatible LCD
 and 4 keys connected via GPIO
 
-(c) 2013 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2013-2016 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 #include <grp.h>
 #include <sys/stat.h>
 #include <syslog.h>
+#include <langinfo.h>
 
 #include <wiringPi.h>
 #include <lcd.h>
@@ -51,6 +52,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 #include "menustrings.h"
 #include "menuitems.h"
 #include "getifinfo.h"
+#include "utf8tohd44780.h"
 
 /* curl stuff */
 #include <curl/curl.h>
@@ -105,6 +107,8 @@ char blank20[21];
 char ip_info[MAXINTERFACES+2][MAXADDRS][21];
 char ip6g_info[MAXINTERFACES*2+2][MAXADDRS][21];
 char ip6l_info[MAXINTERFACES][4][21];
+// banner, two lines at most
+char lcdbanner[21];
 
 /* clig command line Parameters*/  
 Cmdline *cmd;
@@ -182,11 +186,7 @@ void displayPstate() {
       menusettings[3].arrow_pos=0;
       menusettings[3].start_pos=0;
     }
-    if (cmd->bannerP)
-      sprintf(scratch,cmd->banner);
-    else
-      sprintf(scratch,"    fangobr%cu.de",0xe1);
-    lcdPuts(lcdHandle,scratch);
+    lcdPuts(lcdHandle,lcdbanner);
     lcdPosition(lcdHandle, 0,3);
     lcdPuts(lcdHandle,BLANK20);
   } else {
@@ -618,16 +618,22 @@ int main(int argc, char **argv) {
   
   // i10n stuff
   if (cmd->langP) {
-    setlocale(LC_MESSAGES, cmd->lang);
+    setlocale(LC_ALL, cmd->lang);
   } else {
-    setlocale(LC_MESSAGES, "");
+    setlocale(LC_ALL, "");
   }
+  
+  // only support UTF8 character encoding
+  if (strcmp(nl_langinfo(CODESET),"UTF-8")!=0) {
+    fprintf(stderr,"ERROR: encoding is %s, must be UTF-8\n",nl_langinfo(CODESET));
+    exit(EXIT_FAILURE);
+  }
+  
   if (cmd->messagecatP) 
     bindtextdomain( basename(argv[0]), cmd->messagecat);
   else
     bindtextdomain( basename(argv[0]), NULL);
-  // HD44780 uses its own 8-bit character set, we use latin1 and manually translate
-  // 8-bit characters in .po files
+
   bind_textdomain_codeset( basename(argv[0]), "ISO-8859-1");
   textdomain( basename(argv[0]) );
 
@@ -667,6 +673,23 @@ int main(int argc, char **argv) {
     }
   }
     
+  //lcdbanner=cmd->banner;
+  utf8str_to_hd44780((uint8_t **)&cmd->banner);
+  // this is an 8-bit string now, so strlen works
+  // add leading blanks
+  {
+  int offset;
+  offset=(20-(int)strlen(cmd->banner))/2;
+  strncpy(lcdbanner,cmd->banner,21);
+  lcdbanner[20]='\0';
+  if (offset >0) {
+    int i;
+    for (i=0;i<offset;i++)
+      lcdbanner[i]=' ';
+  }
+  strcpy(lcdbanner+offset,cmd->banner);
+  }
+  
   // initialize menus
   for (i=1;i<NUMMENUS;i++) {
     init_menu(i,&menusettings[i]);

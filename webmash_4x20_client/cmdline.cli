@@ -1,3 +1,10 @@
+#
+#  commandline Options for webmash_4x20_client
+#
+#  Do not change the encoding of this file to anything but UTF-8!
+#
+#
+
 Name webmash_4x20_client
 
 Usage {non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports}
@@ -16,7 +23,7 @@ Flag -n netinfo {enable display of network interface information (IP, MAC, ...)]
 
 String -l lang {display language to use e.g. de_DE.UTF-8}
 
-String -b banner {Banner to be displayed e.g. mybrewery}
+String -b banner {Banner to be displayed e.g. mybrewery} -d fangobräu.de
 
 String -mc messagecat {base path of message catalog}
 

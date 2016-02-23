@@ -1,20 +1,26 @@
-# German translations for PACKAGE package
-# German messages for PACKAGE.
-# Copyright (C) 2013 THE PACKAGE'S COPYRIGHT HOLDER
+# German messages for webmash_4x20_client.
+# Copyright (C) 2016 Sven Geggus <sven-git@geggus.net>
+#
 # This file is distributed under the same license as the web20mash package.
-# Sven Geggus <sven-git@geggus.net>, 2013.
+#
+# .po-files using HD44780U encoded msgstr are generated from
+# UTF-8 encoded .po.in files
+#
+# The declared encoding (ISO-8859-1) is fake
+# we author this file in UTF-8 as de.po.in and translate 
+# it into LCD charset during build which is 8-bit like ISO-8859-1
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-11-23 17:29+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2016-01-27 20:00+0100\n"
 "Last-Translator: Sven Geggus <sven-git@geggus.net>\n"
 "Language-Team: German\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: menustrings.h
@@ -38,9 +44,8 @@ msgid  "Dur. Mashing out"
 msgstr "Dauer Abmaischen"
 
 #: menustrings.h
-# â is ß in latin-1
 msgid  "Dur. Protein Rest"
-msgstr "Dauer Eiweiârast"
+msgstr "Dauer Eiweißrast"
 
 #: mashstates.h:7
 msgid  "Maltose Rest"
@@ -59,9 +64,8 @@ msgid  "Mashing Out Rest"
 msgstr "Abmaischrast"
 
 #: mashstates.h:5
-# â is ß in latin-1
 msgid "Protein Rest"
-msgstr "Eiweiârast"
+msgstr "Eiweißrast"
 
 #: menustrings.h
 msgid  "Rest-Settings"
@@ -80,9 +84,8 @@ msgid  "Temp. Maltose Rest"
 msgstr "Temp. Maltoserast"
 
 #: menustrings.h
-# â is ß in latin-1
 msgid  "Temp. Protein Rest"
-msgstr "Temp. Eiweiârast"
+msgstr "Temp. Eiweißrast"
 
 #: menustrings.h
 msgid  "Waiting for data    from mashctld"
@@ -105,9 +108,8 @@ msgid  "start process"
 msgstr "Prozess starten"
 
 #: menustrings.h
-# õ is ü in latin-1
 msgid  "stirring device"
-msgstr "Rõhrwerk"
+msgstr "Rührwerk"
 
 #: menustrings.h
 msgid  "cancel process"
@@ -123,7 +125,7 @@ msgstr "bis Maltoserast"
 
 #: mashstates.h:4
 msgid  "to Protein Rest"
-msgstr "bis Eiweiârast"
+msgstr "bis Eiweißrast"
 
 #: mashstates.h:10
 msgid  "to mashing out"
