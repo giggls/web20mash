@@ -11,5 +11,6 @@ Homepage: <insert the upstream URL, if relevant>
 Package: webmash4x20client
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: Alternative client for Web 2.0 Mash
+ Alternative client for Web 2.0 Mash using 4 Buttons and a HD44780
+ compatible LCD with 4 lines and 20 columns
