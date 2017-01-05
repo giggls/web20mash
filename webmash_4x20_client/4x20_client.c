@@ -107,7 +107,7 @@ char blank20[21];
 char ip_info[MAXINTERFACES+2][MAXADDRS][21];
 char ip6g_info[MAXINTERFACES*2+2][MAXADDRS][21];
 char ip6l_info[MAXINTERFACES][4][21];
-// banner, two lines at most
+// banner max one line
 char lcdbanner[21];
 
 /* clig command line Parameters*/  
@@ -675,21 +675,32 @@ int main(int argc, char **argv) {
     }
   }
     
-  //lcdbanner=cmd->banner;
-  utf8str_to_hd44780((uint8_t **)&cmd->banner);
-  // this is an 8-bit string now, so strlen works
-  // add leading blanks
   {
   int offset;
-  offset=(20-(int)strlen(cmd->banner))/2;
-  strncpy(lcdbanner,cmd->banner,21);
+  char *buf;
+  int i,j;
+  // UTF-8 string is max 4*20+1 bytes
+  buf=malloc(81*sizeof(char));
+  strncpy(buf,cmd->banner,81);
+  buf[80]='\0';
+  utf8str_to_hd44780((uint8_t **)&buf);
+  // buf is an 8-bit string now, so strlen works
+  // and is 20 max
+  // add leading blanks
+  offset=(20-(int)strlen(buf))/2;
+  j=0;
   lcdbanner[20]='\0';
-  if (offset >0) {
-    int i;
-    for (i=0;i<offset;i++)
+  for (i=0;i<20;i++) {
+    if (i<offset) {
       lcdbanner[i]=' ';
+    } else {
+      lcdbanner[i]=buf[j];
+      if (lcdbanner[i]=='\0')
+        break;
+      j++;
+    }
   }
-  strcpy(lcdbanner+offset,cmd->banner);
+  free(buf);
   }
   
   // initialize menus

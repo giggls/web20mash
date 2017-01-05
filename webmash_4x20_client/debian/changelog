@@ -1,3 +1,9 @@
+webmash4x20client (1.3.2) unstable; urgency=medium
+
+  * fix segfault when no or wrong banner string was given
+
+ -- Sven Geggus <sven-debian@geggus.net>  Thu, 05 Jan 2017 17:26:15 +0100
+
 webmash4x20client (1.3.1) unstable; urgency=medium
 
   * fix small l10n oddity
