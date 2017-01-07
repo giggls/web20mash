@@ -20,20 +20,19 @@
 char *Program;
 
 /*@-null*/
-static int keysDefault[] = {11, 9, 10, 22};
 static int lcdDefault[] = {4, 7, 8, 23, 24, 25};
 
 static Cmdline cmd = {
   /***** -bd: run Program as a daemon in background */
   /* daemonP = */ 0,
-  /***** -k: gpio ports connected to keys (Menu, up, down, Enter) */
-  /* keysP = */ 1,
-  /* keys = */ keysDefault,
-  /* keysC = */ 4,
   /***** -lcd: gpio ports for LCD */
   /* lcdP = */ 1,
   /* lcd = */ lcdDefault,
   /* lcdC = */ 6,
+  /***** -i: device to use for input */
+  /* indevP = */ 1,
+  /* indev = */ "gpio-keys",
+  /* indevC = */ 1,
   /***** -url: base url for mashctld state */
   /* urlP = */ 1,
   /* url = */ "http://localhost",
@@ -54,10 +53,6 @@ static Cmdline cmd = {
   /* messagecatP = */ 0,
   /* messagecat = */ (char*)0,
   /* messagecatC = */ 0,
-  /***** -db: debounce delay for keys */
-  /* debounceP = */ 1,
-  /* debounce = */ 100000,
-  /* debounceC = */ 1,
   /***** -p: pidfile location, when run as root and in background */
   /* pidfileP = */ 1,
   /* pidfile = */ "/var/run/wm4x20c.pid",
@@ -743,15 +738,15 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-bd] [-k keys] [-lcd lcd] [-url url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-db debounce] [-p pidfile] [-u username] [-rs] [-rh]\n");
+  fprintf(stderr,"%s","   [-bd] [-lcd lcd] [-i indev] [-url url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-p pidfile] [-u username] [-rs] [-rh]\n");
   fprintf(stderr,"%s","      non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports\n");
   fprintf(stderr,"%s","     -bd: run Program as a daemon in background\n");
-  fprintf(stderr,"%s","      -k: gpio ports connected to keys (Menu, up, down, Enter)\n");
-  fprintf(stderr,"%s","          4 int values\n");
-  fprintf(stderr,"%s","          default: `11' `9' `10' `22'\n");
   fprintf(stderr,"%s","    -lcd: gpio ports for LCD\n");
   fprintf(stderr,"%s","          6 int values\n");
   fprintf(stderr,"%s","          default: `4' `7' `8' `23' `24' `25'\n");
+  fprintf(stderr,"%s","      -i: device to use for input\n");
+  fprintf(stderr,"%s","          1 char* value\n");
+  fprintf(stderr,"%s","          default: `gpio-keys'\n");
   fprintf(stderr,"%s","    -url: base url for mashctld state\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","          default: `http://localhost'\n");
@@ -764,9 +759,6 @@ usage(void)
   fprintf(stderr,"%s","          default: `fangobräu.de'\n");
   fprintf(stderr,"%s","     -mc: base path of message catalog\n");
   fprintf(stderr,"%s","          1 char* value\n");
-  fprintf(stderr,"%s","     -db: debounce delay for keys\n");
-  fprintf(stderr,"%s","          1 int value\n");
-  fprintf(stderr,"%s","          default: `100000'\n");
   fprintf(stderr,"%s","      -p: pidfile location, when run as root and in background\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","          default: `/var/run/wm4x20c.pid'\n");
@@ -790,19 +782,19 @@ parseCmdline(int argc, char **argv)
       continue;
     }
 
-    if( 0==strcmp("-k", argv[i]) ) {
-      int keep = i;
-      cmd.keysP = 1;
-      i = getIntOpts(argc, argv, i, &cmd.keys, 4, 4);
-      cmd.keysC = i-keep;
-      continue;
-    }
-
     if( 0==strcmp("-lcd", argv[i]) ) {
       int keep = i;
       cmd.lcdP = 1;
       i = getIntOpts(argc, argv, i, &cmd.lcd, 6, 6);
       cmd.lcdC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-i", argv[i]) ) {
+      int keep = i;
+      cmd.indevP = 1;
+      i = getStringOpt(argc, argv, i, &cmd.indev, 1);
+      cmd.indevC = i-keep;
       continue;
     }
 
@@ -845,14 +837,6 @@ parseCmdline(int argc, char **argv)
       cmd.messagecatP = 1;
       i = getStringOpt(argc, argv, i, &cmd.messagecat, 1);
       cmd.messagecatC = i-keep;
-      continue;
-    }
-
-    if( 0==strcmp("-db", argv[i]) ) {
-      int keep = i;
-      cmd.debounceP = 1;
-      i = getIntOpt(argc, argv, i, &cmd.debounce, 1);
-      cmd.debounceC = i-keep;
       continue;
     }
 

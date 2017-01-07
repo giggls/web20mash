@@ -11,14 +11,14 @@
 typedef struct s_Cmdline {
   /***** -bd: run Program as a daemon in background */
   char daemonP;
-  /***** -k: gpio ports connected to keys (Menu, up, down, Enter) */
-  char keysP;
-  int *keys;
-  int keysC;
   /***** -lcd: gpio ports for LCD */
   char lcdP;
   int *lcd;
   int lcdC;
+  /***** -i: device to use for input */
+  char indevP;
+  char* indev;
+  int indevC;
   /***** -url: base url for mashctld state */
   char urlP;
   char* url;
@@ -39,10 +39,6 @@ typedef struct s_Cmdline {
   char messagecatP;
   char* messagecat;
   int messagecatC;
-  /***** -db: debounce delay for keys */
-  char debounceP;
-  int debounce;
-  int debounceC;
   /***** -p: pidfile location, when run as root and in background */
   char pidfileP;
   char* pidfile;

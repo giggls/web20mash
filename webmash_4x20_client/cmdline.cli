@@ -11,9 +11,9 @@ Usage {non-browser client for mashctld using a HD44780U compatible LCD and 4 key
 
 Flag -bd daemon {run Program as a daemon in background}
 
-Int -k keys {gpio ports connected to keys (Menu, up, down, Enter)} -d 11 9 10 22 -c 4 4
-
 Int -lcd lcd {gpio ports for LCD} -d 4 7 8 23 24 25 -c 6 6
+
+String -i indev {device to use for input} -d "gpio-keys"
 
 String -url url {base url for mashctld state} -d "http://localhost"
 
@@ -26,8 +26,6 @@ String -l lang {display language to use e.g. de_DE.UTF-8}
 String -b banner {Banner to be displayed e.g. mybrewery} -d fangobräu.de
 
 String -mc messagecat {base path of message catalog}
-
-Int -db debounce {debounce delay for keys} -d 100000
 
 String -p pidfile {pidfile location, when run as root and in background} -d /var/run/wm4x20c.pid
 

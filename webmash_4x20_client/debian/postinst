@@ -20,7 +20,9 @@
 
 case "$1" in
     configure)
-    	insserv wm4x20c
+    	# need to be in group input to use /dev/input/event*
+    	usermod -G input webmash 2>/dev/null
+    	insserv wm4x20c    	
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

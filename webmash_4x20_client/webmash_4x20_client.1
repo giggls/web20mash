@@ -11,7 +11,7 @@
 .\" it edited by clig, remove the respective pair of cligPart-lines.
 .\"
 .\" cligPart TITLE
-.TH "webmash_4x20_client" 1 "2016-02-23" "Clig-manuals" "Programmer's Manual"
+.TH "webmash_4x20_client" 1 "2017-01-06" "Clig-manuals" "Programmer's Manual"
 .\" cligPart TITLE end
 
 .\" cligPart NAME
@@ -23,15 +23,14 @@ webmash_4x20_client \- non-browser client for mashctld using a HD44780U compatib
 .SH SYNOPSIS
 .B webmash_4x20_client
 [-bd]
-[-k keys]
 [-lcd lcd]
+[-i indev]
 [-url url]
 [-dbg]
 [-n]
 [-l lang]
 [-b banner]
 [-mc messagecat]
-[-db debounce]
 [-p pidfile]
 [-u username]
 [-rs]
@@ -43,18 +42,18 @@ webmash_4x20_client \- non-browser client for mashctld using a HD44780U compatib
 .SH OPTIONS
 .IP -bd
 run Program as a daemon in background.
-.IP -k
-gpio ports connected to keys (Menu, up, down, Enter),
-.br
-4 Int values.
-.br
-Default: `11' `9' `10' `22'
 .IP -lcd
 gpio ports for LCD,
 .br
 6 Int values.
 .br
 Default: `4' `7' `8' `23' `24' `25'
+.IP -i
+device to use for input,
+.br
+1 String value
+.br
+Default: `gpio-keys'
 .IP -url
 base url for mashctld state,
 .br
@@ -79,12 +78,6 @@ Default: `fangobräu.de'
 base path of message catalog,
 .br
 1 String value
-.IP -db
-debounce delay for keys,
-.br
-1 Int value.
-.br
-Default: `100000'
 .IP -p
 pidfile location, when run as root and in background,
 .br

@@ -5,7 +5,7 @@ display_client
 Non-webbrowser client for mashctld using a HD44780U compatible LCD
 and 4 keys connected via GPIO
 
-(c) 2013-2016 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2013-2017 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 */
 
 #include <stdio.h>
+#include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +39,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 #include <sys/stat.h>
 #include <syslog.h>
 #include <langinfo.h>
+#include <glob.h>
+#include <linux/input.h>
 
 #include <wiringPi.h>
 #include <lcd.h>
@@ -60,10 +63,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 #include "jsmn.h"
 #define jsmnTOKnum 50
 
-#define KEY_MENU 0
-#define KEY_UP 1
-#define KEY_DOWN 2
-#define KEY_ENTER 3 
+#define XKEY_MENU KEY_BACKSPACE
+#define XKEY_UP KEY_UP
+#define XKEY_DOWN KEY_DOWN
+#define XKEY_ENTER KEY_ENTER
+
+#define INPUTDEVGLOB "/dev/input/event*"
 
 // Menu states
 // display temperature and/or current mash state
@@ -600,21 +605,20 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
   return realsize;
 }
 
-static char get_sysfs_value(int fd) {
-  char c;  
-  lseek(fd,0,SEEK_SET);  
-  read(fd, &c, 1 );
-  return c;
-}
-
 int main(int argc, char **argv) {
   FILE *pidfile;
   uid_t uid,euid;
   CURL *http_handle;
   CURLM *multi_handle;
   cmd = parseCmdline(argc, argv);
-  int i,keyfds[4];
+  unsigned i;
   int still_running; /* keep number of running handles */
+  glob_t globbuf;
+  int ipdev;
+  char name[256] = "Unknown";
+  struct input_event inp;
+  // last key pressed
+  int lastkey=0;
   
   // i10n stuff
   if (cmd->langP) {
@@ -735,15 +739,29 @@ int main(int argc, char **argv) {
   if (!cmd->netinfoP)
     menusettings[1].numitems--;
   
-  // open gpio ports for keys
-  for (i=0;i<4;i++) {
-    char gpio[100],c;
-    sprintf(gpio,"/sys/class/gpio/gpio%d/value",cmd->keys[i]);
-    keyfds[i] = open(gpio, O_RDONLY);
-    if (-1==keyfds[i]) die("unable to open gpio %s\n",cmd->keys[i]);
-    // clear first pseudo button press
-    read(keyfds[i], &c, 1 );
+  /* look for all available input devices and
+      use the one with the desired name (default=gpio-keys) */
+  globbuf.gl_offs = 2;
+  glob(INPUTDEVGLOB, GLOB_DOOFFS, NULL, &globbuf);
+  
+  ipdev = -1;
+  for (i=globbuf.gl_offs;i<globbuf.gl_pathc+globbuf.gl_offs;i++) {
+    if (-1 == (ipdev = open(globbuf.gl_pathv[i], O_RDONLY))) {
+      debug("unable to open event file: %s\n",globbuf.gl_pathv[i]);
+    } else {
+      ioctl(ipdev, EVIOCGNAME(sizeof(name)), name);
+      debug("opened event device %s (%s)\n",globbuf.gl_pathv[i],name);
+      if (strcmp(cmd->indev,name)==0) {
+        debug("device is desired event device: using it\n");
+        break;
+      } else {
+        debug("device not desired event device: ignored\n");
+        close(ipdev);
+      }
+    }
   }
+  if (ipdev == -1)
+    die("Unable to find desired input device \"%s\"!\nCheck permissions of %s\n",cmd->indev,INPUTDEVGLOB);
   
   wiringPiSetupSys();
   lcdHandle = lcdInit (LCD_ROWS, LCD_COLS, cmd->lcd[0], cmd->lcd[1],cmd->lcd[2], cmd->lcd[3],cmd->lcd[4],cmd->lcd[5],4,0,0,0,0) ;
@@ -802,8 +820,7 @@ int main(int argc, char **argv) {
       FD_ZERO(&fdread);
       FD_ZERO(&fdwrite);
       FD_ZERO(&fdexcep);
-      for (i=0;i<4;i++)
-        FD_SET(keyfds[i],&fdexcep);
+      FD_SET(ipdev,&fdread);
 
       /* set a suitable timeout to play around with */
       timeout.tv_sec = 10;
@@ -839,114 +856,84 @@ int main(int argc, char **argv) {
         curl_multi_perform(multi_handle, &still_running);
         break;
       default: /* action */
-	  if (FD_ISSET(keyfds[KEY_UP], &fdexcep )) {
-	    // this delay is for debouncing of gpio
-	    usleep(cmd->debounce);
-	    if (get_sysfs_value(keyfds[KEY_UP])=='1') break;
-	    debug("pressed key KEY_UP\n");
-	    if (ready) {
-	      // repeat action until KEY_UP has been released
-	      while (get_sysfs_value(keyfds[KEY_UP])=='0') {
-	        if (menustate>0) {
-	          update_menu(-1,&menusettings[menustate]);
-                }
-	        usleep(cmd->debounce);
-              }  
-	    }
-	  } else if (FD_ISSET(keyfds[KEY_DOWN], &fdexcep )) {
-	      // this delay is for debouncing of gpio
-	      usleep(cmd->debounce);
-	      if (get_sysfs_value(keyfds[KEY_DOWN])=='1') break;
-	      debug("pressed key KEY_DOWN\n");
-	      if (ready) {
-	        // repeat action until KEY_DOWN has been released
-	        while (get_sysfs_value(keyfds[KEY_DOWN])=='0') {
-	          if (menustate>0) {
-	            update_menu(1,&menusettings[menustate]);
-                  }
-                  usleep(cmd->debounce);
-                }
-	      }
-          } else if (FD_ISSET(keyfds[KEY_ENTER], &fdexcep )) {
-              int item;
-              // this delay is for debouncing of gpio
-              usleep(cmd->debounce);
-              if (get_sysfs_value(keyfds[KEY_ENTER])=='1') break;
-              // check for double keypress (KEY_MENU+KEY_ENTER)
-              if (get_sysfs_value(keyfds[KEY_MENU])=='0') {
-                debug("pressed key KEY_MENU+KEY_ENTER\n");
-                debug("LCD: calling reset!!!\n");
-                lcdReset(lcdHandle);
-                if (menustate==MSTATE_PSTATE)
-                  displayPstate();
-                else
-                  draw_menu(&menusettings[menustate]);
-                break;
-              }
-              debug("pressed key KEY_ENTER\n");
-              if (ready) {
-                if (menustate>0) {
-                  item=menusettings[menustate].start_pos+menusettings[menustate].arrow_pos;
-                  call_menu_action(&menusettings[menustate]);
-                  // call next menu
-                  if (0!=next_menu[menustate][item]) {
-                      previous_menu=menustate;
-                      menustate=next_menu[menustate][item];
-                      if (menusettings[menustate].menutext[0]!=NULL) {
-                        draw_menu(&menusettings[menustate]);
-                      } else {
-                        item=menusettings[menustate].start_pos+menusettings[menustate].arrow_pos;
-                        call_menu_action(&menusettings[menustate]);
-                        previous_menu=menustate;
-                        menustate=next_menu[menustate][item];
-                        if (menustate!=MSTATE_PSTATE) {
-                          draw_menu(&menusettings[menustate]);
-                        } else {
-                          displayPstate();
+        if (FD_ISSET(ipdev, &fdread)) {
+          read(ipdev,&inp,sizeof(struct input_event));
+          if (inp.type==EV_KEY) {
+            if (inp.value==1) {
+              if (lastkey==0) {
+                if (inp.code==XKEY_ENTER) {
+                  int item;
+                  debug("pressed key KEY_ENTER\n");
+                  if (ready) {
+                    if (menustate>0) {
+                      item=menusettings[menustate].start_pos+menusettings[menustate].arrow_pos;
+                      call_menu_action(&menusettings[menustate]);
+                      // call next menu
+                      if (0!=next_menu[menustate][item]) {
+                          previous_menu=menustate;
+                          menustate=next_menu[menustate][item];
+                          if (menusettings[menustate].menutext[0]!=NULL) {
+                            draw_menu(&menusettings[menustate]);
+                          } else {
+                            item=menusettings[menustate].start_pos+menusettings[menustate].arrow_pos;
+                            call_menu_action(&menusettings[menustate]);
+                            previous_menu=menustate;
+                            menustate=next_menu[menustate][item];
+                            if (menustate!=MSTATE_PSTATE) {
+                              draw_menu(&menusettings[menustate]);
+                            } else {
+                              displayPstate();
+                            }
+                          }
                         }
                       }
+                    }
+                }
+                if (inp.code==XKEY_MENU) {
+                  debug("pressed key KEY_MENU\n");
+                  if (ready) {
+                    if (menustate==MSTATE_PSTATE) {
+                      previous_menu=menustate;
+                      menustate=MSTATE_SELECT;
+                      draw_menu(&menusettings[MSTATE_SELECT]);
+                    } else {
+                      previous_menu=menustate;
+                      menustate=MSTATE_PSTATE;
+                      displayPstate();
+                    }
                   }
-                  //now lets wait until KEY_ENTER has been released
-                  while (get_sysfs_value(keyfds[KEY_ENTER])=='0') {
-                    usleep(cmd->debounce);
-                  }
+                }
+                if (inp.code==XKEY_UP) {
+                  debug("pressed key KEY_UP\n");
+                  if (menustate>0)
+                    update_menu(-1,&menusettings[menustate]);
+                }
+                if (inp.code==XKEY_DOWN) {
+                  debug("pressed key KEY_DOWN\n");
+                  if (menustate>0)
+                    update_menu(1,&menusettings[menustate]);
+                }              
+              } else {
+                if ((lastkey=KEY_MENU) && (inp.code==XKEY_ENTER)) {
+                  debug("pressed key KEY_MENU+KEY_ENTER\n");
+                  debug("LCD: calling reset!!!\n");
+                  lcdReset(lcdHandle);
+                  if (menustate==MSTATE_PSTATE)
+                    displayPstate();
+                  else
+                    draw_menu(&menusettings[menustate]);
                 }
               }
-          } else if (FD_ISSET(keyfds[KEY_MENU], &fdexcep )) {
-              // this delay is for debouncing of gpio
-              usleep(cmd->debounce);
-              if (get_sysfs_value(keyfds[KEY_MENU])=='1') break;
-              // check for double keypress (KEY_MENU+KEY_ENTER)
-              if (get_sysfs_value(keyfds[KEY_ENTER])=='0') {
-                debug("pressed key KEY_MENU+KEY_ENTER\n");
-                debug("LCD: calling reset!!!\n");
-                lcdReset(lcdHandle);
-                if (menustate==MSTATE_PSTATE)
-                  displayPstate();
-                else
-                  draw_menu(&menusettings[menustate]);
-                break;
-              }
-              debug("pressed key KEY_MENU\n");
-              if (ready) {
-                if (menustate==MSTATE_PSTATE) {
-                  previous_menu=menustate;
-                  menustate=MSTATE_SELECT;
-                  draw_menu(&menusettings[MSTATE_SELECT]);
-                } else {
-                  previous_menu=menustate;
-                  menustate=MSTATE_PSTATE;
-                  displayPstate();
-                }
-                //now lets wait until KEY_MENU has been released
-                while (get_sysfs_value(keyfds[KEY_MENU])=='0') {
-                  usleep(cmd->debounce);
-                }
-              }
-	  } else {
-	    /* timeout or readable/writable sockets */
-	    curl_multi_perform(multi_handle, &still_running);
-	  }
+              lastkey=inp.code;
+            }
+            if (inp.value==0) {
+              lastkey=0;
+            }
+          }
+        } else {
+           /* timeout or readable/writable sockets */
+          curl_multi_perform(multi_handle, &still_running);
+        }
         break;
       }
     } while(still_running);
