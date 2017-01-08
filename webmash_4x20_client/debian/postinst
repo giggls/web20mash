@@ -21,7 +21,7 @@
 case "$1" in
     configure)
     	# need to be in group input to use /dev/input/event*
-    	usermod -G input webmash 2>/dev/null
+    	usermod -G input,gpio webmash 2>/dev/null
     	insserv wm4x20c    	
     ;;
 
