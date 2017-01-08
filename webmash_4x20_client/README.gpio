@@ -4,28 +4,12 @@ GPIO --+---- BUTTON ----- GND
        |
        +--- RESISTOR 2k -- VCC (3.3V)
 
-To enable them install sysfsutils and add something like this to 
-/etc/sysfs.conf:
+Current Versions of Raspbian are able to present them as a keyboard.
+As this is an elegant way we use this.
 
-class/gpio/export = 22
-class/gpio/gpio22/direction = in
-class/gpio/gpio22/edge = falling
-mode class/gpio/gpio22/value = 666
-
-class/gpio/export = 10
-class/gpio/gpio10/direction = in
-class/gpio/gpio10/edge = falling
-mode class/gpio/gpio10/value = 666
-
-class/gpio/export = 9
-class/gpio/gpio9/direction = in
-class/gpio/gpio9/edge = falling
-mode class/gpio/gpio9/value = 666
-
-class/gpio/export = 11
-class/gpio/gpio11/direction = in
-class/gpio/gpio11/edge = falling
-mode class/gpio/gpio11/value = 666
+To make this running make shure that /boot/overlays/fangopcb.dtbo exists
+and the following entry exists in /boot/config.txt:
+dtoverlay=fangopcb
 
 For 20x4 LCD we need another 6 gpio lines (e.g. 4, 7, 8, 23, 24 and 25)
 to enable them via sysfsutils and add something like this to /etc/sysfs.conf:
@@ -53,3 +37,22 @@ mode class/gpio/gpio24/value = 666
 class/gpio/export = 25
 class/gpio/gpio25/direction = out
 mode class/gpio/gpio25/value = 666
+
+If all of this went well /sys/kernel/debug/gpio looks like this:
+
+ gpio-4   (                    |sysfs               ) out lo    
+ gpio-7   (                    |sysfs               ) out lo    
+ gpio-8   (                    |sysfs               ) out lo    
+ gpio-9   (                    |fangopcb up         ) in  hi    
+ gpio-10  (                    |fangopcb down       ) in  hi    
+ gpio-11  (                    |fangopcb enter      ) in  hi    
+ gpio-17  (                    |sysfs               ) out lo    
+ gpio-18  (                    |sysfs               ) out lo    
+ gpio-22  (                    |fangopcb Menu       ) in  hi    
+ gpio-23  (                    |sysfs               ) out lo    
+ gpio-24  (                    |sysfs               ) out lo    
+ gpio-25  (                    |sysfs               ) out lo    
+ gpio-27  (                    |sysfs               ) out lo    
+ gpio-35  (                    |?                   ) in  hi    
+ gpio-47  (                    |?                   ) out lo    
+

@@ -13,7 +13,7 @@ Flag -bd daemon {run Program as a daemon in background}
 
 Int -lcd lcd {gpio ports for LCD} -d 4 7 8 23 24 25 -c 6 6
 
-String -i indev {device to use for input} -d "gpio-keys"
+String -i indev {device to use for input} -d "fangopcb_keys"
 
 String -url url {base url for mashctld state} -d "http://localhost"
 

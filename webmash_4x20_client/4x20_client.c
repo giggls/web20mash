@@ -859,38 +859,38 @@ int main(int argc, char **argv) {
         if (FD_ISSET(ipdev, &fdread)) {
           read(ipdev,&inp,sizeof(struct input_event));
           if (inp.type==EV_KEY) {
-            if (inp.value==1) {
-              if (lastkey==0) {
-                if (inp.code==XKEY_ENTER) {
-                  int item;
-                  debug("pressed key KEY_ENTER\n");
-                  if (ready) {
-                    if (menustate>0) {
-                      item=menusettings[menustate].start_pos+menusettings[menustate].arrow_pos;
-                      call_menu_action(&menusettings[menustate]);
-                      // call next menu
-                      if (0!=next_menu[menustate][item]) {
-                          previous_menu=menustate;
-                          menustate=next_menu[menustate][item];
-                          if (menusettings[menustate].menutext[0]!=NULL) {
-                            draw_menu(&menusettings[menustate]);
-                          } else {
-                            item=menusettings[menustate].start_pos+menusettings[menustate].arrow_pos;
-                            call_menu_action(&menusettings[menustate]);
-                            previous_menu=menustate;
-                            menustate=next_menu[menustate][item];
-                            if (menustate!=MSTATE_PSTATE) {
-                              draw_menu(&menusettings[menustate]);
-                            } else {
-                              displayPstate();
-                            }
-                          }
+            if (inp.value>0) {
+              if ((inp.code==XKEY_ENTER) && (lastkey==0)) {
+                int item;
+                debug("pressed key KEY_ENTER\n");
+                if (ready) {
+                  if (menustate>0) {
+                    item=menusettings[menustate].start_pos+menusettings[menustate].arrow_pos;
+                    call_menu_action(&menusettings[menustate]);
+                    // call next menu
+                    if (0!=next_menu[menustate][item]) {
+                      previous_menu=menustate;
+                      menustate=next_menu[menustate][item];
+                      if (menusettings[menustate].menutext[0]!=NULL) {
+                        draw_menu(&menusettings[menustate]);
+                      } else {
+                        item=menusettings[menustate].start_pos+menusettings[menustate].arrow_pos;
+                        call_menu_action(&menusettings[menustate]);
+                        previous_menu=menustate;
+                        menustate=next_menu[menustate][item];
+                        if (menustate!=MSTATE_PSTATE) {
+                          draw_menu(&menusettings[menustate]);
+                        } else {
+                          displayPstate();
                         }
                       }
                     }
+                  }
                 }
-                if (inp.code==XKEY_MENU) {
-                  debug("pressed key KEY_MENU\n");
+              }
+              if (inp.code==XKEY_MENU) {
+                debug("pressed key KEY_MENU\n");
+                if (lastkey==0) {
                   if (ready) {
                     if (menustate==MSTATE_PSTATE) {
                       previous_menu=menustate;
@@ -902,27 +902,27 @@ int main(int argc, char **argv) {
                       displayPstate();
                     }
                   }
+                } else {
+                  if (lastkey==XKEY_ENTER) {
+                    debug("pressed key KEY_ENTER+KEY_MENU\n");
+                    debug("LCD: calling reset!!!\n");
+                    lcdReset(lcdHandle);
+                    if (menustate==MSTATE_PSTATE)
+                      displayPstate();
+                    else
+                       draw_menu(&menusettings[menustate]);
+                  }
                 }
-                if (inp.code==XKEY_UP) {
-                  debug("pressed key KEY_UP\n");
-                  if (menustate>0)
-                    update_menu(-1,&menusettings[menustate]);
-                }
-                if (inp.code==XKEY_DOWN) {
-                  debug("pressed key KEY_DOWN\n");
-                  if (menustate>0)
-                    update_menu(1,&menusettings[menustate]);
-                }              
-              } else {
-                if ((lastkey=KEY_MENU) && (inp.code==XKEY_ENTER)) {
-                  debug("pressed key KEY_MENU+KEY_ENTER\n");
-                  debug("LCD: calling reset!!!\n");
-                  lcdReset(lcdHandle);
-                  if (menustate==MSTATE_PSTATE)
-                    displayPstate();
-                  else
-                    draw_menu(&menusettings[menustate]);
-                }
+              }
+              if (inp.code==XKEY_UP) {
+                debug("pressed key KEY_UP\n");
+                if (menustate>0)
+                  update_menu(-1,&menusettings[menustate]);
+              }
+              if (inp.code==XKEY_DOWN) {
+                debug("pressed key KEY_DOWN\n");
+                if (menustate>0)
+                  update_menu(1,&menusettings[menustate]);
               }
               lastkey=inp.code;
             }

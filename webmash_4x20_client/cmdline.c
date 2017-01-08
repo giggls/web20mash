@@ -31,7 +31,7 @@ static Cmdline cmd = {
   /* lcdC = */ 6,
   /***** -i: device to use for input */
   /* indevP = */ 1,
-  /* indev = */ "gpio-keys",
+  /* indev = */ "fangopcb_keys",
   /* indevC = */ 1,
   /***** -url: base url for mashctld state */
   /* urlP = */ 1,
@@ -746,7 +746,7 @@ usage(void)
   fprintf(stderr,"%s","          default: `4' `7' `8' `23' `24' `25'\n");
   fprintf(stderr,"%s","      -i: device to use for input\n");
   fprintf(stderr,"%s","          1 char* value\n");
-  fprintf(stderr,"%s","          default: `gpio-keys'\n");
+  fprintf(stderr,"%s","          default: `fangopcb_keys'\n");
   fprintf(stderr,"%s","    -url: base url for mashctld state\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","          default: `http://localhost'\n");

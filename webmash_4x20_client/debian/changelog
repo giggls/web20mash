@@ -1,3 +1,10 @@
+webmash4x20client (1.4.1) unstable; urgency=medium
+
+  * figured that gpio_keys_device is obsolete. Thus we go
+    for device tree setup instead
+
+ -- Sven Geggus <sven-debian@geggus.net>  Sun, 08 Jan 2017 20:46:30 +0100
+
 webmash4x20client (1.4) unstable; urgency=medium
 
   * Change system to use /dev/input/event* "Keyboard"
