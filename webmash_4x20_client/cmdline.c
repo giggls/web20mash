@@ -33,6 +33,8 @@ static Cmdline cmd = {
   /* indevP = */ 1,
   /* indev = */ "fangopcb_keys",
   /* indevC = */ 1,
+  /***** -ng: do not input device for exclusive use */
+  /* nograbP = */ 0,
   /***** -url: base url for mashctld state */
   /* urlP = */ 1,
   /* url = */ "http://localhost",
@@ -738,7 +740,7 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-bd] [-lcd lcd] [-i indev] [-url url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-p pidfile] [-u username] [-rs] [-rh]\n");
+  fprintf(stderr,"%s","   [-bd] [-lcd lcd] [-i indev] [-ng] [-url url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-p pidfile] [-u username] [-rs] [-rh]\n");
   fprintf(stderr,"%s","      non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports\n");
   fprintf(stderr,"%s","     -bd: run Program as a daemon in background\n");
   fprintf(stderr,"%s","    -lcd: gpio ports for LCD\n");
@@ -747,6 +749,7 @@ usage(void)
   fprintf(stderr,"%s","      -i: device to use for input\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","          default: `fangopcb_keys'\n");
+  fprintf(stderr,"%s","     -ng: do not input device for exclusive use\n");
   fprintf(stderr,"%s","    -url: base url for mashctld state\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","          default: `http://localhost'\n");
@@ -795,6 +798,11 @@ parseCmdline(int argc, char **argv)
       cmd.indevP = 1;
       i = getStringOpt(argc, argv, i, &cmd.indev, 1);
       cmd.indevC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-ng", argv[i]) ) {
+      cmd.nograbP = 1;
       continue;
     }
 

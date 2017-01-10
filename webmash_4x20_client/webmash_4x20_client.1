@@ -11,7 +11,7 @@
 .\" it edited by clig, remove the respective pair of cligPart-lines.
 .\"
 .\" cligPart TITLE
-.TH "webmash_4x20_client" 1 "2017-01-08" "Clig-manuals" "Programmer's Manual"
+.TH "webmash_4x20_client" 1 "2017-01-10" "Clig-manuals" "Programmer's Manual"
 .\" cligPart TITLE end
 
 .\" cligPart NAME
@@ -25,6 +25,7 @@ webmash_4x20_client \- non-browser client for mashctld using a HD44780U compatib
 [-bd]
 [-lcd lcd]
 [-i indev]
+[-ng]
 [-url url]
 [-dbg]
 [-n]
@@ -54,6 +55,8 @@ device to use for input,
 1 String value
 .br
 Default: `fangopcb_keys'
+.IP -ng
+do not input device for exclusive use.
 .IP -url
 base url for mashctld state,
 .br

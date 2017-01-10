@@ -1,3 +1,10 @@
+webmash4x20client (1.4.2) unstable; urgency=medium
+
+  * Grab gpio-keys device for exclusive device to prevent input
+    on console and X11
+
+ -- Sven Geggus <sven-debian@geggus.net>  Tue, 10 Jan 2017 22:57:25 +0100
+
 webmash4x20client (1.4.1) unstable; urgency=medium
 
   * figured that gpio_keys_device is obsolete. Thus we go

@@ -763,6 +763,14 @@ int main(int argc, char **argv) {
   if (ipdev == -1)
     die("Unable to find desired input device \"%s\"!\nCheck permissions of %s\n",cmd->indev,INPUTDEVGLOB);
   
+  /* we do not wand to have our keyboard events on console or X11
+     thus we need to grab the device for exclusive use */
+  if (!cmd->nograbP) {
+    debug("grabbing device %s \"%s\" for exclusive use\n",globbuf.gl_pathv[i],cmd->indev);
+    if (0 != ioctl(ipdev, EVIOCGRAB, 1))
+      die("Unable to grab device \"%s\" for exclusive use\n");
+  }
+  
   wiringPiSetupSys();
   lcdHandle = lcdInit (LCD_ROWS, LCD_COLS, cmd->lcd[0], cmd->lcd[1],cmd->lcd[2], cmd->lcd[3],cmd->lcd[4],cmd->lcd[5],4,0,0,0,0) ;
   if (lcdHandle < 0) {

@@ -19,6 +19,8 @@ typedef struct s_Cmdline {
   char indevP;
   char* indev;
   int indevC;
+  /***** -ng: do not input device for exclusive use */
+  char nograbP;
   /***** -url: base url for mashctld state */
   char urlP;
   char* url;
