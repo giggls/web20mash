@@ -29,17 +29,13 @@ gpio_buzzer:gpio_buzzer.o
 	$(CC) -o $@ $(CFLAGS) $<
 
 find_ow_devs:find_ow_devs.o
-	 $(CC) -o $@ $(CFLAGS) -lowcapi $<
+	 $(CC) -o $@ $(CFLAGS) $< -lowcapi
 
 cmdline.c: cmdline.cli
 	clig $<
 
 ifinfo: ifinfo.c gen_json_4interfaces.c
 	$(CC) -static -o $@ ifinfo.c gen_json_4interfaces.c -lmnl
-
-mudflap: CFLAGS += -fmudflap
-mudflap: LDLIBS += -lmudflap
-mudflap: mashctld
 
 .PHONY: plugins
 plugins:
