@@ -46,7 +46,7 @@ webdata:
 	make -C webdata
 
 clean:
-	rm -f *.o *~ mashctld ifinfo
+	rm -f *.o *~ mashctld ifinfo find_ow_devs gpio_buzzer
 	make -C plugins clean
 	make -C webmash_7segm_client clean
 	make -C webdata clean
