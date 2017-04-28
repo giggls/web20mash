@@ -82,7 +82,7 @@
 	<td style="text-align: left;">min
         </table>
         <input type="file" id="importfile" onchange="configread(this.files[0])" style="display: none;">
-        <button id='Import' type='button' onclick="document.getElementById('importfile').click();">Import</button>
+        <button id='Import' type='button' title="Import beerXML oder xsud Datei" onclick="document.getElementById('importfile').click();">Import</button>
         <button id='OK' type='button'>OK</button>&nbsp;&nbsp;
       </div>
     </div>
