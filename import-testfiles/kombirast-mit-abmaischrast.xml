@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Rezepte-->
+<RECIPES>
+  <!--Rezept-->
+  <RECIPE>
+    <!--Version Rezept Tag-->
+    <VERSION>1</VERSION>
+    <!--Rezeptname-->
+    <NAME>kombirast-mit-abmaischrast</NAME>
+    <!--Typ (im KBH immer All Grain)-->
+    <TYPE>All Grain</TYPE>
+    <!--Im KBH wird kein Brauer Name angegeben-->
+    <BREWER>Unbekannt</BREWER>
+    <!--Sudmenge in Liter-->
+    <BATCH_SIZE>20</BATCH_SIZE>
+    <!--Gesamtkochdauer Zeit im Minuten-->
+    <BOIL_TIME>90</BOIL_TIME>
+    <!--Sudhausausbeute bezogen auf die Ausschlagmenge in Prozent-->
+    <EFFICIENCY>3</EFFICIENCY>
+    <!--Hopfenliste-->
+    <HOPS/>
+    <!--Malze und alles mit Ausbeute in den weiteren zutaten-->
+    <FERMENTABLES/>
+    <!--Hefe-->
+    <YEASTS>
+      <YEAST>
+        <!--Version Yeast Tag-->
+        <VERSION>1</VERSION>
+        <!--Name Hefe-->
+        <NAME></NAME>
+        <!--May be Ale, Lager, Wheat, Wine or Champagne (Wird im KBH nicht definiert, deshalb immer Lager-->
+        <TYPE>Lager</TYPE>
+        <!--May be Liquid, Dry, Slant or Culture-->
+        <FORM>Dry</FORM>
+        <!--The amount of yeast, measured in liters.  For a starter this is the size of the starter.  If the flag AMOUNT_IS_WEIGHT is set to TRUE then this measurement is in kilograms and not liters.-->
+        <AMOUNT>0</AMOUNT>
+      </YEAST>
+    </YEASTS>
+    <!--Hefe-->
+    <MISCS/>
+    <!--A mash profile is a record used either within a recipe or outside the recipe to precisely specify the mash method used-->
+    <MASH>
+      <!--Version MASH Tag-->
+      <VERSION>1</VERSION>
+      <!--Name of the mash profile.-->
+      <NAME>Temperatur</NAME>
+      <!--The temperature of the grain before adding it to the mash in degrees Celsius.-->
+      <GRAIN_TEMP>20</GRAIN_TEMP>
+      <!--A mash step is an internal record used within a mash profile to denote a separate step in a multi-step mash.  A mash step is not intended for use outside of a mash profile.-->
+      <MASH_STEPS>
+        <MASH_STEP>
+          <!--Version MASH_STEP Tag-->
+          <VERSION>1</VERSION>
+          <!--Einmaischen bei:-->
+          <NAME>Einmaischen</NAME>
+          <!--May be Infusion, Temperature or Decoction depending on the type of step.  Infusion denotes adding hot water, Temperature denotes heating with an outside heat source, and decoction denotes drawing off some mash for boiling.-->
+          <!--Im KBH immer Temperature-->
+          <TYPE>Temperature</TYPE>
+          <!--Temperatur der Rast-->
+          <STEP_TEMP>60</STEP_TEMP>
+          <!--Rastdauer-->
+          <STEP_TIME>0</STEP_TIME>
+        </MASH_STEP>
+        <MASH_STEP>
+          <!--Version MASH_STEP Tag-->
+          <VERSION>1</VERSION>
+          <!--Berschreibung der Rast-->
+          <NAME>Kombirast (66&#176;-69&#176;)</NAME>
+          <!--May be Infusion, Temperature or Decoction depending on the type of step.  Infusion denotes adding hot water, Temperature denotes heating with an outside heat source, and decoction denotes drawing off some mash for boiling.-->
+          <!--Im KBH immer Temperature-->
+          <TYPE>Temperature</TYPE>
+          <!--Temperatur der Rast-->
+          <STEP_TEMP>67</STEP_TEMP>
+          <!--Rastdauer-->
+          <STEP_TIME>60</STEP_TIME>
+        </MASH_STEP>
+        <MASH_STEP>
+          <!--Version MASH_STEP Tag-->
+          <VERSION>1</VERSION>
+          <!--Berschreibung der Rast-->
+          <NAME>Abmaischen (78&#176;)</NAME>
+          <!--May be Infusion, Temperature or Decoction depending on the type of step.  Infusion denotes adding hot water, Temperature denotes heating with an outside heat source, and decoction denotes drawing off some mash for boiling.-->
+          <!--Im KBH immer Temperature-->
+          <TYPE>Temperature</TYPE>
+          <!--Temperatur der Rast-->
+          <STEP_TEMP>78</STEP_TEMP>
+          <!--Rastdauer-->
+          <STEP_TIME>0</STEP_TIME>
+        </MASH_STEP>
+      </MASH_STEPS>
+    </MASH>
+  </RECIPE>
+</RECIPES>

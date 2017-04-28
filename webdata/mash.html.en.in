@@ -14,6 +14,7 @@
     <script type="text/javascript" src="js/spin.min.js"></script>
     <script type="text/javascript" src="js/procind.js"></script>
     <script type="text/javascript" src="js/ctimer.js"></script>
+    <script type="text/javascript" src="js/import.js"></script>
     <script src="js/propanim.js"></script>
     <script type="text/javascript" src="js/webmash.js"></script>
     <script type="text/javascript" src="js/en.js"></script>
@@ -81,6 +82,8 @@
         <tr><td>Mashing Out Rest:<td><input name="resttime4" class="timeinput" type="text" size="5" maxlength="5">
         <td style="text-align: left;">min
         </table>
+         <input type="file" id="importfile" onchange="configread(this.files[0])" style="display: none;">
+         <button id='Import' type='button' onclick="document.getElementById('importfile').click();">Import</button>
         <button id='OK' type='button'>OK</button>&nbsp;&nbsp;
       </div>
     </div>

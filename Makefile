@@ -63,6 +63,7 @@ install: debian/copyright mashctld gpio_buzzer
 	cd webmash_7segm_client; make
 	mkdir -p $(DESTDIR)/share/web20mash/images
 	mkdir -p $(DESTDIR)/share/web20mash/js
+	mkdir -p $(DESTDIR)/share/web20mash/xslt
 	mkdir -p $(DESTDIR)/lib/web20mash/plugins
 	mkdir -p $(CFDIR)
 	mkdir -p $(CFDIR)/sudoers.d
@@ -71,6 +72,7 @@ install: debian/copyright mashctld gpio_buzzer
 	cp -a webdata/*.html.?? $(DESTDIR)/share/web20mash/
 	cp -a webdata/css $(DESTDIR)/share/web20mash/
 	cp -a webdata/js/*.js $(DESTDIR)/share/web20mash/js/
+	cp -a webdata/xslt/* $(DESTDIR)/share/web20mash/xslt/
 	cp webdata/images/*.png $(DESTDIR)/share/web20mash/images/
 	cp webdata/images/*.gif $(DESTDIR)/share/web20mash/images/
 	cp webdata/images/favicon.ico $(DESTDIR)/share/web20mash/images/

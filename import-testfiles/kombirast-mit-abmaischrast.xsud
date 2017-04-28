@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<xsud>
+  <Global>
+    <!--Erstellungsdatum der Exportdatei-->
+    <Datum Einheit="Qt::ISODate">2017-04-28T19:24:11</Datum>
+  </Global>
+  <Version>
+    <!--Versionsstand der Datenbank-->
+    <Datenbank>22</Datenbank>
+    <!--Versionsstand der Exportdatei-->
+    <xsud>9</xsud>
+    <!--Versionsstand kleiner-brauhelfer-->
+    <kleiner-brauhelfer>1.4.3.3</kleiner-brauhelfer>
+  </Version>
+  <Sud>
+    <!--Bezeichner fuer den Sud-->
+    <Sudname>kombirast-mit-abmaischrast</Sudname>
+    <!--Zeitstempel fuer Erstellungsdatum in der Datenbank-->
+    <Erstellt Einheit="Qt::ISODate">2017-04-28T19:03:20</Erstellt>
+    <!--Zeitstempel wann Sud das letzte-mal in der Datenbank gespeichert wurde-->
+    <Gespeichert Einheit="Qt::ISODate">2017-04-28T19:03:42</Gespeichert>
+    <!--Soll Wuerze-Anstellmenge-->
+    <Menge Einheit="Liter">20</Menge>
+    <!--Soll Stammwuerze-->
+    <SW Einheit="Grad Plato">12</SW>
+    <!--Soll CO2 Gehalt-->
+    <CO2 Einheit="Gramm/Liter">5</CO2>
+    <!--Soll Bittere-->
+    <IBU Einheit="IBU">26</IBU>
+    <!--Angepeilte Reifezeit-->
+    <Reifezeit Einheit="Wochen">4</Reifezeit>
+    <!--Allgemeiner Kommentar-->
+    <Kommentar><![CDATA[]]></Kommentar>
+    <!--Datum an dem der Sud gebraut wurde-->
+    <Braudatum Einheit="Qt::ISODate">2014-06-03</Braudatum>
+    <!--Flag ob Sud gebraut wurde-->
+    <BierWurdeGebraut Einheit="Bool">0</BierWurdeGebraut>
+    <!--Flag ob Sud abgefuellt wurde-->
+    <BierWurdeAbgefuellt Einheit="Bool">0</BierWurdeAbgefuellt>
+    <!--Flag ob Sud verbraucht wurde-->
+    <BierWurdeVerbraucht Einheit="Bool">0</BierWurdeVerbraucht>
+    <!--Kochdauer nach der ersten Hopfengabe-->
+    <KochdauerNachBitterhopfung Einheit="Minuten">90</KochdauerNachBitterhopfung>
+    <!--Faktor zum Berechnen der Hauptgussmenge (Schuettung * Faktor = Hauptgussmenge)-->
+    <FaktorHauptguss Einheit="Faktor">3.5</FaktorHauptguss>
+    <!--Name der Ausgewaehlten Hefe-->
+    <AuswahlHefe Einheit="Text"></AuswahlHefe>
+    <!--Anzahl verwendeter Hefe Einheiten-->
+    <HefeAnzahlEinheiten Einheit="Integer">1</HefeAnzahlEinheiten>
+    <!--Wuerzemenge vor dem Hopfenseihen-->
+    <WuerzemengeVorHopfenseihen Einheit="Liter">1</WuerzemengeVorHopfenseihen>
+    <!--Stammwuerze vor dem Hopfenseihen-->
+    <SWVorHopfenseihen Einheit="Grad Plato">8</SWVorHopfenseihen>
+    <!--Wuerzemenge nach dem Hopfenseihen-->
+    <WuerzemengeKochende Einheit="Liter">20</WuerzemengeKochende>
+    <!--Stammwuerze nach dem Hopfenseihen-->
+    <SWKochende Einheit="Grad Plato">12</SWKochende>
+    <!--Abgefuellte Speisemenge-->
+    <Speisemenge Einheit="Liter">1</Speisemenge>
+    <!--Datum der Hefezugabe-->
+    <Anstelldatum Einheit="Qt::ISODate">2014-06-03</Anstelldatum>
+    <!--Wuerzemenge beim der Hefezugabe-->
+    <WuerzemengeAnstellen Einheit="Liter">20</WuerzemengeAnstellen>
+    <!--Stammwuerze bei der Hefezugabe-->
+    <SWAnstellen Einheit="Grad Plato">12</SWAnstellen>
+    <!--Abfuelldatum-->
+    <Abfuelldatum Einheit="Qt::ISODate">2014-06-03</Abfuelldatum>
+    <!--Restextrakt der Schnellgaerprobe-->
+    <SWSchnellgaerprobe Einheit="Grad Plato">2.5</SWSchnellgaerprobe>
+    <!--Restextrakt des Jungbieres aus der Hauptgaerung-->
+    <SWJungbier Einheit="Grad Plato">3</SWJungbier>
+    <!--Temperatur Jungbier beim Abfuellen-->
+    <TemperaturJungbier Einheit="Grad Celsius">12</TemperaturJungbier>
+    <!--Temperatur Einmaischen-->
+    <EinmaischenTemp Einheit="Grad Celsius">60</EinmaischenTemp>
+    <!--Kosten fuer Wasser / Strom / Gas etc.-->
+    <KostenWasserStrom Einheit="Euro">0</KostenWasserStrom>
+    <!--Dauer die der Hopfen noch nach dem Kochen Bittere abgeben kann-->
+    <Nachisomerisierungszeit Einheit="Minuten">0</Nachisomerisierungszeit>
+    <!--Aktives Tab im kleinen-brauhelfer nach dem Laden-->
+    <AktivTab Einheit="Integer">1</AktivTab>
+    <!--Aktives Tab im Gaerverlauf nach dem Laden-->
+    <AktivTab_Gaerverlauf Einheit="Integer">0</AktivTab_Gaerverlauf>
+    <!--Gewuenschte Restalkalitaet-->
+    <RestalkalitaetSoll Einheit="Grad Deutsche Haerte">0</RestalkalitaetSoll>
+    <!--Flag ob eine Schnellgaeprobe gemacht wurde-->
+    <SchnellgaerprobeAktiv Einheit="Bool">0</SchnellgaerprobeAktiv>
+    <!--Bierfarbe-->
+    <erg_Farbe Einheit="EBC">999</erg_Farbe>
+    <!--Jungbiermenge beim Abfuellen-->
+    <JungbiermengeAbfuellen Einheit="Liter">0</JungbiermengeAbfuellen>
+    <!--Beste Bewertung (Anzahl Sterne)-->
+    <Bewertung Einheit="Integer">0</Bewertung>
+    <!--Reifewoche der Besten Bewertung-->
+    <BewertungText Einheit="Text"></BewertungText>
+    <!--Maximale Anzahl Sterne bei diesem Sud-->
+    <BewertungMaxSterne Einheit="Integer">5</BewertungMaxSterne>
+    <!--Art der Hopfenberechnung-->
+    <berechnungsArtHopfen Einheit="Integer">1</berechnungsArtHopfen>
+    <!--High Gravity Faktor-->
+    <highGravityFaktor Einheit="Integer">0</highGravityFaktor>
+    <Rasten>
+      <Rast_1>
+        <!--1 = Rast ist Aktiv-->
+        <RastAktiv Einheit="Bool">1</RastAktiv>
+        <!--Berschreibung der Rast-->
+        <RastName Einheit="Text">Kombirast (66°-69°)</RastName>
+        <!--Temperatur der Rast-->
+        <RastTemp Einheit="Grad Celsius">67</RastTemp>
+        <!--Rastdauer-->
+        <RastDauer Einheit="Minuten">60</RastDauer>
+      </Rast_1>
+      <Rast_2>
+        <!--1 = Rast ist Aktiv-->
+        <RastAktiv Einheit="Bool">1</RastAktiv>
+        <!--Berschreibung der Rast-->
+        <RastName Einheit="Text">Abmaischen (78°)</RastName>
+        <!--Temperatur der Rast-->
+        <RastTemp Einheit="Grad Celsius">78</RastTemp>
+        <!--Rastdauer-->
+        <RastDauer Einheit="Minuten">0</RastDauer>
+      </Rast_2>
+    </Rasten>
+    <Schuettung/>
+    <Hopfengaben/>
+    <WeitereZutatenGaben/>
+    <Schnellgaerverlauf/>
+    <Hauptgaerverlauf/>
+    <Nachgaerverlauf/>
+    <Bewertungen/>
+  </Sud>
+  <!--Hier sind die Rohstoffe aufgelistet die Im Sud verwendet wurden-->
+  <Rohstoffe>
+    <Malz/>
+    <Hopfen/>
+    <Hefe/>
+    <WeitereZutaten/>
+  </Rohstoffe>
+</xsud>

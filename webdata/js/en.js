@@ -3,7 +3,8 @@ i18n = {
 "comm_error": "communication error in funktion: ",
 "process_finished": "Mash process finished!",
 "process_canceled": "Mash process canceled!",
-"iodinealert": "Mash process suspended for iodine test.\nUse start button to continue!"
+"iodinealert": "Mash process suspended for iodine test.\nUse start button to continue!",
+"importerror": "Import error!"
 }
 
 // english language messages for device error conditions

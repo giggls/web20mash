@@ -1,0 +1,370 @@
+<?xml version="1.0"?>
+<xsud>
+  <Global>
+    <!--Erstellungsdatum der Exportdatei-->
+    <Datum Einheit="Qt::ISODate">2017-04-28T19:24:18</Datum>
+  </Global>
+  <Version>
+    <!--Versionsstand der Datenbank-->
+    <Datenbank>22</Datenbank>
+    <!--Versionsstand der Exportdatei-->
+    <xsud>9</xsud>
+    <!--Versionsstand kleiner-brauhelfer-->
+    <kleiner-brauhelfer>1.4.3.3</kleiner-brauhelfer>
+  </Version>
+  <Sud>
+    <!--Bezeichner fuer den Sud-->
+    <Sudname>drei-mit-abmaischrast</Sudname>
+    <!--Zeitstempel fuer Erstellungsdatum in der Datenbank-->
+    <Erstellt Einheit="Qt::ISODate">2017-04-28T19:05:10</Erstellt>
+    <!--Zeitstempel wann Sud das letzte-mal in der Datenbank gespeichert wurde-->
+    <Gespeichert Einheit="Qt::ISODate">2017-04-28T19:05:38</Gespeichert>
+    <!--Soll Wuerze-Anstellmenge-->
+    <Menge Einheit="Liter">20</Menge>
+    <!--Soll Stammwuerze-->
+    <SW Einheit="Grad Plato">13.5</SW>
+    <!--Soll CO2 Gehalt-->
+    <CO2 Einheit="Gramm/Liter">5</CO2>
+    <!--Soll Bittere-->
+    <IBU Einheit="IBU">26</IBU>
+    <!--Angepeilte Reifezeit-->
+    <Reifezeit Einheit="Wochen">4</Reifezeit>
+    <!--Allgemeiner Kommentar-->
+    <Kommentar><![CDATA[Bemerkungen etc. ]]></Kommentar>
+    <!--Datum an dem der Sud gebraut wurde-->
+    <Braudatum Einheit="Qt::ISODate">2014-06-03</Braudatum>
+    <!--Flag ob Sud gebraut wurde-->
+    <BierWurdeGebraut Einheit="Bool">0</BierWurdeGebraut>
+    <!--Flag ob Sud abgefuellt wurde-->
+    <BierWurdeAbgefuellt Einheit="Bool">0</BierWurdeAbgefuellt>
+    <!--Flag ob Sud verbraucht wurde-->
+    <BierWurdeVerbraucht Einheit="Bool">0</BierWurdeVerbraucht>
+    <!--Kochdauer nach der ersten Hopfengabe-->
+    <KochdauerNachBitterhopfung Einheit="Minuten">90</KochdauerNachBitterhopfung>
+    <!--Faktor zum Berechnen der Hauptgussmenge (Schuettung * Faktor = Hauptgussmenge)-->
+    <FaktorHauptguss Einheit="Faktor">3.6</FaktorHauptguss>
+    <!--Name der Ausgewaehlten Hefe-->
+    <AuswahlHefe Einheit="Text">Fermentis SAFLAGER S-23</AuswahlHefe>
+    <!--Anzahl verwendeter Hefe Einheiten-->
+    <HefeAnzahlEinheiten Einheit="Integer">2</HefeAnzahlEinheiten>
+    <!--Wuerzemenge vor dem Hopfenseihen-->
+    <WuerzemengeVorHopfenseihen Einheit="Liter">20</WuerzemengeVorHopfenseihen>
+    <!--Stammwuerze vor dem Hopfenseihen-->
+    <SWVorHopfenseihen Einheit="Grad Plato">13.5</SWVorHopfenseihen>
+    <!--Wuerzemenge nach dem Hopfenseihen-->
+    <WuerzemengeKochende Einheit="Liter">20</WuerzemengeKochende>
+    <!--Stammwuerze nach dem Hopfenseihen-->
+    <SWKochende Einheit="Grad Plato">13.5</SWKochende>
+    <!--Abgefuellte Speisemenge-->
+    <Speisemenge Einheit="Liter">1</Speisemenge>
+    <!--Datum der Hefezugabe-->
+    <Anstelldatum Einheit="Qt::ISODate">2014-06-03</Anstelldatum>
+    <!--Wuerzemenge beim der Hefezugabe-->
+    <WuerzemengeAnstellen Einheit="Liter">19</WuerzemengeAnstellen>
+    <!--Stammwuerze bei der Hefezugabe-->
+    <SWAnstellen Einheit="Grad Plato">13.5</SWAnstellen>
+    <!--Abfuelldatum-->
+    <Abfuelldatum Einheit="Qt::ISODate">2014-06-03</Abfuelldatum>
+    <!--Restextrakt der Schnellgaerprobe-->
+    <SWSchnellgaerprobe Einheit="Grad Plato">2.5</SWSchnellgaerprobe>
+    <!--Restextrakt des Jungbieres aus der Hauptgaerung-->
+    <SWJungbier Einheit="Grad Plato">3</SWJungbier>
+    <!--Temperatur Jungbier beim Abfuellen-->
+    <TemperaturJungbier Einheit="Grad Celsius">12</TemperaturJungbier>
+    <!--Temperatur Einmaischen-->
+    <EinmaischenTemp Einheit="Grad Celsius">57</EinmaischenTemp>
+    <!--Kosten fuer Wasser / Strom / Gas etc.-->
+    <KostenWasserStrom Einheit="Euro">0</KostenWasserStrom>
+    <!--Dauer die der Hopfen noch nach dem Kochen Bittere abgeben kann-->
+    <Nachisomerisierungszeit Einheit="Minuten">10</Nachisomerisierungszeit>
+    <!--Aktives Tab im kleinen-brauhelfer nach dem Laden-->
+    <AktivTab Einheit="Integer">1</AktivTab>
+    <!--Aktives Tab im Gaerverlauf nach dem Laden-->
+    <AktivTab_Gaerverlauf Einheit="Integer">0</AktivTab_Gaerverlauf>
+    <!--Gewuenschte Restalkalitaet-->
+    <RestalkalitaetSoll Einheit="Grad Deutsche Haerte">0</RestalkalitaetSoll>
+    <!--Flag ob eine Schnellgaeprobe gemacht wurde-->
+    <SchnellgaerprobeAktiv Einheit="Bool">0</SchnellgaerprobeAktiv>
+    <!--Bierfarbe-->
+    <erg_Farbe Einheit="EBC">20.7</erg_Farbe>
+    <!--Jungbiermenge beim Abfuellen-->
+    <JungbiermengeAbfuellen Einheit="Liter">19</JungbiermengeAbfuellen>
+    <!--Beste Bewertung (Anzahl Sterne)-->
+    <Bewertung Einheit="Integer">0</Bewertung>
+    <!--Reifewoche der Besten Bewertung-->
+    <BewertungText Einheit="Text"></BewertungText>
+    <!--Maximale Anzahl Sterne bei diesem Sud-->
+    <BewertungMaxSterne Einheit="Integer">5</BewertungMaxSterne>
+    <!--Art der Hopfenberechnung-->
+    <berechnungsArtHopfen Einheit="Integer">0</berechnungsArtHopfen>
+    <!--High Gravity Faktor-->
+    <highGravityFaktor Einheit="Integer">0</highGravityFaktor>
+    <Rasten>
+      <Rast_1>
+        <!--1 = Rast ist Aktiv-->
+        <RastAktiv Einheit="Bool">1</RastAktiv>
+        <!--Berschreibung der Rast-->
+        <RastName Einheit="Text">Eiweißrast (57°)</RastName>
+        <!--Temperatur der Rast-->
+        <RastTemp Einheit="Grad Celsius">57</RastTemp>
+        <!--Rastdauer-->
+        <RastDauer Einheit="Minuten">10</RastDauer>
+      </Rast_1>
+      <Rast_2>
+        <!--1 = Rast ist Aktiv-->
+        <RastAktiv Einheit="Bool">1</RastAktiv>
+        <!--Berschreibung der Rast-->
+        <RastName Einheit="Text">Maltoserast (60°-65°)</RastName>
+        <!--Temperatur der Rast-->
+        <RastTemp Einheit="Grad Celsius">63</RastTemp>
+        <!--Rastdauer-->
+        <RastDauer Einheit="Minuten">35</RastDauer>
+      </Rast_2>
+      <Rast_3>
+        <!--1 = Rast ist Aktiv-->
+        <RastAktiv Einheit="Bool">1</RastAktiv>
+        <!--Berschreibung der Rast-->
+        <RastName Einheit="Text">Verzuckerung (70°-75°)</RastName>
+        <!--Temperatur der Rast-->
+        <RastTemp Einheit="Grad Celsius">72</RastTemp>
+        <!--Rastdauer-->
+        <RastDauer Einheit="Minuten">20</RastDauer>
+      </Rast_3>
+      <Rast_4>
+        <!--1 = Rast ist Aktiv-->
+        <RastAktiv Einheit="Bool">1</RastAktiv>
+        <!--Berschreibung der Rast-->
+        <RastName Einheit="Text">Abmaischen (78°)</RastName>
+        <!--Temperatur der Rast-->
+        <RastTemp Einheit="Grad Celsius">78</RastTemp>
+        <!--Rastdauer-->
+        <RastDauer Einheit="Minuten">0</RastDauer>
+      </Rast_4>
+    </Rasten>
+    <Schuettung>
+      <Anteil_1>
+        <!--Malzbeschreibung (Name)-->
+        <Name Einheit="Text">Pilsener Malz </Name>
+        <!--Prozentualer Anteil der Schuettung-->
+        <Prozent Einheit="Prozent">70</Prozent>
+        <!--Berechneter Gewichtsanteil der Schuettung-->
+        <erg_Menge Einheit="Kg">3.322</erg_Menge>
+        <!--Malz - Farbwert-->
+        <Farbe Einheit="EBC">3</Farbe>
+      </Anteil_1>
+      <Anteil_2>
+        <!--Malzbeschreibung (Name)-->
+        <Name Einheit="Text">Münchner Malz II</Name>
+        <!--Prozentualer Anteil der Schuettung-->
+        <Prozent Einheit="Prozent">25</Prozent>
+        <!--Berechneter Gewichtsanteil der Schuettung-->
+        <erg_Menge Einheit="Kg">1.187</erg_Menge>
+        <!--Malz - Farbwert-->
+        <Farbe Einheit="EBC">23</Farbe>
+      </Anteil_2>
+      <Anteil_3>
+        <!--Malzbeschreibung (Name)-->
+        <Name Einheit="Text">CARAMÜNCH II® </Name>
+        <!--Prozentualer Anteil der Schuettung-->
+        <Prozent Einheit="Prozent">5</Prozent>
+        <!--Berechneter Gewichtsanteil der Schuettung-->
+        <erg_Menge Einheit="Kg">0.237</erg_Menge>
+        <!--Malz - Farbwert-->
+        <Farbe Einheit="EBC">120</Farbe>
+      </Anteil_3>
+    </Schuettung>
+    <Hopfengaben>
+      <Anteil_1>
+        <!--1 = Hopfengabe Aktiv-->
+        <Aktiv Einheit="Bool">1</Aktiv>
+        <!--Berschreibung Hopfen (Name)-->
+        <Name Einheit="Text">Perle</Name>
+        <!--Zeit nach Hopfengabe 1-->
+        <Zeit Einheit="Minuten">90</Zeit>
+        <!--Prozentualer Gewichts-anteil der Hopfengabe-->
+        <Prozent Einheit="Prozent">61</Prozent>
+        <!--Berechnete Gewichtsmenge-->
+        <erg_Menge Einheit="Gramm">31.65</erg_Menge>
+        <!--Beschreibungstext-->
+        <erg_Hopfentext Einheit="Text">Perle  (Pellets) 6 % Alpha</erg_Hopfentext>
+        <!--Alphaprozent gehalt des Hopfens-->
+        <Alpha Einheit="Alpha Prozent">6</Alpha>
+        <!--Hopfenart 1 = Pellets-->
+        <Pellets Einheit="Bool">1</Pellets>
+        <!--Wen diese Gabe eine Vorderwuerzehopfung ist dann = 1-->
+        <Vorderwuerze Einheit="Bool">1</Vorderwuerze>
+      </Anteil_1>
+      <Anteil_2>
+        <!--1 = Hopfengabe Aktiv-->
+        <Aktiv Einheit="Bool">1</Aktiv>
+        <!--Berschreibung Hopfen (Name)-->
+        <Name Einheit="Text">Tettnanger</Name>
+        <!--Zeit nach Hopfengabe 1-->
+        <Zeit Einheit="Minuten">0</Zeit>
+        <!--Prozentualer Gewichts-anteil der Hopfengabe-->
+        <Prozent Einheit="Prozent">39</Prozent>
+        <!--Berechnete Gewichtsmenge-->
+        <erg_Menge Einheit="Gramm">20.24</erg_Menge>
+        <!--Beschreibungstext-->
+        <erg_Hopfentext Einheit="Text">Tettnanger  (Pellets) 4 % Alpha</erg_Hopfentext>
+        <!--Alphaprozent gehalt des Hopfens-->
+        <Alpha Einheit="Alpha Prozent">4</Alpha>
+        <!--Hopfenart 1 = Pellets-->
+        <Pellets Einheit="Bool">1</Pellets>
+        <!--Wen diese Gabe eine Vorderwuerzehopfung ist dann = 1-->
+        <Vorderwuerze Einheit="Bool">0</Vorderwuerze>
+      </Anteil_2>
+    </Hopfengaben>
+    <WeitereZutatenGaben/>
+    <Schnellgaerverlauf/>
+    <Hauptgaerverlauf/>
+    <Nachgaerverlauf/>
+    <Bewertungen/>
+  </Sud>
+  <!--Hier sind die Rohstoffe aufgelistet die Im Sud verwendet wurden-->
+  <Rohstoffe>
+    <Malz>
+      <Eintrag_1>
+        <!--Malzbeschreibung (Name)-->
+        <Beschreibung Einheit="Text">Pilsener Malz </Beschreibung>
+        <!--Malzfarbwert-->
+        <Farbe Einheit="EBU">3</Farbe>
+        <!--Maximal empfohlener Schuettungsanteil-->
+        <MaxProzent Einheit="Prozent">100</MaxProzent>
+        <!--Vorhandene Rohstoffmenge-->
+        <Menge Einheit="Kg">10</Menge>
+        <!--Einkaufspreis-->
+        <Preis Einheit="Euro/Kg">2</Preis>
+        <!--Bemerkung-->
+        <Bemerkung Einheit="Text"><![CDATA[]]></Bemerkung>
+        <!--Anwendung-->
+        <Anwendung Einheit="Text"><![CDATA[helle Biere, Pilsener Biere ]]></Anwendung>
+        <!--Datum Eingelagert-->
+        <Eingelagert Einheit="Qt::ISODate">2013-09-20</Eingelagert>
+        <!--Datum Mindesthaltbar-->
+        <Mindesthaltbar Einheit="Qt::ISODate">2013-09-20</Mindesthaltbar>
+      </Eintrag_1>
+      <Eintrag_2>
+        <!--Malzbeschreibung (Name)-->
+        <Beschreibung Einheit="Text">Münchner Malz II</Beschreibung>
+        <!--Malzfarbwert-->
+        <Farbe Einheit="EBU">23</Farbe>
+        <!--Maximal empfohlener Schuettungsanteil-->
+        <MaxProzent Einheit="Prozent">100</MaxProzent>
+        <!--Vorhandene Rohstoffmenge-->
+        <Menge Einheit="Kg">10</Menge>
+        <!--Einkaufspreis-->
+        <Preis Einheit="Euro/Kg">2</Preis>
+        <!--Bemerkung-->
+        <Bemerkung Einheit="Text"><![CDATA[]]></Bemerkung>
+        <!--Anwendung-->
+        <Anwendung Einheit="Text"><![CDATA[dunkle Biere, Festbiere, Starkbiere, Altbier ]]></Anwendung>
+        <!--Datum Eingelagert-->
+        <Eingelagert Einheit="Qt::ISODate">2013-09-20</Eingelagert>
+        <!--Datum Mindesthaltbar-->
+        <Mindesthaltbar Einheit="Qt::ISODate">2013-09-20</Mindesthaltbar>
+      </Eintrag_2>
+      <Eintrag_3>
+        <!--Malzbeschreibung (Name)-->
+        <Beschreibung Einheit="Text">CARAMÜNCH II® </Beschreibung>
+        <!--Malzfarbwert-->
+        <Farbe Einheit="EBU">120</Farbe>
+        <!--Maximal empfohlener Schuettungsanteil-->
+        <MaxProzent Einheit="Prozent">10</MaxProzent>
+        <!--Vorhandene Rohstoffmenge-->
+        <Menge Einheit="Kg">10</Menge>
+        <!--Einkaufspreis-->
+        <Preis Einheit="Euro/Kg">2</Preis>
+        <!--Bemerkung-->
+        <Bemerkung Einheit="Text"><![CDATA[]]></Bemerkung>
+        <!--Anwendung-->
+        <Anwendung Einheit="Text"><![CDATA[dunkle Biere, Festbiere, Malzbiere ]]></Anwendung>
+        <!--Datum Eingelagert-->
+        <Eingelagert Einheit="Qt::ISODate">2013-09-20</Eingelagert>
+        <!--Datum Mindesthaltbar-->
+        <Mindesthaltbar Einheit="Qt::ISODate">2013-09-20</Mindesthaltbar>
+      </Eintrag_3>
+    </Malz>
+    <Hopfen>
+      <Eintrag_1>
+        <!--Hopfenbeschreibung (Name)-->
+        <Beschreibung Einheit="Text">Perle</Beschreibung>
+        <!--Alphaprozentgehalt-->
+        <Alpha Einheit="Alpha Prozent">6</Alpha>
+        <!--Vorhandene Menge-->
+        <Menge Einheit="Gramm">100</Menge>
+        <!--Einkaufspreis-->
+        <Preis Einheit="Euro/Kg">30</Preis>
+        <!--Hopfenart 1=Pellets-->
+        <Pellets Einheit="Text">1</Pellets>
+        <!--Bemerkung-->
+        <Bemerkung Einheit="Text"><![CDATA[ ]]></Bemerkung>
+        <!--Eigenschaften-->
+        <Eigenschaften Einheit="Text"><![CDATA[blumig, fruchtig, harmonisch, mild, süßlich, würzig]]></Eigenschaften>
+        <!--Typ 1=Aroma 2=Bitter 3=Universal-->
+        <Typ Einheit="Integer">1</Typ>
+        <!--Datum Eingelagert-->
+        <Eingelagert Einheit="Qt::ISODate">2013-09-20</Eingelagert>
+        <!--Datum Mindesthaltbar-->
+        <Mindesthaltbar Einheit="Qt::ISODate">2013-09-20</Mindesthaltbar>
+      </Eintrag_1>
+      <Eintrag_2>
+        <!--Hopfenbeschreibung (Name)-->
+        <Beschreibung Einheit="Text">Tettnanger</Beschreibung>
+        <!--Alphaprozentgehalt-->
+        <Alpha Einheit="Alpha Prozent">4</Alpha>
+        <!--Vorhandene Menge-->
+        <Menge Einheit="Gramm">100</Menge>
+        <!--Einkaufspreis-->
+        <Preis Einheit="Euro/Kg">30</Preis>
+        <!--Hopfenart 1=Pellets-->
+        <Pellets Einheit="Text">1</Pellets>
+        <!--Bemerkung-->
+        <Bemerkung Einheit="Text"><![CDATA[ ]]></Bemerkung>
+        <!--Eigenschaften-->
+        <Eigenschaften Einheit="Text"><![CDATA[blumig, grasig, harmonisch, mild, würzig]]></Eigenschaften>
+        <!--Typ 1=Aroma 2=Bitter 3=Universal-->
+        <Typ Einheit="Integer">1</Typ>
+        <!--Datum Eingelagert-->
+        <Eingelagert Einheit="Qt::ISODate">2013-09-20</Eingelagert>
+        <!--Datum Mindesthaltbar-->
+        <Mindesthaltbar Einheit="Qt::ISODate">2013-09-20</Mindesthaltbar>
+      </Eintrag_2>
+    </Hopfen>
+    <Hefe>
+      <Eintrag_1>
+        <!--Hefebeschreibung (Name)-->
+        <Beschreibung Einheit="Text">Fermentis SAFLAGER S-23</Beschreibung>
+        <!--Vorhandene Menge-->
+        <Menge Einheit="Einheiten">4</Menge>
+        <!--Benoetigte Einheiten-->
+        <Einheiten Einheit="Einheiten"></Einheiten>
+        <!--Einkaufspreis-->
+        <Preis Einheit="Euro/Einheit">3.9</Preis>
+        <!--Bemerkung-->
+        <Bemerkung Einheit="Text"><![CDATA[]]></Bemerkung>
+        <!--TypOGUG 1=Obergaerig 2=Untergaerig-->
+        <TypOGUG Einheit="Integer">2</TypOGUG>
+        <!--TypTrFl 1=Trocken 2=Fluessig-->
+        <TypTrFl Einheit="Integer">1</TypTrFl>
+        <!--Verpackungsmenge-->
+        <Verpackungsmenge Einheit="Text">11,5g</Verpackungsmenge>
+        <!--Wuerzemenge-->
+        <Wuerzemenge Einheit="Integer">15</Wuerzemenge>
+        <!--Eigenschaften-->
+        <Eigenschaften Einheit="Text"><![CDATA[für Lagerbiere mit milden, leicht fruchtigen Esternoten, optimal bei 12°C]]></Eigenschaften>
+        <!--SED 1=Hoch 2=Mittel 3=Niedrig-->
+        <SED Einheit="Integer">1</SED>
+        <!--EVG Endvergaerungsgrad-->
+        <EVG Einheit="Text">73%</EVG>
+        <!--Temperatur-->
+        <Temperatur Einheit="Text">9 - 15°C</Temperatur>
+        <!--Datum Eingelagert-->
+        <Eingelagert Einheit="Qt::ISODate">2013-09-20</Eingelagert>
+        <!--Datum Mindesthaltbar-->
+        <Mindesthaltbar Einheit="Qt::ISODate">2013-09-20</Mindesthaltbar>
+      </Eintrag_1>
+    </Hefe>
+    <WeitereZutaten/>
+  </Rohstoffe>
+</xsud>
