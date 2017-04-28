@@ -15,7 +15,7 @@ actuator_external.so: actuator_external.o searchXfile.o
 	$(CC) -shared -o $@ $?
 	
 actuator_onewire.so: actuator_onewire.o
-	$(CC) -shared -o $@ $?
+	$(CC) -shared -o $@ $? -lowcapi
 	
 actuator_gpio.so: actuator_gpio.o
 	$(CC) -shared -o $@ $?
@@ -24,8 +24,8 @@ sensor_dummy.so: sensor_dummy.o
 	$(CC) -shared -o $@ $?
 
 sensor_onewire.so: sensor_onewire.o
-	$(CC) -shared -o $@ $?
-	
+	$(CC) -shared -o $@ $? -lowcapi
+
 sensor_temper1.so: sensor_temper1.o
 	$(CC) -lusb -shared -o $@ $?
 
