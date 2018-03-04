@@ -78,7 +78,7 @@ function RunApp() {
     $.ajaxSetup({ cache: false });
   }
   // input entry checks
-  $("input[name='musttemp']").jStepper({minValue:0, maxValue:99, normalStep:0.5, decimalSeparator:"."});
+  $("input[name='musttemp']").jStepper({minValue:0, maxValue:105, normalStep:0.5, decimalSeparator:"."});
 
   jc.start(tCanvas);
   thermo=new thermometerwidget(tCanvas,0,0,timg);
