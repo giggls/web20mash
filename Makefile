@@ -1,5 +1,6 @@
 DESTDIR = /usr/local
 CFDIR = /etc
+SERVICEDIR=/etc/systemd/system
 PREFIX = $(DESTDIR)
 
 CFLAGS = -g -Wall -W -std=gnu99 -pedantic
@@ -69,6 +70,7 @@ install: debian/copyright mashctld gpio_buzzer
 	mkdir -p $(CFDIR)/sudoers.d
 	mkdir -p $(CFDIR)/init.d
 	mkdir -p $(DESTDIR)/bin
+	mkdir -p $(SERVICEDIR)
 	cp -a webdata/*.html.?? $(DESTDIR)/share/web20mash/
 	cp -a webdata/css $(DESTDIR)/share/web20mash/
 	cp -a webdata/js/*.js $(DESTDIR)/share/web20mash/js/
@@ -86,6 +88,7 @@ install: debian/copyright mashctld gpio_buzzer
 	install -m 755 mashctld_readonly_root_script.sh $(DESTDIR)/bin
 	install -m 755 web20mash.sudo $(CFDIR)/sudoers.d/web20mash
 	install -m 755 webmash.init $(CFDIR)/init.d/webmash
+	install -m 755 webmash.service $(SERVICEDIR)
 	chmod 755 $(DESTDIR)/share/web20mash $(DESTDIR)/share/web20mash/images $(DESTDIR)/share/web20mash/js $(DESTDIR)/share/web20mash/css
 	chmod 644 $(DESTDIR)/share/web20mash/*/*
 	cp plugins/*.so $(DESTDIR)/lib/web20mash/plugins

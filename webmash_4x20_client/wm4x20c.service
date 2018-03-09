@@ -1,0 +1,11 @@
+[Unit]
+Description=Web 2.0 Mash client for 4x20 LCD
+After=network.target webmash.service
+
+[Service]
+ExecStart=/usr/bin/webmash_4x20_client
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

@@ -8,7 +8,7 @@ JSTEPPER_BASE=http://jstepper.emkay.dk/scripts
 JSTEPPER=jquery.jstepper.min.js
 
 SPINNER_BASE=http://fgnass.github.com/spin.js/
-SPINNER=spin.min.js
+SPINNER=spin.js
 
 HTML_IN_FILES := $(wildcard *.html.*.in)
 HTML_OUT_FILES := $(patsubst %.in, %, ${HTML_IN_FILES})

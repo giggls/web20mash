@@ -1,0 +1,11 @@
+[Unit]
+Description=Web 2.0 Mash daemon
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/mashctld -c /etc/mashctld.conf -p /var/run/mashctld.pid
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

@@ -24,8 +24,18 @@ case "$1" in
     	# on newer versions of raspbian it seems that we need
     	# to be a member of the gpio group
     	usermod -G gpio webmash 2>/dev/null
-    	insserv webmash
-    	/etc/init.d/webmash start
+    	initsys=$(readlink /sbin/init)
+	initsys=$(basename "$initsys")
+
+        if [ "x$initsys" = "xsystemd" ]; then
+          systemctl unmask webmash >/dev/null
+          systemctl enable webmash
+          systemctl start webmash
+        else
+    	  # in system V init call this
+    	  insserv webmash
+    	  /etc/init.d/webmash start
+    	fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

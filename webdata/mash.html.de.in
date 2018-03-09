@@ -10,7 +10,7 @@
     <script type="text/javascript" src="js/jcsector.js"></script>
     <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
     <script type="text/javascript" src="js/jquery.jstepper.min.js"></script>
-    <script type="text/javascript" src="js/spin.min.js"></script>
+    <script type="text/javascript" src="js/spin.js"></script>
     <script type="text/javascript" src="js/procind.js"></script>
     <script type="text/javascript" src="js/ctimer.js"></script>
     <script type="text/javascript" src="js/import.js"></script>
