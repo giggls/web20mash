@@ -40,7 +40,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/webmash4x20client
-	make install DESTDIR=$(CURDIR)/debian/webmash4x20client/usr CFDIR=$(CURDIR)/debian/webmash4x20client/etc BOOT=$(CURDIR)/debian/webmash4x20client/boot
+	make install DESTDIR=$(CURDIR)/debian/webmash4x20client/usr CFDIR=$(CURDIR)/debian/webmash4x20client/etc BOOT=$(CURDIR)/debian/webmash4x20client/boot SERVICEDIR=$(CURDIR)/debian/webmash4x20client/lib/systemd/system 
 
 # Build architecture-independent files here.
 binary-indep: build install

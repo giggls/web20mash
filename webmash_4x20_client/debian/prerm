@@ -19,8 +19,15 @@
 
 case "$1" in
     remove|upgrade|deconfigure)
-    insserv -r wm4x20c
-    killall wm4x20c 2>/dev/null
+    initsys=$(readlink /sbin/init)
+    initsys=$(basename "$initsys")
+    if [ "x$initsys" = "xsystemd" ]; then
+    systemctl disable wm4x20c
+    systemctl stop wm4x20c
+    else
+      insserv -r wm4x20c
+      killall wm4x20c 2>/dev/null
+    fi
     ;;
 
     failed-upgrade)

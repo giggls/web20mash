@@ -22,7 +22,16 @@ case "$1" in
     configure)
     	# need to be in group input to use /dev/input/event*
     	usermod -G input,gpio webmash 2>/dev/null
-    	insserv wm4x20c    	
+    	initsys=$(readlink /sbin/init)
+	initsys=$(basename "$initsys")
+
+        if [ "x$initsys" = "xsystemd" ]; then
+          systemctl unmask wm4x20c >/dev/null
+          systemctl enable wm4x20c
+        else
+          # in system V init call this
+          insserv wm4x20c
+        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

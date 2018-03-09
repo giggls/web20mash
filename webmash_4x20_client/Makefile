@@ -1,6 +1,7 @@
 PROG=webmash_4x20_client
 DESTDIR = /usr/local
 CFDIR = /etc
+SERVICEDIR=/etc/systemd/system
 PREFIX = $(DESTDIR)
 BOOT = /boot
 
@@ -46,11 +47,13 @@ install: all
 	cp l10n/de/LC_MESSAGES/*.mo $(DESTDIR)/share/locale/de/LC_MESSAGES/
 	chmod 644 $(DESTDIR)/share/locale/de/LC_MESSAGES/*.mo
 	mkdir -p $(DESTDIR)/bin
+	mkdir -p $(SERVICEDIR)
 	cp $(PROG) $(DESTDIR)/bin
 	chmod 755 $(DESTDIR)/bin/$(PROG)
 	mkdir -p $(DESTDIR)/share/man/man1
 	cp $(PROG).1 $(DESTDIR)/share/man/man1
 	chmod 644 $(DESTDIR)/share/man/man1/$(PROG).1
 	install -m 755 wm4x20c.init $(CFDIR)/init.d/wm4x20c
+	install -m 755 wm4x20c.service $(SERVICEDIR)
 	mkdir -p $(BOOT)/overlays
 	install fangopcb.dtbo $(BOOT)/overlays/
