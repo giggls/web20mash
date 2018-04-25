@@ -1,14 +1,12 @@
 JQUERY_BASE=http://code.jquery.com
 JQUERY=jquery-1.8.2.min.js
 
-JCANVASCRIPT_BASE=http://jcscript.com/data/js
+# older Javascript staff no longer available on the Web
 JCANVASCRIPT=jCanvaScript.1.5.18.min.js
+SPINNER=spin.min.js
 
 JSTEPPER_BASE=http://jstepper.emkay.dk/scripts
 JSTEPPER=jquery.jstepper.min.js
-
-SPINNER_BASE=http://fgnass.github.com/spin.js/
-SPINNER=spin.js
 
 HTML_IN_FILES := $(wildcard *.html.*.in)
 HTML_OUT_FILES := $(patsubst %.in, %, ${HTML_IN_FILES})
@@ -56,9 +54,6 @@ js/$(JCANVASCRIPT):
 js/$(JSTEPPER):
 	wget -P js $(JSTEPPER_BASE)/$(JSTEPPER)
 
-js/$(SPINNER):
-	wget -P js $(SPINNER_BASE)/$(SPINNER)
-
 images/en.png:
 	tar xvzf upstream/kbflags-1.0.tar.gz -C /tmp
 	cp /tmp/kbflags-1.0/21x14.new/* images
@@ -77,6 +72,4 @@ mrproper: clean
 	rm -f images/sudpfanne.png
 	rm -f images/propeller?.png
 	rm -f js/$(JQUERY)
-	rm -f js/$(JCANVASCRIPT)
-	rm -f js/$(SPINNER)
 	rm -f js/$(JSTEPPER)
