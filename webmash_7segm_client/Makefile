@@ -2,7 +2,7 @@ DESTDIR = /usr/local
 PREFIX = $(DESTDIR)
 
 CFLAGS = -g -Wall -W -std=gnu99 -pedantic
-LDLIBS = -lcurl
+LDLIBS = -lcurl -li2c
 
 OBJ = 7segm_client.o jsmn.o cmdline.o 7-segm-ht16k33.o
 
