@@ -393,10 +393,9 @@ static int answer_to_connection (void *cls,
 	  snprintf(mdata,1024,
 		   "<html><body>OK setting must value to %f</body></html>",must);
 	}
-	response = MHD_create_response_from_data(strlen(mdata),
+	response = MHD_create_response_from_buffer(strlen(mdata),
 						 (void*) mdata,
-						 MHD_NO,
-						 MHD_NO);
+						 MHD_RESPMEM_MUST_FREE);
 	MHD_add_response_header(response,
 				"Content-Type", "text/html; charset=UTF-8");
       
@@ -423,10 +422,9 @@ static int answer_to_connection (void *cls,
 	  snprintf(mdata,1024,
 		   "<html><body>OK setting control to %d</body></html>",ctl);
 	}
-	response = MHD_create_response_from_data(strlen(mdata),
+	response = MHD_create_response_from_buffer(strlen(mdata),
 						 (void*) mdata,
-						 MHD_NO,
-						 MHD_NO);
+						 MHD_RESPMEM_MUST_FREE);
 	MHD_add_response_header(response,
 				"Content-Type", "text/html; charset=UTF-8");
       
@@ -461,10 +459,9 @@ static int answer_to_connection (void *cls,
 	  snprintf(mdata,1024,
 		   "<html><body>OK setting actuator %d state to %d</body></html>",ano,astate);
 	}
-	response = MHD_create_response_from_data(strlen(mdata),
+	response = MHD_create_response_from_buffer(strlen(mdata),
 						 (void*) mdata,
-						 MHD_NO,
-						 MHD_NO);
+						 MHD_RESPMEM_MUST_FREE);
 	MHD_add_response_header(response,
 				"Content-Type", "text/html; charset=UTF-8");
       
@@ -509,10 +506,9 @@ static int answer_to_connection (void *cls,
 	  snprintf(mdata,1024,
 		   "<html><body>OK setting actuator to %s</body></html>",sacttype);
 	}
-	response = MHD_create_response_from_data(strlen(mdata),
+	response = MHD_create_response_from_buffer(strlen(mdata),
 						 (void*) mdata,
-						 MHD_NO,
-						 MHD_NO);
+						 MHD_RESPMEM_MUST_FREE);
 	MHD_add_response_header(response,
 				"Content-Type", "text/html; charset=UTF-8");
       
@@ -588,10 +584,9 @@ static int answer_to_connection (void *cls,
 	    cfg_change_script();
 	  }
 	}
-	response = MHD_create_response_from_data(strlen(mdata),
+	response = MHD_create_response_from_buffer(strlen(mdata),
 						 (void*) mdata,
-						 MHD_NO,
-						 MHD_NO);
+						 MHD_RESPMEM_MUST_FREE);
 	MHD_add_response_header(response,
 				"Content-Type", "text/html; charset=UTF-8");
       
@@ -664,10 +659,9 @@ static int answer_to_connection (void *cls,
 	    vtemp[0],vtime[0],vtemp[1],vtime[1],vtemp[2],vtime[2],vtemp[3],vtime[3]);
           cfg_change_script();
 	}
-	response = MHD_create_response_from_data(strlen(mdata),
+	response = MHD_create_response_from_buffer(strlen(mdata),
 						 (void*) mdata,
-						 MHD_NO,
-						 MHD_NO);
+						 MHD_RESPMEM_MUST_FREE);
 	MHD_add_response_header(response,
 				"Content-Type", "text/html; charset=UTF-8");
       
@@ -712,10 +706,9 @@ static int answer_to_connection (void *cls,
 	  snprintf(mdata,1024,
 		   "<html><body>OK setting mash process state to %d</body></html>",mpstate);
 	}
-	response = MHD_create_response_from_data(strlen(mdata),
+	response = MHD_create_response_from_buffer(strlen(mdata),
 						 (void*) mdata,
-						 MHD_NO,
-						 MHD_NO);
+						 MHD_RESPMEM_MUST_FREE);
 	MHD_add_response_header(response,
 				"Content-Type", "text/html; charset=UTF-8");
       
@@ -732,10 +725,9 @@ static int answer_to_connection (void *cls,
         
         fill_interf_json(mdata,4096);
         
-	response = MHD_create_response_from_data(strlen(mdata),
+	response = MHD_create_response_from_buffer(strlen(mdata),
 						 (void*) mdata,
-						 MHD_NO,
-						 MHD_NO);
+						 MHD_RESPMEM_MUST_FREE);
 	MHD_add_response_header(response,
 				"Content-Type", "application/json; charset=UTF-8");
       
@@ -759,10 +751,9 @@ static int answer_to_connection (void *cls,
         }
         len+=sprintf(mdata+len,"]\n");
         
-	response = MHD_create_response_from_data(len,
+	response = MHD_create_response_from_buffer(len,
 						 (void*) mdata,
-						 MHD_NO,
-						 MHD_NO);
+						 MHD_RESPMEM_MUST_FREE);
 	MHD_add_response_header(response,
 				"Content-Type", "application/json; charset=UTF-8");
       
