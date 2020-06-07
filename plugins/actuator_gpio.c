@@ -44,7 +44,6 @@ static int plugin_error[2]={0,0};
 // defaults
 #define ACTUATOR "/sys/class/gpio/gpio25/value"
 #define STIRDEV "/sys/class/gpio/gpio26/value"
-#define BASEDIR "/sys/class/gpio"
 
 #define PREFIX "[gpio actuator plugin] "
 
@@ -105,12 +104,12 @@ void fill_dirlist(size_t max, char *dirlist) {
   DIR *dp;
   size_t pos,num,space;
   bool overflow;
-  char filename[100];
+  char filename[512];
   char direction[4];
   int fd;
   
   struct dirent *ep;
-  dp = opendir(BASEDIR);
+  dp = opendir("/sys/class/gpio");
   if (dp != NULL) {
     space=max;
     pos=0;
@@ -119,14 +118,14 @@ void fill_dirlist(size_t max, char *dirlist) {
       if (0!=strncmp("gpio",ep->d_name,4)) continue; 
       if (0==strncmp("gpiochip",ep->d_name,8)) continue;
       // only outputs are interesting
-      snprintf(filename,100,"%s/%s/direction",BASEDIR,ep->d_name);
+      snprintf(filename,512,"/sys/class/gpio/%s/direction",ep->d_name);
       fd=open(filename,O_RDONLY);
       if (fd<0) continue;
       read(fd,direction,4);
       close(fd);
       if (0!=strncmp("out",direction,3)) continue;
       if (!overflow) {
-        num=snprintf(dirlist+pos,space,"\"%s/%s/value\",",BASEDIR,ep->d_name);
+        num=snprintf(dirlist+pos,space,"\"/sys/class/gpio/%s/value\",",ep->d_name);
         if (num>=space) {
           overflow=true;
         }

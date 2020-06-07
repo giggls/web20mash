@@ -291,7 +291,11 @@ int fill_buf(char **buf, size_t *size, char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   offset=vsnprintf(*buf, *size, fmt, ap);
-  if (offset >=*size) return -1; *buf+=offset; *size-=offset;
+  if (offset >=*size) {
+    return -1;
+  }
+  *buf+=offset;
+  *size-=offset;
   
   va_end(ap);
   return 0;

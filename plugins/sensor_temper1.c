@@ -70,16 +70,11 @@ extern void die(char* fmt, ...);
 #define INTERFACE2 0x01
  
 static const int reqIntLen=8;
-static const int reqBulkLen=8;
-static const int endpoint_Int_in=0x82; /* endpoint 0x81 address for IN */
-static const int endpoint_Int_out=0x00; /* endpoint 1 address for OUT */
-static const int endpoint_Bulk_in=0x82; /* endpoint 0x81 address for IN */
-static const int endpoint_Bulk_out=0x00; /* endpoint 1 address for OUT */
 static const int timeout=5000; /* timeout in ms */
  
-static const char uTemperatura[] = { 0x01, 0x80, 0x33, 0x01, 0x00, 0x00, 0x00, 0x00 };
-static const char uIni1[] = { 0x01, 0x82, 0x77, 0x01, 0x00, 0x00, 0x00, 0x00 };
-static const char uIni2[] = { 0x01, 0x86, 0xff, 0x01, 0x00, 0x00, 0x00, 0x00 };
+static const unsigned char uTemperatura[] = { 0x01, 0x80, 0x33, 0x01, 0x00, 0x00, 0x00, 0x00 };
+static const unsigned char uIni1[] = { 0x01, 0x82, 0x77, 0x01, 0x00, 0x00, 0x00, 0x00 };
+static const unsigned char uIni2[] = { 0x01, 0x86, 0xff, 0x01, 0x00, 0x00, 0x00, 0x00 };
 
 static int udebug=0;
 static int calibration=0;
@@ -207,7 +202,7 @@ static void ini_control_transfer(usb_dev_handle *dev) {
     }
 }
  
-static void control_transfer(usb_dev_handle *dev, const char *pquestion) {
+static void control_transfer(usb_dev_handle *dev, const unsigned char *pquestion) {
     int r,i;
 
     char question[reqIntLen];
