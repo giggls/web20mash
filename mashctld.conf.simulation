@@ -1,0 +1,36 @@
+#
+# Configfile for simulation only binary running on http://fangobräu.de/mashdemo/
+#
+
+[global]
+# port to listen to for integrated webserver
+port = 54321
+
+[auth]
+active=0
+username=login
+password=secret
+
+[control]
+# initial must temperature for control
+tempMust=0
+
+sensor=dummy
+actuator=dummy
+stirring_device=dummy
+
+# hysteresis of two-level controller
+hysteresis=0.2
+
+actuatortype=heater
+
+[mash-process]
+resttemp1=52.5
+resttemp2=62.5
+resttemp3=72.5
+lauteringtemp=76
+resttime1=0
+resttime2=20
+resttime3=20
+lauteringtime=0
+
