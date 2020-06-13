@@ -33,7 +33,7 @@ case "$1" in
           systemctl start webmash
         else
     	  # in system V init call this
-    	  insserv webmash
+    	  /sbin/insserv webmash
     	  /etc/init.d/webmash start
     	fi
     ;;

@@ -26,7 +26,7 @@ case "$1" in
     if [ "x$initsys" = "xsystemd" ]; then
       systemctl stop webmash
     else
-      insserv -r webmash
+      /sbin/insserv -r webmash
       /etc/init.d/webmash stop
     fi
       sleep 4

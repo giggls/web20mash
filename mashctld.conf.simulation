@@ -5,6 +5,8 @@
 [global]
 # port to listen to for integrated webserver
 port = 54321
+webroot=/usr/share/web20mash/
+plugin_dir=/usr/lib/web20mash/plugins
 
 [auth]
 active=0

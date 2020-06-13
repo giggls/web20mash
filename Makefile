@@ -54,8 +54,10 @@ clean:
 
 mrproper: clean
 	rm -f cmdline.c cmdline.h mashctld.1
-	
 
+docker:
+	docker build -t web20mash .	
+	
 debian/copyright:
 	cp COPYING debian/copyright
 
