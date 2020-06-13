@@ -1116,13 +1116,14 @@ int main(int argc, char **argv) {
   FILE *cfile;
   uid_t uid,euid;
   FILE *pidfile;
-  char buf[2048];
-  char *bp;
   char *key_pem;
   char *cert_pem;
   int i;
-
+#ifndef NOSENSACT
+  char buf[2048];
+  char *bp;      
   void *acthandle0, *acthandle1, *senshandle;
+#endif
   cmd = parseCmdline(argc, argv);
 #ifndef NOSENSACT  
   if (cmd->simulationP) {
@@ -1151,6 +1152,7 @@ int main(int argc, char **argv) {
   pstate.resttime=0;
   pstate.ttrigger=0;
 
+#ifndef NOSENSACT
   // enable sensor plugin as specified in configfile
   bp=buf;
   strcpy(bp,cfopts.plugindir);
@@ -1195,7 +1197,7 @@ int main(int argc, char **argv) {
     if ((bp = dlerror()) != NULL) die(bp);
   }
   plugin_actinit_call[0](cfgfp,0);
-  
+
   if (cfopts.stirring) {
     if (0==strcmp(cfopts.actuator[0],cfopts.actuator[1])) {
       plugin_actinit_call[1]=plugin_actinit_call[0];
@@ -1224,7 +1226,7 @@ int main(int argc, char **argv) {
     }
     plugin_actinit_call[1](cfgfp,1);
   }
-
+#endif
   // in simulation mode we start with SIM_INIT_TEMP°C and just increase by SIM_INC°C on each read
   if (sensor_simul) {
     pstate.tempCurrent=SIM_INIT_TEMP;
