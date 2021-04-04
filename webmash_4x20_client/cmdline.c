@@ -29,10 +29,14 @@ static Cmdline cmd = {
   /* lcdP = */ 1,
   /* lcd = */ lcdDefault,
   /* lcdC = */ 6,
-  /***** -i: device to use for input */
-  /* indevP = */ 1,
-  /* indev = */ "fangopcb_keys",
-  /* indevC = */ 1,
+  /***** -i: keyboard device to use for input */
+  /* kindevP = */ 1,
+  /* kindev = */ "fangopcb_keys",
+  /* kindevC = */ 1,
+  /***** -r: rotary encoder device to use for input */
+  /* rindevP = */ 0,
+  /* rindev = */ (char*)0,
+  /* rindevC = */ 0,
   /***** -ng: do not input device for exclusive use */
   /* nograbP = */ 0,
   /***** -url: base url for mashctld state */
@@ -740,15 +744,17 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-bd] [-lcd lcd] [-i indev] [-ng] [-url url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-p pidfile] [-u username] [-rs] [-rh]\n");
+  fprintf(stderr,"%s","   [-bd] [-lcd lcd] [-i kindev] [-r rindev] [-ng] [-url url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-p pidfile] [-u username] [-rs] [-rh]\n");
   fprintf(stderr,"%s","      non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports\n");
   fprintf(stderr,"%s","     -bd: run Program as a daemon in background\n");
   fprintf(stderr,"%s","    -lcd: gpio ports for LCD\n");
   fprintf(stderr,"%s","          6 int values\n");
   fprintf(stderr,"%s","          default: `4' `7' `8' `23' `24' `25'\n");
-  fprintf(stderr,"%s","      -i: device to use for input\n");
+  fprintf(stderr,"%s","      -i: keyboard device to use for input\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","          default: `fangopcb_keys'\n");
+  fprintf(stderr,"%s","      -r: rotary encoder device to use for input\n");
+  fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","     -ng: do not input device for exclusive use\n");
   fprintf(stderr,"%s","    -url: base url for mashctld state\n");
   fprintf(stderr,"%s","          1 char* value\n");
@@ -795,9 +801,17 @@ parseCmdline(int argc, char **argv)
 
     if( 0==strcmp("-i", argv[i]) ) {
       int keep = i;
-      cmd.indevP = 1;
-      i = getStringOpt(argc, argv, i, &cmd.indev, 1);
-      cmd.indevC = i-keep;
+      cmd.kindevP = 1;
+      i = getStringOpt(argc, argv, i, &cmd.kindev, 1);
+      cmd.kindevC = i-keep;
+      continue;
+    }
+
+    if( 0==strcmp("-r", argv[i]) ) {
+      int keep = i;
+      cmd.rindevP = 1;
+      i = getStringOpt(argc, argv, i, &cmd.rindev, 1);
+      cmd.rindevC = i-keep;
       continue;
     }
 

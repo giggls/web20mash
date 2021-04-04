@@ -11,7 +11,7 @@
 .\" it edited by clig, remove the respective pair of cligPart-lines.
 .\"
 .\" cligPart TITLE
-.TH "webmash_4x20_client" 1 "2017-01-10" "Clig-manuals" "Programmer's Manual"
+.TH "webmash_4x20_client" 1 "2021-04-04" "Clig-manuals" "Programmer's Manual"
 .\" cligPart TITLE end
 
 .\" cligPart NAME
@@ -24,7 +24,8 @@ webmash_4x20_client \- non-browser client for mashctld using a HD44780U compatib
 .B webmash_4x20_client
 [-bd]
 [-lcd lcd]
-[-i indev]
+[-i kindev]
+[-r rindev]
 [-ng]
 [-url url]
 [-dbg]
@@ -50,11 +51,15 @@ gpio ports for LCD,
 .br
 Default: `4' `7' `8' `23' `24' `25'
 .IP -i
-device to use for input,
+keyboard device to use for input,
 .br
 1 String value
 .br
 Default: `fangopcb_keys'
+.IP -r
+rotary encoder device to use for input,
+.br
+1 String value
 .IP -ng
 do not input device for exclusive use.
 .IP -url

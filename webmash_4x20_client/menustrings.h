@@ -15,7 +15,7 @@
 #define MRESTTXT1 gettext_noop("Dur. Protein Rest")
 #define MRESTTXT2 gettext_noop("Temp. Maltose Rest")
 #define MRESTTXT3 gettext_noop("Dur. Maltose Rest")
-#define MRESTTXT4 gettext_noop("Temp. Dextrose Rest")
+#define MRESTTXT4 gettext_noop("Temp. DextroseRest")
 #define MRESTTXT5 gettext_noop("Dur. Dextrose Rest")
 #define MRESTTXT6 gettext_noop("Temp. @Mashing out")
 #define MRESTTXT7 gettext_noop("Dur. Mashing out")
@@ -35,3 +35,6 @@
 #define MTEXTIP6L gettext_noop("IPv6 link-local")
 
 #define IFNOTFOUND gettext_noop("No active Interface")
+
+// 3* arrow left
+#define MENU_UP "\x7F\x7F\x7F"

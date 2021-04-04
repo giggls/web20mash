@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#define NUMMENUS 50
+#define NUMMENUS 60
 #define NUMITEMS 13
 
 #define MSETTINGS_TYPE_INT 0

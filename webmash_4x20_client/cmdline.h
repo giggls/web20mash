@@ -15,10 +15,14 @@ typedef struct s_Cmdline {
   char lcdP;
   int *lcd;
   int lcdC;
-  /***** -i: device to use for input */
-  char indevP;
-  char* indev;
-  int indevC;
+  /***** -i: keyboard device to use for input */
+  char kindevP;
+  char* kindev;
+  int kindevC;
+  /***** -r: rotary encoder device to use for input */
+  char rindevP;
+  char* rindev;
+  int rindevC;
   /***** -ng: do not input device for exclusive use */
   char nograbP;
   /***** -url: base url for mashctld state */

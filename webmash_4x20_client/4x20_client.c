@@ -5,7 +5,7 @@ display_client
 Non-webbrowser client for mashctld using a HD44780U compatible LCD
 and 4 keys connected via GPIO
 
-(c) 2013-2017 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2013-2021 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -102,8 +102,8 @@ static int menustate=MSTATE_PSTATE;
 // the menu displayed bevore the current one
 static int previous_menu=-1;
 
-/* ~ symbol ist right arrow in HD44780U charset */
-static char right_arrow[2]="~";
+/* symbol 0x7e ist right arrow in HD44780U charset */
+static char right_arrow[2]={0x7e,'\0'};
 
 // variables for network information menus
 char ifnames[MAXINTERFACES][21];
@@ -237,7 +237,6 @@ void init_menu(int menu_number,struct s_menusettings *settings) {
     settings->arrow=true;
   else
     settings->arrow=false;
-  
   settings->menutext=(char **)menu_txt[menu_number];
   // setup menu text and count items
   for (i=0;settings->menutext[i]!=NULL;i++);
@@ -251,6 +250,18 @@ void init_menu(int menu_number,struct s_menusettings *settings) {
   settings->imax=1;
   settings->fmin=0.0;
   settings->fmax=1.0;
+
+  // show network Information menu only if requested
+  if (!cmd->netinfoP) {
+    if (menu_number == 1) {
+      settings->menutext[4]=MENU_UP;
+      settings->menutext[5]=NULL;
+      settings->numitems--;
+      next_menu[1][4]=NUMMENUS-1;
+      next_menu[1][5]=0;
+    } 
+  }
+  
 }
 
 // draw a selection type menu
@@ -258,7 +269,7 @@ void draw_selection_menu(struct s_menusettings *settings) {
   int i;
   debug("LCD: (re)drawing selection menu #%d, starting at position %d\n",settings->number,settings->start_pos);
   lcdClear(lcdHandle);
-
+  
   for (i=settings->start_pos;i<settings->start_pos+LCD_ROWS;i++) {
     // break if menu is shorter than LCD_ROWS
     if (i>=settings->numitems) break;
@@ -566,9 +577,9 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
     // this is a little bit of a hack
     // if stirring support is disabled in the server also disable the menu here
     if (pstate.stirring==0) {
-      menusettings[5].numitems=1;
-    } else {
       menusettings[5].numitems=2;
+    } else {
+      menusettings[5].numitems=3;
     }
     int i;
     // update client rest settings from current mashctld settings
@@ -614,7 +625,7 @@ int main(int argc, char **argv) {
   unsigned i;
   int still_running; /* keep number of running handles */
   glob_t globbuf;
-  int ipdev;
+  int kipdev, ripdev;
   char name[256] = "Unknown";
   struct input_event inp;
   // last key pressed
@@ -735,39 +746,58 @@ int main(int argc, char **argv) {
   menusettings[25].datatype=MSETTINGS_TYPE_BOOL;
   menusettings[25].menutype=MENUTYPE_SETTINGS;
   
-  // show network Information menu only if requested
-  if (!cmd->netinfoP)
-    menusettings[1].numitems--;
-  
   /* look for all available input devices and
-      use the one with the desired name (default=gpio-keys) */
+      use the one with the requested name for keyboard input */
   globbuf.gl_offs = 2;
   glob(INPUTDEVGLOB, GLOB_DOOFFS, NULL, &globbuf);
   
-  ipdev = -1;
+  kipdev = -1;
   for (i=globbuf.gl_offs;i<globbuf.gl_pathc+globbuf.gl_offs;i++) {
-    if (-1 == (ipdev = open(globbuf.gl_pathv[i], O_RDONLY))) {
+    if (-1 == (kipdev = open(globbuf.gl_pathv[i], O_RDONLY))) {
       debug("unable to open event file: %s\n",globbuf.gl_pathv[i]);
     } else {
-      ioctl(ipdev, EVIOCGNAME(sizeof(name)), name);
+      ioctl(kipdev, EVIOCGNAME(sizeof(name)), name);
       debug("opened event device %s (%s)\n",globbuf.gl_pathv[i],name);
-      if (strcmp(cmd->indev,name)==0) {
-        debug("device is desired event device: using it\n");
+      if (strcmp(cmd->kindev,name)==0) {
+        debug("device is desired keyboard event device: using it\n");
         break;
       } else {
-        debug("device not desired event device: ignored\n");
-        close(ipdev);
+        debug("device not desired keyboard event device: ignored\n");
+        close(kipdev);
+        kipdev = -1;
       }
     }
   }
-  if (ipdev == -1)
-    die("Unable to find desired input device \"%s\"!\nCheck permissions of %s\n",cmd->indev,INPUTDEVGLOB);
-  
+  if (kipdev == -1)
+    die("Unable to find desired keyboard input device \"%s\"!\nCheck permissions of %s\n",cmd->kindev,INPUTDEVGLOB);
+
+  /* look for all available input devices and
+      use the one with the requested name for (optional) rotary encoder */
+  ripdev = -1;
+  if (cmd->rindevP) {
+    for (i=globbuf.gl_offs;i<globbuf.gl_pathc+globbuf.gl_offs;i++) {
+      if (-1 == (ripdev = open(globbuf.gl_pathv[i], O_RDONLY))) {
+        debug("unable to open event file: %s\n",globbuf.gl_pathv[i]);
+      } else {
+        ioctl(ripdev, EVIOCGNAME(sizeof(name)), name);
+        debug("opened event device %s (%s)\n",globbuf.gl_pathv[i],name);
+        if (strcmp(cmd->rindev,name)==0) {
+          debug("device is desired rotary event device: using it\n");
+          break;
+        } else {
+          debug("device not desired rotary event device: ignored\n");
+          close(ripdev);
+          ripdev = -1;
+        }
+      }
+    }
+  }
+
   /* we do not wand to have our keyboard events on console or X11
      thus we need to grab the device for exclusive use */
   if (!cmd->nograbP) {
-    debug("grabbing device %s \"%s\" for exclusive use\n",globbuf.gl_pathv[i],cmd->indev);
-    if (0 != ioctl(ipdev, EVIOCGRAB, 1))
+    debug("grabbing device %s \"%s\" for exclusive use\n",globbuf.gl_pathv[i],cmd->kindev);
+    if (0 != ioctl(kipdev, EVIOCGRAB, 1))
       die("Unable to grab device \"%s\" for exclusive use\n");
   }
   
@@ -828,7 +858,9 @@ int main(int argc, char **argv) {
       FD_ZERO(&fdread);
       FD_ZERO(&fdwrite);
       FD_ZERO(&fdexcep);
-      FD_SET(ipdev,&fdread);
+      FD_SET(kipdev,&fdread);
+      if (ripdev != -1)
+        FD_SET(ripdev,&fdread);
 
       /* set a suitable timeout to play around with */
       timeout.tv_sec = 10;
@@ -863,9 +895,9 @@ int main(int argc, char **argv) {
         /* we seem to need curl_multi_perform here to make the async dns resolver work */
         curl_multi_perform(multi_handle, &still_running);
         break;
-      default: /* action */
-        if (FD_ISSET(ipdev, &fdread)) {
-          read(ipdev,&inp,sizeof(struct input_event));
+      default: /* keyboard action */
+        if (FD_ISSET(kipdev, &fdread)) {
+          read(kipdev,&inp,sizeof(struct input_event));
           if (inp.type==EV_KEY) {
             if (inp.value>0) {
               if ((inp.code==XKEY_ENTER) && (lastkey==0)) {
@@ -893,6 +925,10 @@ int main(int argc, char **argv) {
                         }
                       }
                     }
+                  } else {
+                    previous_menu=menustate;
+                    menustate=MSTATE_SELECT;
+                    draw_menu(&menusettings[MSTATE_SELECT]);
                   }
                 }
               }
@@ -939,8 +975,31 @@ int main(int argc, char **argv) {
             }
           }
         } else {
-           /* timeout or readable/writable sockets */
-          curl_multi_perform(multi_handle, &still_running);
+          if (ripdev != -1) {
+            if (FD_ISSET(ripdev, &fdread)) {
+              read(ripdev,&inp,sizeof(struct input_event));
+              if ((inp.type==EV_REL) && (inp.code==REL_X)) {
+                /* rot value 1 equals KEY_UP */
+                if (inp.value==1) {
+                  debug("rotary up\n");
+                  if (menustate>0)
+                    update_menu(-1,&menusettings[menustate]);
+                }
+                /* rot value 1 equals KEY_DOWN */
+                if (inp.value==-1) {
+                  debug("rotary down\n");
+                  if (menustate>0)
+                    update_menu(1,&menusettings[menustate]);
+                }
+              }
+            } else {
+              /* timeout or readable/writable sockets */
+              curl_multi_perform(multi_handle, &still_running);
+            }
+          } else {
+            /* timeout or readable/writable sockets */
+            curl_multi_perform(multi_handle, &still_running);
+          }
         }
         break;
       }

@@ -138,6 +138,10 @@ void toggle_actuator1(struct s_menusettings *settings) {
   }
 }
 
+void menu_up() {
+  debug("menu_up\n");
+}
+
 int split_ipv6(char *src,char *dst1, char *dst2) { 
   unsigned char buf[sizeof(struct in6_addr)];
   int i;
@@ -175,7 +179,7 @@ void netinfo() {
   // query network information from mashctld via http
   // and parse (json) result
   numif=getifinfo(url,ip_interface_info);
-  
+    
   if (numif<1) {
     menusettings[27].numitems=1;
     sprintf(ifnames[0],"%s",gettext(IFNOTFOUND));
@@ -184,67 +188,71 @@ void netinfo() {
     next_menu[27][0]=1;
   } else {
     next_menu[27][0]=28;
+    next_menu[27][1]=29;
+    next_menu[27][2]=30;
+    next_menu[27][3]=31;
     menusettings[27].arrow=true;
-    menusettings[27].numitems=numif;
-  }
+    menusettings[27].numitems=numif+1;
   
-  // now setup the whole meu structure stuff for all interfaces
-  // Menu 27 ist the first menu with all (max 4) selectable interfaces
-  // Menus 28-31 are the menus for the individual interfaces
-  // we need to fill 32-35, 36-39, 40-43, 44-47 depending on the number
-  // of interfaces 
-  for (i=0;i<numif;i++) {
-    sprintf(ifnames[i],"Interface %s",ip_interface_info[i].name);
-    menusettings[27].menutext[i]=ifnames[i];
+    // now setup the whole meu structure stuff for all interfaces
+    // Menu 27 ist the first menu with all (max 4) selectable interfaces
+    // Menus 28-31 are the menus for the individual interfaces
+    // we need to fill 32-35, 36-39, 40-43, 44-47 depending on the number
+    // of interfaces 
+    for (i=0;i<numif;i++) {
+      sprintf(ifnames[i],"Interface %s",ip_interface_info[i].name);
+      menusettings[27].menutext[i]=ifnames[i];
 
-    // Fill Information menu for MAC-address (32+4*i)
-    sprintf(mac_info[i][0],"%s %s:",gettext(MTEXTMAC),ip_interface_info[i].name);
-    strcpy(mac_info[i][1],blank20);
-    sprintf(mac_info[i][2],"%s",ip_interface_info[i].mac);
-    strcpy(mac_info[i][3],blank20);
+      // Fill Information menu for MAC-address (32+4*i)
+      sprintf(mac_info[i][0],"%s %s:",gettext(MTEXTMAC),ip_interface_info[i].name);
+      strcpy(mac_info[i][1],blank20);
+      sprintf(mac_info[i][2],"%s",ip_interface_info[i].mac);
+      strcpy(mac_info[i][3],blank20);
     
-    menusettings[32+4*i].menutext[0]=mac_info[i][0];
-    menusettings[32+4*i].menutext[1]=mac_info[i][1];
-    menusettings[32+4*i].menutext[2]=mac_info[i][2];
-    menusettings[32+4*i].menutext[3]=mac_info[i][3];
-    menusettings[32+4*i].menutext[4]=NULL;
+      menusettings[32+4*i].menutext[0]=mac_info[i][0];
+      menusettings[32+4*i].menutext[1]=mac_info[i][1];
+      menusettings[32+4*i].menutext[2]=mac_info[i][2];
+      menusettings[32+4*i].menutext[3]=mac_info[i][3];
+      menusettings[32+4*i].menutext[4]=NULL;
     
-    // Fill Information menu for IPv4-address(es)
-    sprintf(ip_info[i][0],"IPv4 %s:",ip_interface_info[i].name);
-    menusettings[33+4*i].menutext[0]=ip_info[i][0];
-    numitems=1;
-    for (j=0; j<MAXADDRS;j++) {
-      if ('\0'==ip_interface_info[i].v4_ip[j][0]) break;
-      sprintf(ip_info[i][j+1],"%s",ip_interface_info[i].v4_ip[j]);
-      menusettings[33+4*i].menutext[j+1]=ip_info[i][j+1];
-      numitems++;
+      // Fill Information menu for IPv4-address(es)
+      sprintf(ip_info[i][0],"IPv4 %s:",ip_interface_info[i].name);
+      menusettings[33+4*i].menutext[0]=ip_info[i][0];
+      numitems=1;
+      for (j=0; j<MAXADDRS;j++) {
+        if ('\0'==ip_interface_info[i].v4_ip[j][0]) break;
+        sprintf(ip_info[i][j+1],"%s",ip_interface_info[i].v4_ip[j]);
+        menusettings[33+4*i].menutext[j+1]=ip_info[i][j+1];
+        numitems++;
+      }
+      menusettings[33+4*i].numitems=numitems;
+    
+      // Fill Information menu for IPv6 global unicast address(es)
+      sprintf(ip6g_info[i][0],"IPv6 global %s:",ip_interface_info[i].name);
+      menusettings[34+4*i].menutext[0]=ip6g_info[i][0];
+      numitems=1;
+      for (j=0; j<MAXADDRS;j++) {
+        if ('\0'==ip_interface_info[i].v6_global_ip[j][0]) break;
+        split_ipv6(ip_interface_info[i].v6_global_ip[j],ip6g_info[i][j*2+1],ip6g_info[i][j*2+2]);
+        menusettings[34+4*i].menutext[j*2+1]=ip6g_info[i][j*2+1];
+        menusettings[34+4*i].menutext[j*2+2]=ip6g_info[i][j*2+2];
+        numitems+=2;
+      }
+      menusettings[34+4*i].numitems=numitems;
+    
+      // Fill Information menu for IPv6 link.local address
+      sprintf(ip6l_info[i][0],"%s",gettext(MTEXTIP6L));
+      sprintf(ip6l_info[i][1],"%s",ip_interface_info[i].name);
+      sprintf(ip6l_info[i][2],"fe80::");
+      strcpy(ip6l_info[i][3],ip_interface_info[i].v6_local_ip+6);
+      menusettings[35+4*i].menutext[0]=ip6l_info[i][0];
+      menusettings[35+4*i].menutext[1]=ip6l_info[i][1];
+      menusettings[35+4*i].menutext[2]=ip6l_info[i][2];
+      menusettings[35+4*i].menutext[3]=ip6l_info[i][3];
+      menusettings[35+4*i].menutext[4]=NULL;
     }
-    menusettings[33+4*i].numitems=numitems; 
-    
-    // Fill Information menu for IPv6 global unicast address(es)
-    sprintf(ip6g_info[i][0],"IPv6 global %s:",ip_interface_info[i].name);
-    menusettings[34+4*i].menutext[0]=ip6g_info[i][0];
-    numitems=1;
-    for (j=0; j<MAXADDRS;j++) {
-      if ('\0'==ip_interface_info[i].v6_global_ip[j][0]) break;
-      split_ipv6(ip_interface_info[i].v6_global_ip[j],ip6g_info[i][j*2+1],ip6g_info[i][j*2+2]);
-      menusettings[34+4*i].menutext[j*2+1]=ip6g_info[i][j*2+1];
-      menusettings[34+4*i].menutext[j*2+2]=ip6g_info[i][j*2+2];
-      numitems+=2;
-    }
-    menusettings[34+4*i].numitems=numitems;
-    
-    // Fill Information menu for IPv6 link.local address
-    sprintf(ip6l_info[i][0],"%s",gettext(MTEXTIP6L));
-    sprintf(ip6l_info[i][1],"%s",ip_interface_info[i].name);
-    sprintf(ip6l_info[i][2],"fe80::");
-    strcpy(ip6l_info[i][3],ip_interface_info[i].v6_local_ip+6);
-    menusettings[35+4*i].menutext[0]=ip6l_info[i][0];
-    menusettings[35+4*i].menutext[1]=ip6l_info[i][1];
-    menusettings[35+4*i].menutext[2]=ip6l_info[i][2];
-    menusettings[35+4*i].menutext[3]=ip6l_info[i][3];
-    menusettings[35+4*i].menutext[4]=NULL;
-    
+    menusettings[27].menutext[i]=MENU_UP;
+    next_menu[27][i]=1;
   }
   free(url);
 }
