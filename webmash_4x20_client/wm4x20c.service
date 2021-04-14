@@ -3,7 +3,10 @@ Description=Web 2.0 Mash client for 4x20 LCD
 After=network.target webmash.service
 
 [Service]
-ExecStart=/usr/bin/webmash_4x20_client
+# with rotary encoder and German locale
+ExecStart=/usr/bin/webmash_4x20_client -n -i button@16 -r rotary@9 -l de_DE.UTF-8
+# with 4 buttons
+#ExecStart=/usr/bin/webmash_4x20_client -n
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 

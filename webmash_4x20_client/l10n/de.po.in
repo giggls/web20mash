@@ -88,8 +88,12 @@ msgid  "Temp. Protein Rest"
 msgstr "Temp. Eiweißrast"
 
 #: menustrings.h
-msgid  "Waiting for data    from mashctld"
-msgstr "Warte auf Daten     von mashctld"
+msgid  "Waiting for data"
+msgstr "Warte auf Daten"
+
+#: menustrings.h
+msgid "from mashctld..."
+msgstr "von mashctld..."
 
 #: menustrings.h
 msgid "heater"

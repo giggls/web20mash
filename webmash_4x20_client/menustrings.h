@@ -3,7 +3,8 @@
 
 #define BLANK20 "                    "
 
-#define WAITTEXT gettext("Waiting for data    from mashctld")
+#define WAITTEXT0 gettext("Waiting for data")
+#define WAITTEXT1 gettext("from mashctld...")
                                                              
 #define MSELECTTXT0 gettext_noop("Rest-Settings")            
 #define MSELECTTXT1 gettext_noop("Mash-State")

@@ -42,9 +42,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111, USA.
 #include <glob.h>
 #include <linux/input.h>
 
-#include <wiringPi.h>
-#include <lcd.h>
-
 #define LCD_COLS 20
 #define LCD_ROWS 4
 
@@ -84,7 +81,7 @@ struct s_menusettings menusettings[NUMMENUS];
 struct s_pstate pstate;
 
 static bool isdaemon=false;
-static int lcdHandle ;
+static int lcd_fd;
 
 int start_state=1;
 int iodinealert=0;
@@ -114,6 +111,10 @@ char ip6g_info[MAXINTERFACES*2+2][MAXADDRS][21];
 char ip6l_info[MAXINTERFACES][4][21];
 // banner max one line
 char lcdbanner[21];
+
+// /dev/lcd ESCAPE sequences
+#define CURSOROFF "\x1b[Lc"
+#define CLEARHOME "\f"
 
 /* clig command line Parameters*/  
 Cmdline *cmd;
@@ -170,19 +171,24 @@ void daemonize() {
   open("/dev/null",O_WRONLY);
 }
 
+void gotoxy(int lcd_fd,unsigned x,unsigned y) {
+  char scratch[21];
+  snprintf(scratch,21,"\x1b[Lx%03dy%03d;",x,y);
+  write(lcd_fd,scratch,strlen(scratch));
+}
+
 void displayPstate() {
   char scratch[21];
   
   debug("LCD: drawing Pstate Info Menu\n");
   // clear if previous menu has been of another type
   if (previous_menu != MSTATE_PSTATE)
-    lcdClear(lcdHandle);
+  write(lcd_fd,CLEARHOME,strlen(CLEARHOME));
+  gotoxy(lcd_fd,7,0);
   
-  sprintf(scratch,"%s%cC",pstate.curtemp,0xdf);
-  lcdPosition(lcdHandle, 7, 0);
-  lcdPuts(lcdHandle, scratch);
-  
-  lcdPosition(lcdHandle, 0,2);
+  snprintf(scratch,21,"%s%cC",pstate.curtemp,0xdf);
+  write(lcd_fd,scratch,strlen(scratch));
+  gotoxy(lcd_fd,0,2);
   if (pstate.mpstate==0 || pstate.mpstate >8) {
     if (pstate.mpstate == 9) {
       debug("ECLIENT: resetting client side stuff (state 9)\n");
@@ -191,27 +197,25 @@ void displayPstate() {
       menusettings[3].arrow_pos=0;
       menusettings[3].start_pos=0;
     }
-    lcdPuts(lcdHandle,lcdbanner);
-    lcdPosition(lcdHandle, 0,3);
-    lcdPuts(lcdHandle,BLANK20);
+    write(lcd_fd,lcdbanner,strlen(lcdbanner));
+    gotoxy(lcd_fd,0,3);
+    write(lcd_fd,BLANK20,strlen(BLANK20));
   } else {
     if (pstate.mpstate%2) {
-      sprintf(scratch,"%s..",gettext(mashstate[pstate.mpstate]));
+      snprintf(scratch,21,"%s..",gettext(mashstate[pstate.mpstate]));
     } else {
-      sprintf(scratch,"%s:",gettext(mashstate[pstate.mpstate]));
+      snprintf(scratch,21,"%s:",gettext(mashstate[pstate.mpstate]));
     }
-    sprintf(scratch,"%-20s",scratch);
-    lcdPuts(lcdHandle,scratch);
-    lcdPosition(lcdHandle, 0,3);
+    write(lcd_fd,scratch,strlen(scratch));
+    gotoxy(lcd_fd,0,3);
     if (pstate.mpstate%2) {
-      sprintf(scratch,"@ %.1f%cC",pstate.resttemp[pstate.mpstate/2],0xdf);
+      snprintf(scratch,21,"@ %.1f%cC",pstate.resttemp[pstate.mpstate/2],0xdf);
     } else {
       int resttime;
       resttime=pstate.resttime[(pstate.mpstate-1)/2]-pstate.resttimer;
-      sprintf(scratch,"%d(%d)min @ %.1f%cC",resttime,pstate.resttime[(pstate.mpstate-1)/2],pstate.resttemp[(pstate.mpstate-1)/2],0xdf);
+      snprintf(scratch,21,"%d(%d)min @ %.1f%cC",resttime,pstate.resttime[(pstate.mpstate-1)/2],pstate.resttemp[(pstate.mpstate-1)/2],0xdf);
     }
-    sprintf(scratch,"%-20s",scratch);
-    lcdPuts(lcdHandle,scratch);
+    write(lcd_fd,scratch,strlen(scratch));
   }
   if ((pstate.mpstate == 0) && (mpstate!=0)) {
       debug("ECLIENT: resetting client side stuff (init)\n");
@@ -267,22 +271,25 @@ void init_menu(int menu_number,struct s_menusettings *settings) {
 // draw a selection type menu
 void draw_selection_menu(struct s_menusettings *settings) {
   int i;
+  char scratch[21];
+  
   debug("LCD: (re)drawing selection menu #%d, starting at position %d\n",settings->number,settings->start_pos);
-  lcdClear(lcdHandle);
+  write(lcd_fd,CLEARHOME,strlen(CLEARHOME));
   
   for (i=settings->start_pos;i<settings->start_pos+LCD_ROWS;i++) {
     // break if menu is shorter than LCD_ROWS
     if (i>=settings->numitems) break;
     if (settings->arrow) {
-      lcdPosition(lcdHandle, 2,i-settings->start_pos);
+      gotoxy(lcd_fd,2,i-settings->start_pos);
     } else {
-      lcdPosition(lcdHandle, 0,i-settings->start_pos);
+      gotoxy(lcd_fd,0,i-settings->start_pos);
     }
-    lcdPuts(lcdHandle,gettext(settings->menutext[i]));
+    snprintf(scratch,21,"%s",gettext(settings->menutext[i]));
+    write(lcd_fd,scratch,strlen(scratch));
   }
   if (settings->arrow) {
-    lcdPosition(lcdHandle,0,settings->arrow_pos);
-    lcdPuts(lcdHandle,right_arrow);
+    gotoxy(lcd_fd,0,settings->arrow_pos);
+    write(lcd_fd,right_arrow,strlen(right_arrow));
   }
 }
 
@@ -290,11 +297,10 @@ void draw_selection_menu(struct s_menusettings *settings) {
 void draw_settings_menu(struct s_menusettings *settings) {
   char line[21];
   debug("LCD: drawing settings menu #%d\n",settings->number);
-  lcdClear(lcdHandle);
-  lcdPosition(lcdHandle,0,0);
+  write(lcd_fd,CLEARHOME,strlen(CLEARHOME));
   sprintf(line,"%s:",gettext(settings->menutext[0]));
-  lcdPuts(lcdHandle,line);
-  lcdPosition(lcdHandle,0,2);
+  write(lcd_fd,line,strlen(line));
+  gotoxy(lcd_fd,0,2);
   switch (settings->datatype) {
     case MSETTINGS_TYPE_INT:
       sprintf(line,"%3d",settings->ival);
@@ -311,7 +317,7 @@ void draw_settings_menu(struct s_menusettings *settings) {
     default:
       ;
   }
-  lcdPuts(lcdHandle,line);
+  write(lcd_fd,line,strlen(line));
 }
 
 // draw a menu and call action function if desired
@@ -343,8 +349,8 @@ void update_selection_menu(int direction,struct s_menusettings *settings) {
   if (settings->arrow_pos > settings->numitems-1) settings->arrow_pos=settings->numitems-1;
   if (oldpos != settings->arrow_pos) {
     // delete old arrow
-    lcdPosition(lcdHandle,0,oldpos);
-    lcdPuts(lcdHandle," ");    
+    gotoxy(lcd_fd,0,oldpos);
+    write(lcd_fd," ",1);
     draw_selection_menu(settings);
   } else {
     if ((0==settings->arrow_pos) && settings->start_pos >0) {
@@ -385,7 +391,7 @@ void update_settings_menu(int direction,struct s_menusettings *settings) {
     default:
       ;
     }
-    lcdPosition(lcdHandle,0,2);
+    gotoxy(lcd_fd,0,2);
     switch (settings->datatype) {
       case MSETTINGS_TYPE_INT:
         sprintf(line,"%3d",settings->ival);
@@ -401,8 +407,8 @@ void update_settings_menu(int direction,struct s_menusettings *settings) {
         break;
       default:
         ;
-    } 
-    lcdPuts(lcdHandle,line);
+    }
+    write(lcd_fd,line,strlen(line));
   }
 }
 
@@ -568,7 +574,7 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
     if ((cmd->ems_heaterP && (1==old_rstate[0]+pstate.rstate[0])) || (cmd->ems_stirrerP && (1==old_rstate[1]+pstate.rstate[1]))) {
       debug("electromagnetic sensitivity workaround:\ndetected relay state change forcing display reset!\n");
       forced_reset=1;
-      lcdReset(lcdHandle);
+      //lcdReset(lcdHandle);
     } else {
       forced_reset=0;
     }    
@@ -801,15 +807,18 @@ int main(int argc, char **argv) {
       die("Unable to grab device \"%s\" for exclusive use\n");
   }
   
-  wiringPiSetupSys();
-  lcdHandle = lcdInit (LCD_ROWS, LCD_COLS, cmd->lcd[0], cmd->lcd[1],cmd->lcd[2], cmd->lcd[3],cmd->lcd[4],cmd->lcd[5],4,0,0,0,0) ;
-  if (lcdHandle < 0) {
-    fprintf (stderr, "%s: lcdInit failed\n", argv [0]) ;
-    return -1 ;
+  lcd_fd = open("/dev/lcd",O_WRONLY);
+  if (lcd_fd < 0) {
+     fprintf (stderr, "%s: Error opening /dev/lcd\n",argv[0]);
+     return -1 ;
   }
-
-  lcdPosition(lcdHandle, 0,0);
-  lcdPuts(lcdHandle,WAITTEXT);
+  // turn cursor off
+  write(lcd_fd,CURSOROFF,strlen(CURSOROFF));
+  // clear screen and goto position 0,0
+  write(lcd_fd,CLEARHOME,strlen(CLEARHOME));
+  write(lcd_fd,WAITTEXT0,strlen(WAITTEXT0));
+  gotoxy(lcd_fd,0,1);
+  write(lcd_fd,WAITTEXT1,strlen(WAITTEXT1));
   
   if (cmd->daemonP) {
     isdaemon=true;
@@ -950,7 +959,7 @@ int main(int argc, char **argv) {
                   if (lastkey==XKEY_ENTER) {
                     debug("pressed key KEY_ENTER+KEY_MENU\n");
                     debug("LCD: calling reset!!!\n");
-                    lcdReset(lcdHandle);
+                    //lcdReset(lcdHandle);
                     if (menustate==MSTATE_PSTATE)
                       displayPstate();
                     else

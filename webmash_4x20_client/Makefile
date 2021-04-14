@@ -6,7 +6,7 @@ PREFIX = $(DESTDIR)
 BOOT = /boot
 
 CFLAGS = -g -Wall -W -std=gnu99 -pedantic -Ilibutf8tolcd/
-LDLIBS = -lcurl -lwiringPi -lwiringPiDev
+LDLIBS = -lcurl
 
 OBJ = 4x20_client.o jsmn.o cmdline.o action_functions.o getifinfo.o
 
