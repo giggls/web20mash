@@ -2,7 +2,7 @@ Source: web20mash
 Section: misc
 Priority: extra
 Maintainer: Sven Geggus <sven-web20mash@geggus.net>
-Build-Depends: cdbs, debhelper (>= 7.0.50~), libmicrohttpd-dev (>=0.9.14), libow-dev (>=2.8p13+dfsg1-5), libmagic-dev, xcftools, wget, inkscape, libi2c-dev, libmnl-dev, libcurl4-gnutls-dev|libcurl4-openssl-dev, libusb-dev
+Build-Depends: debhelper (>= 7.0.50~), libmicrohttpd-dev (>=0.9.14), libow-dev (>=2.8p13+dfsg1-5), libmagic-dev, xcftools, wget, inkscape, libi2c-dev, libmnl-dev, libcurl4-gnutls-dev|libcurl4-openssl-dev, libusb-dev
 Standards-Version: 3.8.4
 Homepage: <insert the upstream URL, if relevant>
 #Vcs-Git: git://git.debian.org/collab-maint/web20mash.git

@@ -12,5 +12,5 @@ Package: webmash4x20client
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Alternative client for Web 2.0 Mash
- Alternative client for Web 2.0 Mash using 4 Buttons and a HD44780
+ Alternative client for Web 2.0 Mash using 4 Buttons or a rotary Encoder and a HD44780
  compatible LCD with 4 lines and 20 columns

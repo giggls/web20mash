@@ -1,3 +1,10 @@
+web20mash (4.2.2) buster; urgency=medium
+
+  * Get rid of cdbs
+  * Build for debian 10 (buster) / RaspiOS
+
+ -- Sven Geggus <sven-debian@geggus.net>  Sun, 18 Apr 2021 13:39:09 +0100
+
 web20mash (4.2.1) stretch; urgency=medium
 
   * Build for debian 9 (stretch)

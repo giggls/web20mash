@@ -1,3 +1,10 @@
+webmash4x20client (1.4.3) unstable; urgency=medium
+
+  * A Version with support for rotary encoder and kernel device driver
+    istead of WiringPi
+
+ -- Sven Geggus <sven-debian@geggus.net>  Sun, 18 Apr 2021 13:17:12 +0100
+
 webmash4x20client (1.4.2) unstable; urgency=medium
 
   * Grab gpio-keys device for exclusive device to prevent input

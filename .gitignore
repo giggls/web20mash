@@ -17,3 +17,4 @@ TODO
 *.tar.xz
 *.debhelper
 *.buildinfo
+debian/debhelper-build-stamp
