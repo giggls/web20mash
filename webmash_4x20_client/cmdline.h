@@ -11,10 +11,6 @@
 typedef struct s_Cmdline {
   /***** -bd: run Program as a daemon in background */
   char daemonP;
-  /***** -lcd: gpio ports for LCD */
-  char lcdP;
-  int *lcd;
-  int lcdC;
   /***** -i: keyboard device to use for input */
   char kindevP;
   char* kindev;
@@ -23,7 +19,7 @@ typedef struct s_Cmdline {
   char rindevP;
   char* rindev;
   int rindevC;
-  /***** -ng: do not input device for exclusive use */
+  /***** -ng: do not nograb keyboard device for exclusive use */
   char nograbP;
   /***** -url: base url for mashctld state */
   char urlP;

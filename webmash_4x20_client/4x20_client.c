@@ -660,42 +660,6 @@ int main(int argc, char **argv) {
   bind_textdomain_codeset( basename(argv[0]), "ISO-8859-1");
   textdomain( basename(argv[0]) );
 
-  /* this is a security feature, we do not want to run as root
-     at least on a non-embedded system, so we change our userid
-     to nobody or the userid given on the commandline
-  */  
-  euid=geteuid();
-  uid=getuid();
-  if (euid!=uid) {
-    fprintf(stderr,"suid program detected, falling back to uid %u\n",uid);
-    seteuid(uid);
-  }
-  if (uid==0) {
-    #define MAXGROUPS 30
-    struct passwd *pw;
-    int ngroups;
-    gid_t groups[MAXGROUPS];
-    ngroups=MAXGROUPS;
-    
-    debug("running as root, switching to user >%s<\n",cmd->username);
-    if ((pw = getpwnam(cmd->username)) == NULL) {
-      fprintf(stderr,"WARNING: unknown username >%s<, running as root!\n",cmd->username);
-    } else {
-      /* create pid file */
-      if (NULL==(pidfile=fopen(cmd->pidfile,"w+")))
-        die("unable to open pidfile: %s\n",cmd->pidfile);
-      fclose(pidfile);
-      chown(cmd->pidfile,pw->pw_uid,pw->pw_gid);
-      
-      if (getgrouplist(cmd->username, pw->pw_gid, groups, &ngroups) == -1)
-        die("getgrouplist() returned -1; ngroups = %d\n");
-      
-      setgroups(ngroups,groups);      
-      setgid(pw->pw_gid);
-      setuid(pw->pw_uid);
-    }
-  }
-    
   {
   int offset;
   char *buf;
@@ -812,6 +776,41 @@ int main(int argc, char **argv) {
      fprintf (stderr, "%s: Error opening /dev/lcd\n",argv[0]);
      return -1 ;
   }
+  
+  /* at this stage all devices shoulf be opened so lets drop privileges
+     if run as root */
+  euid=geteuid();
+  uid=getuid();
+  if (euid!=uid) {
+    fprintf(stderr,"suid program detected, falling back to uid %u\n",uid);
+    seteuid(uid);
+  }
+  if (uid==0) {
+    #define MAXGROUPS 30
+    struct passwd *pw;
+    int ngroups;
+    gid_t groups[MAXGROUPS];
+    ngroups=MAXGROUPS;
+    
+    debug("running as root, switching to user >%s<\n",cmd->username);
+    if ((pw = getpwnam(cmd->username)) == NULL) {
+      fprintf(stderr,"WARNING: unknown username >%s<, running as root!\n",cmd->username);
+    } else {
+      /* create pid file */
+      if (NULL==(pidfile=fopen(cmd->pidfile,"w+")))
+        die("unable to open pidfile: %s\n",cmd->pidfile);
+      fclose(pidfile);
+      chown(cmd->pidfile,pw->pw_uid,pw->pw_gid);
+      
+      if (getgrouplist(cmd->username, pw->pw_gid, groups, &ngroups) == -1)
+        die("getgrouplist() returned -1; ngroups = %d\n");
+      
+      setgroups(ngroups,groups);      
+      setgid(pw->pw_gid);
+      setuid(pw->pw_uid);
+    }
+  }
+  
   // turn cursor off
   write(lcd_fd,CURSOROFF,strlen(CURSOROFF));
   // clear screen and goto position 0,0

@@ -20,15 +20,10 @@
 char *Program;
 
 /*@-null*/
-static int lcdDefault[] = {4, 7, 8, 23, 24, 25};
 
 static Cmdline cmd = {
   /***** -bd: run Program as a daemon in background */
   /* daemonP = */ 0,
-  /***** -lcd: gpio ports for LCD */
-  /* lcdP = */ 1,
-  /* lcd = */ lcdDefault,
-  /* lcdC = */ 6,
   /***** -i: keyboard device to use for input */
   /* kindevP = */ 1,
   /* kindev = */ "fangopcb_keys",
@@ -37,7 +32,7 @@ static Cmdline cmd = {
   /* rindevP = */ 0,
   /* rindev = */ (char*)0,
   /* rindevC = */ 0,
-  /***** -ng: do not input device for exclusive use */
+  /***** -ng: do not nograb keyboard device for exclusive use */
   /* nograbP = */ 0,
   /***** -url: base url for mashctld state */
   /* urlP = */ 1,
@@ -744,18 +739,15 @@ checkDoubleHigher(char *opt, double *values, int count, double min)
 void
 usage(void)
 {
-  fprintf(stderr,"%s","   [-bd] [-lcd lcd] [-i kindev] [-r rindev] [-ng] [-url url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-p pidfile] [-u username] [-rs] [-rh]\n");
+  fprintf(stderr,"%s","   [-bd] [-i kindev] [-r rindev] [-ng] [-url url] [-dbg] [-n] [-l lang] [-b banner] [-mc messagecat] [-p pidfile] [-u username] [-rs] [-rh]\n");
   fprintf(stderr,"%s","      non-browser client for mashctld using a HD44780U compatible LCD and 4 keys on GPIO-ports\n");
   fprintf(stderr,"%s","     -bd: run Program as a daemon in background\n");
-  fprintf(stderr,"%s","    -lcd: gpio ports for LCD\n");
-  fprintf(stderr,"%s","          6 int values\n");
-  fprintf(stderr,"%s","          default: `4' `7' `8' `23' `24' `25'\n");
   fprintf(stderr,"%s","      -i: keyboard device to use for input\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","          default: `fangopcb_keys'\n");
   fprintf(stderr,"%s","      -r: rotary encoder device to use for input\n");
   fprintf(stderr,"%s","          1 char* value\n");
-  fprintf(stderr,"%s","     -ng: do not input device for exclusive use\n");
+  fprintf(stderr,"%s","     -ng: do not nograb keyboard device for exclusive use\n");
   fprintf(stderr,"%s","    -url: base url for mashctld state\n");
   fprintf(stderr,"%s","          1 char* value\n");
   fprintf(stderr,"%s","          default: `http://localhost'\n");
@@ -788,14 +780,6 @@ parseCmdline(int argc, char **argv)
   for(i=1, cmd.argc=1; i<argc; i++) {
     if( 0==strcmp("-bd", argv[i]) ) {
       cmd.daemonP = 1;
-      continue;
-    }
-
-    if( 0==strcmp("-lcd", argv[i]) ) {
-      int keep = i;
-      cmd.lcdP = 1;
-      i = getIntOpts(argc, argv, i, &cmd.lcd, 6, 6);
-      cmd.lcdC = i-keep;
       continue;
     }
 

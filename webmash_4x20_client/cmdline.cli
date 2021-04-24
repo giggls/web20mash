@@ -11,13 +11,11 @@ Usage {non-browser client for mashctld using a HD44780U compatible LCD and 4 key
 
 Flag -bd daemon {run Program as a daemon in background}
 
-Int -lcd lcd {gpio ports for LCD} -d 4 7 8 23 24 25 -c 6 6
-
 String -i kindev {keyboard device to use for input} -d "fangopcb_keys"
 
 String -r rindev {rotary encoder device to use for input}
 
-Flag -ng nograb {do not input device for exclusive use}
+Flag -ng nograb {do not nograb keyboard device for exclusive use}
 
 String -url url {base url for mashctld state} -d "http://localhost"
 
@@ -37,5 +35,3 @@ String -u username {username to switch to, when run as root} -d webmash
 
 Flag -rs ems_stirrer {electromagnetic sensitivity workaroud:\n          force display reset on stirring device state change}
 Flag -rh ems_heater {electromagnetic sensitivity workaroud:\n          force display reset on heating device state change}
-
-

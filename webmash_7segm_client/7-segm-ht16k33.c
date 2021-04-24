@@ -16,6 +16,7 @@ IO-functions for adafruit HT16K33 7-segment display
 #include <stdint.h>
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#include <i2c/smbus.h>
 #include "cmdline.h"
 
 extern Cmdline *cmd;

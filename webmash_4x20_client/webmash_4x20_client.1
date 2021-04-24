@@ -11,7 +11,7 @@
 .\" it edited by clig, remove the respective pair of cligPart-lines.
 .\"
 .\" cligPart TITLE
-.TH "webmash_4x20_client" 1 "2021-04-04" "Clig-manuals" "Programmer's Manual"
+.TH "webmash_4x20_client" 1 "2021-04-20" "Clig-manuals" "Programmer's Manual"
 .\" cligPart TITLE end
 
 .\" cligPart NAME
@@ -23,7 +23,6 @@ webmash_4x20_client \- non-browser client for mashctld using a HD44780U compatib
 .SH SYNOPSIS
 .B webmash_4x20_client
 [-bd]
-[-lcd lcd]
 [-i kindev]
 [-r rindev]
 [-ng]
@@ -44,12 +43,6 @@ webmash_4x20_client \- non-browser client for mashctld using a HD44780U compatib
 .SH OPTIONS
 .IP -bd
 run Program as a daemon in background.
-.IP -lcd
-gpio ports for LCD,
-.br
-6 Int values.
-.br
-Default: `4' `7' `8' `23' `24' `25'
 .IP -i
 keyboard device to use for input,
 .br
@@ -61,7 +54,7 @@ rotary encoder device to use for input,
 .br
 1 String value
 .IP -ng
-do not input device for exclusive use.
+do not nograb keyboard device for exclusive use.
 .IP -url
 base url for mashctld state,
 .br
