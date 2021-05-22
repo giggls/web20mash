@@ -8,25 +8,23 @@
           __overlay__ {
              keypad: fangopcb_keys {
                 compatible = "gpio-keys";
-                #address-cells = <1>;
-                #size-cells = <0>;
 		autorepeat;
-                button@22 {
+                button-22 {
                    label = "fangopcb Menu";
                    linux,code = <28>;
                    gpios = <&gpio 22 1>;
                 };
-                button@10 {
+                button-10 {
                    label = "fangopcb down";
                    linux,code = <108>;
                    gpios = <&gpio 10 1>;
                 };
-                button@9 {
+                button-9 {
                    label = "fangopcb up";
                    linux,code = <103>;
                    gpios = <&gpio 9 1>;
                 };
-                button@11 {
+                button-11 {
                    label = "fangopcb enter";
                    linux,code = <14>;
                    gpios = <&gpio 11 1>;
