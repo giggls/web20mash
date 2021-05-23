@@ -99,8 +99,9 @@ static int menustate=MSTATE_PSTATE;
 // the menu displayed bevore the current one
 static int previous_menu=-1;
 
-/* symbol 0x7e ist right arrow in HD44780U charset */
-static char right_arrow[2]={0x7e,'\0'};
+/* custom generated selection arrow */
+static char right_arrow[2]="\1";
+static char left_arrow[2]="\2";
 
 // variables for network information menus
 char ifnames[MAXINTERFACES][21];
@@ -115,6 +116,31 @@ char lcdbanner[21];
 // /dev/lcd ESCAPE sequences
 #define CURSOROFF "\x1b[Lc"
 #define CLEARHOME "\f"
+
+#define ARROW_RIGHT 1
+#define ARROW_LEFT 2
+#define ENTER_SYMBOL 3
+#define THERMOMETER_SYMBOL 4
+#define FAN_SYMBOL 5
+
+/*
+
+Symbol generator available at:
+
+https://maxpromer.github.io/LCD-Character-Creator/
+
+*/
+
+static char* symbols[8] = {
+"1F1F1F1F1F1F1F1F",
+"10181c1e1e1c1810",
+"0103070F0F070301",
+"01010105091F0804",
+"040A0A0A0A11110E",
+"001B1B041B1B0000",
+"1F1F1F1F1F1F1F1F",
+"1F1F1F1F1F1F1F1F"
+};
 
 /* clig command line Parameters*/  
 Cmdline *cmd;
@@ -177,16 +203,32 @@ void gotoxy(int lcd_fd,unsigned x,unsigned y) {
   write(lcd_fd,scratch,strlen(scratch));
 }
 
+void define_symbol(int lcd_fd, char codenum, char *data) {
+  char command[23];
+  command[22]='\0';
+  strncpy(&command[0],"\33[LG",5);
+  command[4]=codenum+48;
+  strncpy(&command[5],data,17);
+  command[21]=';';
+  write(lcd_fd,&command[0],22);
+}
+
 void displayPstate() {
-  char scratch[21];
+  // 21 is enough but this silences the compiler warnings
+  char scratch[27];
   
   debug("LCD: drawing Pstate Info Menu\n");
   // clear if previous menu has been of another type
   if (previous_menu != MSTATE_PSTATE)
   write(lcd_fd,CLEARHOME,strlen(CLEARHOME));
-  gotoxy(lcd_fd,7,0);
+  gotoxy(lcd_fd,0,0);
   
-  snprintf(scratch,21,"%s%cC",pstate.curtemp,0xdf);
+  snprintf(scratch,26,"       %s\337C       ",pstate.curtemp);
+  scratch[20]='\0';
+  // add icons for heating and stiring device if active
+  if (pstate.rstate[0]==1) scratch[0]=THERMOMETER_SYMBOL;
+  if (pstate.rstate[1]==1) scratch[19]=FAN_SYMBOL;
+
   write(lcd_fd,scratch,strlen(scratch));
   gotoxy(lcd_fd,0,2);
   if (pstate.mpstate==0 || pstate.mpstate >8) {
@@ -280,7 +322,7 @@ void draw_selection_menu(struct s_menusettings *settings) {
     // break if menu is shorter than LCD_ROWS
     if (i>=settings->numitems) break;
     if (settings->arrow) {
-      gotoxy(lcd_fd,2,i-settings->start_pos);
+      gotoxy(lcd_fd,1,i-settings->start_pos);
     } else {
       gotoxy(lcd_fd,0,i-settings->start_pos);
     }
@@ -289,7 +331,9 @@ void draw_selection_menu(struct s_menusettings *settings) {
   }
   if (settings->arrow) {
     gotoxy(lcd_fd,0,settings->arrow_pos);
-    write(lcd_fd,right_arrow,strlen(right_arrow));
+    write(lcd_fd,right_arrow,1);
+    gotoxy(lcd_fd,19,settings->arrow_pos);
+    write(lcd_fd,left_arrow,1);
   }
 }
 
@@ -810,6 +854,9 @@ int main(int argc, char **argv) {
       setuid(pw->pw_uid);
     }
   }
+  
+  // define all 8 custom characters
+  for (int i=0;i<8;i++) define_symbol(lcd_fd,i,symbols[i]);
   
   // turn cursor off
   write(lcd_fd,CURSOROFF,strlen(CURSOROFF));

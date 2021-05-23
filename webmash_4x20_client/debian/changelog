@@ -1,4 +1,10 @@
-webmash4x20client (1.4.3) unstable; urgency=medium
+webmash4x20client (1.5.1) unstable; urgency=medium
+
+  * Add a few custom symbols and change menu order
+
+ -- Sven Geggus <sven-debian@geggus.net>  Sun, 23 May 2021 22:02:12 +0200
+
+webmash4x20client (1.5.0) unstable; urgency=medium
 
   * A Version with support for rotary encoder and kernel device driver
     istead of WiringPi

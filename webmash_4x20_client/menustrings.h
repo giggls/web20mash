@@ -37,5 +37,5 @@
 
 #define IFNOTFOUND gettext_noop("No active Interface")
 
-// 3* arrow left
-#define MENU_UP "\x7F\x7F\x7F"
+// User defined Enter like symbol
+#define MENU_UP "\3                \3"
