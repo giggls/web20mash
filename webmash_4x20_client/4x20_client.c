@@ -213,6 +213,15 @@ void define_symbol(int lcd_fd, char codenum, char *data) {
   write(lcd_fd,&command[0],22);
 }
 
+void lcdReset(int lcd_fd) {
+  char scratch[21];
+  snprintf(scratch,21,"\x1b[LI\x1b[Lb\x1b[Lc");
+  write(lcd_fd,scratch,strlen(scratch));
+  
+  // (re)define all 8 custom characters
+  for (int i=0;i<8;i++) define_symbol(lcd_fd,i,symbols[i]);
+}
+
 void displayPstate() {
   // 21 is enough but this silences the compiler warnings
   char scratch[27];
@@ -618,7 +627,7 @@ static size_t updateDisplayCallback(void *contents, size_t size, size_t nmemb, v
     if ((cmd->ems_heaterP && (1==old_rstate[0]+pstate.rstate[0])) || (cmd->ems_stirrerP && (1==old_rstate[1]+pstate.rstate[1]))) {
       debug("electromagnetic sensitivity workaround:\ndetected relay state change forcing display reset!\n");
       forced_reset=1;
-      //lcdReset(lcdHandle);
+      lcdReset(lcd_fd);
     } else {
       forced_reset=0;
     }    
@@ -854,9 +863,8 @@ int main(int argc, char **argv) {
       setuid(pw->pw_uid);
     }
   }
-  
-  // define all 8 custom characters
-  for (int i=0;i<8;i++) define_symbol(lcd_fd,i,symbols[i]);
+
+  lcdReset(lcd_fd);  
   
   // turn cursor off
   write(lcd_fd,CURSOROFF,strlen(CURSOROFF));
@@ -1005,7 +1013,7 @@ int main(int argc, char **argv) {
                   if (lastkey==XKEY_ENTER) {
                     debug("pressed key KEY_ENTER+KEY_MENU\n");
                     debug("LCD: calling reset!!!\n");
-                    //lcdReset(lcdHandle);
+                    lcdReset(lcd_fd);
                     if (menustate==MSTATE_PSTATE)
                       displayPstate();
                     else

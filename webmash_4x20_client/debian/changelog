@@ -1,3 +1,9 @@
+webmash4x20client (1.5.2) unstable; urgency=medium
+
+  * Bugfix release for call to lcdReset
+
+ -- Sven Geggus <sven-debian@geggus.net>  Tue, 03 Jan 2023 15:39:50 +0100
+
 webmash4x20client (1.5.1) unstable; urgency=medium
 
   * Add a few custom symbols and change menu order
