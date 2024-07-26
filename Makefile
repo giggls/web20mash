@@ -93,3 +93,5 @@ install: debian/copyright mashctld gpio_buzzer
 	cp plugins/*.so $(DESTDIR)/lib/web20mash/plugins
 	chmod 755 $(DESTDIR)/lib/web20mash/plugins/*.so
 	
+deb:
+	dpkg-buildpackage -b -uc

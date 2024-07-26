@@ -28,7 +28,7 @@ hardware.html.%: hardware.html.%.in
 about.html.%: about.html.%.in
 	./update-version.sh about.html.$*
 
-images/thermometer.png: images/thermometer.xcf
+images/thermometer.png:
 	xcf2png -o images/thermometer.png images/thermometer.xcf thermometer legend
 
 images/sudpfanne.png: images/sudpfanne.svg
