@@ -15,7 +15,7 @@ all: l10n/de/LC_MESSAGES/$(PROG).mo $(PROG) fangopcb.dtbo
 %.o: %.c
 	$(CC) $(EXTRAFLAGS) $(CFLAGS) -c $<
 
-cmdline.c: cmdline.cli
+cmdline.c:
 	clig $<
 
 $(PROG):$(OBJ)

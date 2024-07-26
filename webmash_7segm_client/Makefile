@@ -11,7 +11,7 @@ all:webmash_7segm_client
 %.o: %.c
 	$(CC) $(EXTRAFLAGS) $(CFLAGS) -c $<
 
-cmdline.c: cmdline.cli
+cmdline.c:
 	clig $<
 
 webmash_7segm_client:$(OBJ)
