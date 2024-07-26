@@ -32,9 +32,6 @@ gpio_buzzer:gpio_buzzer.o
 find_ow_devs:find_ow_devs.o
 	 $(CC) -o $@ $(CFLAGS) $< -lowcapi
 
-cmdline.c:
-	clig cmdline.cli
-
 ifinfo: ifinfo.c gen_json_4interfaces.c
 	$(CC) -static -o $@ ifinfo.c gen_json_4interfaces.c -lmnl
 
