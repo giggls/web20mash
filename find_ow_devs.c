@@ -84,7 +84,7 @@ static void outSensorActuatorList() {
 
 int main(int argc, char **argv) {
   if (argc != 2)
-    die("usage: %s owparms\n\nExamples:\n%s -u\n%s localhost:4304\n%s --i2c=/dev/i2c-1:18 --no_PPM\n",
+    die("usage: %s owparms\n\nExamples:\n%s -u\n%s localhost:4304\n%s --i2c=/dev/i2c-1:18\n",
         argv[0],argv[0],argv[0],argv[0]);
 
   if(OW_init(argv[1]) !=0)
