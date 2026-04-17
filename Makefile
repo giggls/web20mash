@@ -27,7 +27,7 @@ mashctld:$(OBJ)
 	$(CC) -o $@ $(CFLAGS) $(OBJ) $(LDLIBS)
 
 gpio_buzzer:gpio_buzzer.o
-	$(CC) -o $@ $(CFLAGS) $<
+	$(CC) -o $@ $(CFLAGS) $< -lgpiod
 
 find_ow_devs:find_ow_devs.o
 	 $(CC) -o $@ $(CFLAGS) $< -lowcapi
