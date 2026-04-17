@@ -259,7 +259,7 @@ static void sync_response_free_callback (void *cls) {
   free (cls);
 }
 
-static int answer_to_connection (void *cls,
+static enum MHD_Result answer_to_connection (void *cls,
 				 struct MHD_Connection *connection,
 				 const char *url,
 				 const char *method,
