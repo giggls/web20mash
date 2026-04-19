@@ -1,3 +1,10 @@
+web20mash (4.3.0) UNRELEASED; urgency=medium
+
+  * Build for Raspberry Pi OS 13
+  * use libgpiod 2 for GPIO instead of sysfs
+
+ -- Sven Geggus <sven-debian@geggus.net>  Sun, 19 Apr 2026 12:42:52 +0200
+
 web20mash (4.2.2) buster; urgency=medium
 
   * Get rid of cdbs
