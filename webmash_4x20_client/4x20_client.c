@@ -3,9 +3,9 @@
 display_client
 
 Non-webbrowser client for mashctld using a HD44780U compatible LCD
-and 4 keys connected via GPIO
+and 4 keys connected via GPIO or a rotary encoder
 
-(c) 2013-2021 Sven Geggus <sven-web20mash@geggus.net>
+(c) 2013-2026 Sven Geggus <sven-web20mash@geggus.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -694,7 +694,15 @@ int main(int argc, char **argv) {
   if (cmd->langP) {
     setlocale(LC_ALL, cmd->lang);
   } else {
-    setlocale(LC_ALL, "");
+    char *lc_all;
+    // try to get language from environment variable
+    lc_all=getenv("LC_ALL");
+    if (lc_all == NULL) lc_all=getenv("LANG");
+    if (lc_all == NULL) {
+      setlocale(LC_ALL, "");
+    } else {
+      setlocale(LC_ALL, lc_all);
+    }
   }
   // always use . as decimal separator
   setlocale(LC_NUMERIC,"C");
