@@ -2,7 +2,7 @@ Source: web20mash
 Section: misc
 Priority: extra
 Maintainer: Sven Geggus <sven-web20mash@geggus.net>
-Build-Depends: debhelper, libmicrohttpd-dev (>=1.0.0), libow-dev (>=2.8p13+dfsg1-5), libmagic-dev, wget, libmnl-dev, libcurl4-gnutls-dev|libcurl4-openssl-dev
+Build-Depends: debhelper, libmicrohttpd-dev (>=1.0.0), libow-dev (>=2.8p13+dfsg1-5), libmagic-dev, wget, libmnl-dev, libcurl4-gnutls-dev|libcurl4-openssl-dev, libgpiod-dev (>=2.1.0), libi2c-dev
 Standards-Version: 3.8.4
 Homepage: <insert the upstream URL, if relevant>
 #Vcs-Git: git://git.debian.org/collab-maint/web20mash.git
