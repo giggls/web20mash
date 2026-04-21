@@ -53,7 +53,6 @@ install: all
 	mkdir -p $(DESTDIR)/share/man/man1
 	cp $(PROG).1 $(DESTDIR)/share/man/man1
 	chmod 644 $(DESTDIR)/share/man/man1/$(PROG).1
-	install -m 755 wm4x20c.init $(CFDIR)/init.d/wm4x20c
 	install -m 755 wm4x20c.service $(SERVICEDIR)
 	mkdir -p $(BOOT)/overlays
 	install fangopcb.dtbo $(BOOT)/overlays/
