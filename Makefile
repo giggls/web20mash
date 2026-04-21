@@ -67,7 +67,6 @@ install: debian/copyright mashctld gpio_buzzer
 	mkdir -p $(DESTDIR)/lib/web20mash/plugins
 	mkdir -p $(CFDIR)
 	mkdir -p $(CFDIR)/sudoers.d
-	mkdir -p $(CFDIR)/init.d
 	mkdir -p $(DESTDIR)/bin
 	mkdir -p $(SERVICEDIR)
 	cp -a webdata/*.html.?? $(DESTDIR)/share/web20mash/
@@ -86,7 +85,6 @@ install: debian/copyright mashctld gpio_buzzer
 	install -m 755 webmash_7segm_client/webmash_7segm_client $(DESTDIR)/bin
 	install -m 755 mashctld_readonly_root_script.sh $(DESTDIR)/bin
 	install -m 755 web20mash.sudo $(CFDIR)/sudoers.d/web20mash
-	install -m 755 webmash.init $(CFDIR)/init.d/webmash
 	install -m 755 webmash.service $(SERVICEDIR)
 	chmod 755 $(DESTDIR)/share/web20mash $(DESTDIR)/share/web20mash/images $(DESTDIR)/share/web20mash/js $(DESTDIR)/share/web20mash/css
 	chmod 644 $(DESTDIR)/share/web20mash/*/*

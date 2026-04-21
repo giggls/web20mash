@@ -20,15 +20,7 @@
 case "$1" in
     remove|upgrade|deconfigure)
 
-    initsys=$(readlink /sbin/init)
-    initsys=$(basename "$initsys")
-
-    if [ "x$initsys" = "xsystemd" ]; then
       systemctl stop webmash
-    else
-      /sbin/insserv -r webmash
-      /etc/init.d/webmash stop
-    fi
       sleep 4
       killall mashctld 2>/dev/null
     ;;
