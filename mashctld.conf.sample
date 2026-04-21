@@ -121,8 +121,8 @@ stirring_device_check = sispmctl -s
 # This actuator plugin uses actuators connected to linux gpio lines
 # set to output mode (useful e.g. on Raspberry Pi)
 [actuator_plugin_gpio]
-actuator=/sys/class/gpio/gpio25/value
-stirring_device=/sys/class/gpio/gpio26/value
+actuator_line=17
+stirring_line=27
 
 # This actuator plugin uses actuators connected to a owfs supported
 # 1-wire bus
