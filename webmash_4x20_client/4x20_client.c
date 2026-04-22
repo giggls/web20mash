@@ -235,8 +235,8 @@ void displayPstate() {
   snprintf(scratch,26,"       %s\337C       ",pstate.curtemp);
   scratch[20]='\0';
   // add icons for heating and stiring device if active
-  if (pstate.rstate[0]==1) scratch[0]=THERMOMETER_SYMBOL;
-  if (pstate.rstate[1]==1) scratch[19]=FAN_SYMBOL;
+  if (pstate.rstate[0]==1) scratch[19]=THERMOMETER_SYMBOL;
+  if (pstate.rstate[1]==1) scratch[0]=FAN_SYMBOL;
 
   write(lcd_fd,scratch,strlen(scratch));
   gotoxy(lcd_fd,0,2);
