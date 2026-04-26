@@ -1,4 +1,10 @@
-web20mash (4.3.0) UNRELEASED; urgency=medium
+web20mash (4.3.1) trixie; urgency=medium
+
+  * Recover support for TEMPer1 sensor
+
+ -- Sven Geggus <sven-debian@geggus.net>  Sun, 26 Apr 2026 14:50:14 +0200
+
+web20mash (4.3.0) trixie; urgency=medium
 
   * Build for Raspberry Pi OS 13
   * use libgpiod 2 for GPIO instead of sysfs

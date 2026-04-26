@@ -48,7 +48,7 @@ owparms=--i2c=/dev/i2c-1:18 --no_PPM
 # initial must temperature for control
 tempMust=0
 
-# sensor device type (currently "onewire" or "TEMPer1"):
+# sensor device type (currently "onewire" or "temper1"):
 # additional parameters like device ID  must be specified
 # in the plugin section of the particular type
 sensor=onewire

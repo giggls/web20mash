@@ -6,7 +6,7 @@ SRC = external.c gpio.c onewire.c searchXfile.c
 	$(CC) -c -o $@ $< -I. -I.. -fPIC $(CFLAGS)
 	
 ALL: actuator_dummy.so actuator_external.so actuator_onewire.so actuator_gpio.so \
-	sensor_dummy.so sensor_onewire.so # sensor_temper1.so
+	sensor_dummy.so sensor_onewire.so sensor_temper1.so
 
 actuator_dummy.so: actuator_dummy.o
 	$(CC) -shared -o $@ $?
@@ -26,8 +26,8 @@ sensor_dummy.so: sensor_dummy.o
 sensor_onewire.so: sensor_onewire.o
 	$(CC) -shared -o $@ $? -lowcapi
 
-#sensor_temper1.so: sensor_temper1.o
-#	$(CC) -lusb -shared -o $@ $?
+sensor_temper1.so: sensor_temper1.o
+	$(CC) -shared -o $@ $? -lusb-1.0
 
 clean:
 	rm -f *.o *.so
