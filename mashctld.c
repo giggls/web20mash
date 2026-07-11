@@ -738,7 +738,7 @@ static enum MHD_Result answer_to_connection (void *cls,
       if (getdevinfo) {
         int len;
         debug("querying device information from plugins\n");
-
+#ifndef NOSENSACT
         len=sprintf(mdata,"[\n");
         len+=plugin_sensor_getInfo_call(4096-len,mdata+len);
         sprintf(mdata+len-1,",\n");
@@ -750,7 +750,34 @@ static enum MHD_Result answer_to_connection (void *cls,
           len+=plugin_actuator_getInfo_call[1](1,4096-len,mdata+len);
         }
         len+=sprintf(mdata+len,"]\n");
-        
+#else
+        len=sprintf(mdata, "[\n\
+  {\n\
+    \"type\": \"sensor\",\n\
+    \"name\": \"sensor_dummy\",\n\
+    \"device\": \"dummy_sensor\",\n\
+    \"error\": \"0\",\n\
+    \"devlist\": [\"dummy\"]\n\
+  },\n\
+  {\n\
+    \"type\": \"actuator\",\n\
+    \"name\": \"actuator_dummy\",\n\
+    \"device\": \"dummy0\",\n\
+    \"error\": \"0\",\n\
+    \"devlist\": [\"dummy0\",\"dummy1\"],\n\
+    \"options\": []\n\
+  },\n\
+  {\n\
+    \"type\": \"actuator\",\n\
+    \"name\": \"actuator_dummy\",\n\
+    \"device\": \"dummy1\",\n\
+    \"error\": \"0\",\n\
+    \"devlist\": [\"dummy0\",\"dummy1\"],\n\
+    \"options\": []\n\
+  }\n\
+]\n"
+        );
+#endif    
 	response = MHD_create_response_from_buffer(len,
 						 (void*) mdata,
 						 MHD_RESPMEM_MUST_FREE);
@@ -1255,7 +1282,6 @@ int main(int argc, char **argv) {
       die("The key/certificate files could not be read.\n");
   }
   
-#ifndef BINDLOCALHOST
   // start up to 4 server instances (HTTP/IPv4, HTTP/IPv6, HTTPS/IPv4, HTTPS/IPv6)
   for (i=0; i<4;i++) dv[i]=NULL;
   if ((cfopts.tlsport == 0) || !cfopts.tlsonly) {
@@ -1317,25 +1343,6 @@ int main(int argc, char **argv) {
       die("error starting HTTPS-server\n");
   
   }
-#else
-  {
-  dv[V6]=NULL;
-  dv[V4TLS]=NULL;
-  dv[V6TLS]=NULL;
-  struct sockaddr_in daemon_ip_addr;
-  memset (&daemon_ip_addr, 0, sizeof (struct sockaddr_in));
-  daemon_ip_addr.sin_family = AF_INET;
-  daemon_ip_addr.sin_port = htons(cfopts.port);
-  
-  inet_pton(AF_INET, "127.0.0.1", &daemon_ip_addr.sin_addr);
-  dv[V4] = MHD_start_daemon(MHD_NO,
-                         cfopts.port,
-                         NULL, NULL, &answer_to_connection, PAGE,
-                         MHD_OPTION_SOCK_ADDR, &daemon_ip_addr, MHD_OPTION_END);
-  if (dv[V4] == NULL)
-    die("error starting http server on 127.0.0.1:%d\n",cfopts.port);
-  }
-#endif
 
   /* this is a security feature, we do not want to run as root
      at least on a non-embedded system, so we change our userid

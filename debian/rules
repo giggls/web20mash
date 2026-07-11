@@ -6,7 +6,10 @@
 #export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
 #DEB_MAKE_CLEAN_TARGET    := clean
-#DEB_MAKE_BUILD_TARGET    := all DESTDIR=$(DEB_DESTDIR)/usr CFDIR=$(DEB_DESTDIR)/etc PREFIX=/usr SERVICEDIR=$(DEB_DESTDIR)/lib/systemd/system
+# build simulation only binary
+#SIMUL := '-simul'
+DEB_MAKE_BUILD_TARGET     := all$(SIMUL) DESTDIR=$(DEB_DESTDIR)/usr CFDIR=$(DEB_DESTDIR)/etc PREFIX=/usr SERVICEDIR=$(DEB_DESTDIR)/lib/systemd/system
+DEB_MAKE_INSTALL_TARGET   := install$(SIMUL)
 
 DEB_DESTDIR=$(CURDIR)/debian/web20mash
 
@@ -14,4 +17,5 @@ DEB_DESTDIR=$(CURDIR)/debian/web20mash
 	dh $@  
 
 override_dh_auto_install:
-	make install DESTDIR=$(DEB_DESTDIR)/usr CFDIR=$(DEB_DESTDIR)/etc SERVICEDIR=$(DEB_DESTDIR)/lib/systemd/system PREFIX=/usr
+	make $(DEB_MAKE_INSTALL_TARGET) DESTDIR=$(DEB_DESTDIR)/usr CFDIR=$(DEB_DESTDIR)/etc SERVICEDIR=$(DEB_DESTDIR)/lib/systemd/system PREFIX=/usr
+

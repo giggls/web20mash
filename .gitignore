@@ -18,3 +18,5 @@ TODO
 *.debhelper
 *.buildinfo
 debian/debhelper-build-stamp
+Containerfile
+mashctld.simul
