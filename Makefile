@@ -124,9 +124,14 @@ deb:
 deb-simul:
 	SIMUL='-simul' dpkg-buildpackage -b -uc
 
+prepare-container: deb
+	./prepare-container.sh web20mash
+
 container: deb
-	./build-container.sh
+	podman build -t web20mash .
 
-container-simul: deb-simul
-	./build-container.sh web20mash-simul
+prepare-simul: deb-simul
+	./prepare-container.sh web20mash-simul	
 
+container-simul: prepare-simul
+	podman build -t web20mash-simul .

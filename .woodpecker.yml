@@ -1,7 +1,14 @@
 steps:
+- name: prepare
+  image: debian:13
+  commands:
+    - apt-get update
+    - apt-get install -y make
+    - make prepare-simul
 - name: buildandpublish
   image: docker.io/woodpeckerci/plugin-kaniko
   settings:
+    dockerfile: Containerfile
     reproducible: true
     username:
       from_secret: docker.private.gnuher.de.username
