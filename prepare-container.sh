@@ -8,5 +8,5 @@ rm -f $(basename $PACKAGE)
 
 sed -e "s/%PACKAGENAME%/$(basename $PACKAGE)/g" Containerfile.in >Containerfile
 
-ln $PACKAGE .
+mv $PACKAGE .
 

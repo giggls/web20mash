@@ -3,7 +3,8 @@ steps:
   image: debian:13
   commands:
     - apt-get update
-    - apt-get install -y make
+    - apt-get install -y make dpkg-dev devscripts
+    - yes | mk-build-deps -i
     - make prepare-simul
 - name: buildandpublish
   image: docker.io/woodpeckerci/plugin-kaniko
