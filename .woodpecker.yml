@@ -1,0 +1,11 @@
+steps:
+- name: buildandpublish
+  image: docker.io/woodpeckerci/plugin-kaniko
+  settings:
+    reproducible: true
+    username:
+      from_secret: docker.private.gnuher.de.username
+    password:
+      from_secret: docker.private.gnuher.de.password
+    repo: web20mash
+    registry: docker.private.gnuher.de
